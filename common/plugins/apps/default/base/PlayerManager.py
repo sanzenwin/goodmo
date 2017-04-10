@@ -56,8 +56,9 @@ class PlayerManager(KBEngine.Base):
         def callback(baseRef, dbid, wasActive):
             try:
                 if wasActive:
-                    raise RunException("PlayerManager::callback:(%i): this guarantee is in world now! %s, %s, %s, %s" % (
-                        guaranteeID, self.id, baseRef, dbid, wasActive))
+                    raise RunException(
+                        "PlayerManager::callback:(%i): this guarantee is in world now! %s, %s, %s, %s" % (
+                            guaranteeID, self.id, baseRef, dbid, wasActive))
                 if baseRef is None:
                     raise RunException(
                         "PlayerManager::callback:(%i): the guarantee you wanted to created is not exist! %s, %s, %s, %s" % (
@@ -69,7 +70,7 @@ class PlayerManager(KBEngine.Base):
                             guaranteeID, self.id, baseRef, dbid, wasActive))
                 if self.isDestroyed:
                     raise RunException("PlayerManager::callback:(%i): i dead! %s, %s, %s, %s" % (
-                    guaranteeID, self.id, baseRef, dbid, wasActive))
+                        guaranteeID, self.id, baseRef, dbid, wasActive))
             except RunException as e:
                 ERROR_MSG(e.args[0])
                 self.loadGuarantee(guaranteeID)
