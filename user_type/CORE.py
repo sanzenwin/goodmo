@@ -4,6 +4,10 @@ import Math
 from kbe.protocol import Type
 
 
+def client(obj):
+    return PythonType.dump(obj)
+
+
 class PythonType(object):
     @classmethod
     def dump(cls, v):
