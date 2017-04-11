@@ -131,8 +131,7 @@ class Redis(object):
                     redis_set.add(r)
         redis_map = dict()
         for r in redis_set:
-            pool = redis.ConnectionPool(host=r[0], port=r[1], db=r[2])
-            redis_map[r] = redis.Redis(connection_pool=pool)
+            redis_map[r] = redis.StrictRedis(host=r[0], port=r[1], db=r[2])
         for k, v in objects.items():
             for m, n in v.items():
                 proxy = getattr(cls, k, None) or cls.Proxy()

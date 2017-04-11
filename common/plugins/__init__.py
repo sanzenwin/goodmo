@@ -20,6 +20,8 @@ class Plugins(object):
 
     r = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
 
+    empty = object()
+
     apps = OrderedDict()
 
     app = dict(
@@ -159,7 +161,11 @@ class Plugins(object):
                                 d[k] = vv
         for c, s in del_attr.items():
             for a in s:
-                delattr(c, a)
+                g = getattr(c, a)
+                if isinstance(g, AnyProperty) and g.get("defaultValue", cls.empty) is not cls.empty:
+                    setattr(c, a, g["defaultValue"])
+                else:
+                    delattr(c, a)
 
         for c, p in properties.items():
             setattr(c, "properties", p)
