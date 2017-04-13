@@ -140,7 +140,8 @@ class Type(object, metaclass=MetaOfType):
     def dict_types_str(cls):
         s = ""
         for dict_type in cls.dict_types:
-            s += '\n' + dict_type.protocol_str()
+            if dict_type.check_t_type(dict_type):
+                s += '\n' + dict_type.protocol_str()
         return s
 
     @classmethod

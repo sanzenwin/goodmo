@@ -170,6 +170,8 @@ class Plugins(object):
         for c, p in properties.items():
             setattr(c, "properties", p)
 
+        Type.finish_dict_type()
+
     @classmethod
     def init__user_type(cls):
         user_types = []
@@ -179,7 +181,6 @@ class Plugins(object):
                     user_types.append(m)
         for m in user_types:
             importlib.import_module(m)
-        Type.finish_dict_type()
 
     @classmethod
     def init__charge(cls):

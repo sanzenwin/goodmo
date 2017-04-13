@@ -5,7 +5,13 @@ from kbe.protocol import Type
 
 
 def client(obj):
-    return PythonType.dump(obj)
+    return obj.dump(obj)
+
+
+def client_list(lst):
+    if lst:
+        return ArrayType(lst[0].__class__).dump(lst)
+    return []
 
 
 class PythonType(object):
@@ -102,7 +108,8 @@ class MetaOfDictType(type):
         user_type_class = None
 
         def createObjFromDict(self, dct):
-            return self.user_type_class().createFromDict(dct)
+            cls = self.user_type_class.real_type(dct)
+            return cls().createFromDict(dct)
 
         def getDictFromObj(self, obj):
             return obj.asDict()
@@ -130,7 +137,7 @@ class MetaOfDictType(type):
             assert x.origin, "%s should have alias!" % x
             return mcs.default_value_map[x.origin.str()]
         for cls in Type.dict_types:
-            if type_name == cls.protocol_name():
+            if cls.check_t_type(cls) and type_name == cls.protocol_name():
                 return cls().client if t.is_client_type() else cls()
         assert False, "MetaOfDictType::get_t_value: type error %s" % type_name
 
@@ -139,7 +146,7 @@ class MetaOfDictType(type):
         type_name = t.final_x().str()
         c = None
         for cls in Type.dict_types:
-            if type_name == cls.protocol_name():
+            if cls.check_t_type(cls) and type_name == cls.protocol_name():
                 c = cls
                 break
         assert c, "MetaOfDictType::get_r_value: type error %s" % type_name
@@ -149,30 +156,41 @@ class MetaOfDictType(type):
             depth -= 1
         return c
 
+    @classmethod
+    def check_t_type(mcs, cls):
+        return cls.__name__[0] == 'T' and "A" <= cls.__name__[1] <= "Z"
+
     def __new__(mcs, name, bases, kwargs):
         dict_type_cls = super().__new__(mcs, name, bases, kwargs)
         if mcs.is_base(dict_type_cls):
             mcs.base_list.append(dict_type_cls)
-        else:
+        elif "generic_key" not in dict_type_cls.__dict__ and hasattr(dict_type_cls, "generic_key"):
+            dict_type_cls.generic_init()
+        elif mcs.check_t_type(dict_type_cls):
             pickler_cls = type(name[1:] + 'Pickler', (mcs.DictTypePickler,), dict(user_type_class=dict_type_cls))
             module = importlib.import_module(dict_type_cls.__module__)
             setattr(module, dict_type_cls.pickler_name(), pickler_cls())
-            Type.add_dict_type(dict_type_cls)
+        Type.add_dict_type(dict_type_cls)
         return dict_type_cls
 
     def apply_by_properties_type(cls):
-        cls.properties = {k: cls.get_t_value(v) for k, v in cls.properties_type.items()}
+        cls.properties = {k: (getattr(cls, k, None) or cls.get_t_value(v)) for k, v in cls.properties_type.items()}
         cls.client_fields = {k: cls.client_map[v.str()] for k, v in cls.properties_type.items() if
                              v.client_flag and v.str() not in Type.dicts}
         cls.recursion_fields = {k: cls.get_r_value(v) for k, v in cls.properties_type.items() if
                                 v.final_x().str() in Type.dicts}
         cls.recursion_fields.update(cls.client_fields)
 
+        cls.dict_properties = dict(client_flag=cls.client_flag)
+        for c in reversed(cls.mro()):
+            properties = getattr(c, 'properties', dict())
+            cls.dict_properties.update(properties)
+
     def pickler_name(cls):
         return "instance_%s" % cls.protocol_name().lower()
 
     def protocol_name(cls):
-        assert cls.__name__[0] == 'T' or cls.is_base(cls), \
+        assert cls.check_t_type(cls) or cls.is_base(cls), \
             "(%s)DictType's subclass name should started by 'T'!" % cls.__name__
         s = ""
         for c in cls.__name__[1:]:
@@ -205,6 +223,7 @@ class DictType(object, metaclass=MetaOfDictType):
     properties_type = dict()
     client_fields = dict()
     recursion_fields = dict()
+    dict_properties = dict()
 
     def __init__(self, **kwargs):
         for k, v in self.dict_properties.items():
@@ -214,8 +233,10 @@ class DictType(object, metaclass=MetaOfDictType):
         return json.dumps(self.asRecursionDict(), indent=1)
 
     def __deepcopy__(self, memo):
+        return self.clone()
+
+    def clone(self):
         obj = self.__class__()
-        obj.client_flag = self.client_flag
         obj.createFromRecursionDict(self.asRecursionDict())
         return obj
 
@@ -229,14 +250,9 @@ class DictType(object, metaclass=MetaOfDictType):
         self.client_flag = False
         return self
 
-    @property
-    def dict_properties(self):
-        if not hasattr(self, '_dict_properties'):
-            self._dict_properties = dict()
-            for cls in reversed(self.__class__.__mro__):
-                properties = getattr(cls, 'properties', dict())
-                self._dict_properties.update(properties)
-        return self._dict_properties
+    @classmethod
+    def real_type(cls, dct):
+        return cls
 
     def asDict(self):
         ret = dict()
@@ -282,3 +298,16 @@ class DictType(object, metaclass=MetaOfDictType):
     @classmethod
     def load(cls, v):
         return cls().createFromDict(v)
+
+
+class GenericDictType(DictType):
+    generic_key = None
+    generic_map = None
+
+    @classmethod
+    def generic_init(cls):
+        cls.generic_map[getattr(cls, cls.generic_key)] = cls
+
+    @classmethod
+    def real_type(cls, dct):
+        return cls.generic_map[dct[cls.generic_key]]

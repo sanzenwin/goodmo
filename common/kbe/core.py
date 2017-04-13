@@ -5,7 +5,7 @@ import redis
 import KBEngine
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.xml import Xml
-from .singals import redis_discover
+from .signals import redis_discover
 try:
     import cPickle as pickle
 except ImportError:
