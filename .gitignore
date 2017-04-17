@@ -94,3 +94,4 @@ ENV/
 /entity_defs/*
 /common/plugins/proxy/base/*
 /common/plugins/proxy/cell/*
+/common/plugins/proxy/bots/*

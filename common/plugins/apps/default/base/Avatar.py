@@ -11,6 +11,7 @@ from kbe.protocol import Property, Client, ClientMethod, Type
 class Avatar(KBEngine.Proxy, Object, TimerProxy, Event.Container):
     client = Client(
         onRetCode=ClientMethod(Type.UINT8),
+        onLogOnAttempt=ClientMethod(Type.BOOL, Type.UNICODE)
     )
 
     databaseID = Property(Req=True)

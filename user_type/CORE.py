@@ -181,7 +181,7 @@ class MetaOfDictType(type):
                                 v.final_x().str() in Type.dicts}
         cls.recursion_fields.update(cls.client_fields)
 
-        cls.dict_properties = dict(client_flag=cls.client_flag)
+        cls.dict_properties = dict()
         for c in reversed(cls.mro()):
             properties = getattr(c, 'properties', dict())
             cls.dict_properties.update(properties)

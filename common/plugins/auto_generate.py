@@ -6,6 +6,7 @@ import codecs
 import shutil
 import KBEngine
 from collections import OrderedDict
+from common.utils import get_module_list
 from kbe.log import SHOW_MSG
 from kbe.protocol import Type, Property, Parent, Implements, Volatile, Properties, Client, Base, Cell, Entity, Entities
 from plugins.conf import SettingsEntity, EqualizationMixin
@@ -219,6 +220,7 @@ class EntityOfCell(ObjectOfCell):
 
 class Plugins(object):
     HOME_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    BOTS_DIR = os.path.join(HOME_DIR, "bots")
     BASE_DIR = os.path.join(HOME_DIR, "base")
     CELL_DIR = os.path.join(HOME_DIR, "cell")
     DEF_DIR = os.path.join(HOME_DIR, "entity_defs")
@@ -228,6 +230,7 @@ class Plugins(object):
 
     PLUGINS_PROXY_BASE_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "base")
     PLUGINS_PROXY_CELL_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "cell")
+    PLUGINS_PROXY_BOTS_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "bots")
 
     r = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
     apps = OrderedDict()
@@ -235,6 +238,8 @@ class Plugins(object):
     m_entities = OrderedDict()
     m_entity_avatars = OrderedDict()
     m_entity_plugins = dict(base={}, cell={})
+
+    m_entity_client_methods = dict()
 
     entities = {
         ObjectOfBase: {},
@@ -259,19 +264,7 @@ class %(cls_name)s(%(cls_name)sBase):
 
     @classmethod
     def get_module_list(cls, *path):
-        target_dir = os.path.join(*path)
-        try:
-            for filename in os.listdir(target_dir):
-                pathname = os.path.join(target_dir, filename)
-                if os.path.isfile(pathname):
-                    if filename.endswith('.py') and filename != "__init__.py" and cls.r.match(filename[:-3]):
-                        yield filename[:-3]
-                else:
-                    if cls.r.match(filename) and filename != "__pycache__" and os.path.isfile(
-                            os.path.join(pathname, '__init__.py')):
-                        yield filename
-        except FileNotFoundError:
-            pass
+        return get_module_list(*path)
 
     @classmethod
     def init_entity(cls, app):
@@ -322,7 +315,9 @@ class %(cls_name)s(%(cls_name)sBase):
         entity_cls = dict(base=EntityOfBase, cell=EntityOfCell)[app]
         for m, v in cls.m_entities.items():
             module = importlib.import_module(v)
-            entity_cls(getattr(module, m))
+            c = getattr(module, m)
+            entity_cls(c)
+            cls.init_clients(c)
 
     @classmethod
     def switch_to_cell(cls):
@@ -497,13 +492,70 @@ class %(cls_name)s(%(cls_name)sBase):
             cls.write(
                 cls.template_proxy_str % dict(app="base", cls_name=k, plugin_name=cls.m_entity_plugins["base"][k]),
                 cls.PLUGINS_PROXY_BASE_DIR, k + ".py")
-            if k in cls.entities[EntityOfCell]:
-                cls.write(
-                    cls.template_proxy_str % dict(app="cell", cls_name=k, plugin_name=cls.m_entity_plugins["cell"][k]),
-                    cls.PLUGINS_PROXY_CELL_DIR, k + ".py")
+        for k in cls.m_entity_plugins["cell"].keys():
+            cls.write(
+                cls.template_proxy_str % dict(app="cell", cls_name=k, plugin_name=cls.m_entity_plugins["cell"][k]),
+                cls.PLUGINS_PROXY_CELL_DIR, k + ".py")
 
         Type.finish_dict_type()
         cls.write(Type.str(), cls.DEF_DIR, 'alias.xml')
+
+    @classmethod
+    def init_clients(cls, entity_class):
+        dct = cls.m_entity_client_methods.setdefault(entity_class.__name__, OrderedDict())
+        for c in entity_class.mro():
+            client = c.__dict__.get("client", {})
+            if isinstance(client, Client):
+                for k in sorted(client):
+                    dct[k] = client[k]
+
+    @classmethod
+    def init__bots(cls):
+        entity_client_methods = {k: v for k, v in cls.m_entity_client_methods.items() if v}
+        template_proxy_str = """# -*- coding: utf-8 -*-
+from %(plugin_name)s.%(app)s.%(cls_name)s import %(cls_name)s as %(cls_name)sBase
+
+
+class Client(object):
+    %(method_list_str)s
+
+class %(cls_name)s(%(cls_name)sBase, Client):
+    pass
+"""
+        template_player_str = """# -*- coding: utf-8 -*-
+from %(plugin_name)s.%(app)s.%(cls_name)s import %(cls_name)s as %(cls_name)sBase, \
+Player%(cls_name)s as Player%(cls_name)sBase
+
+
+class Client(object):
+    %(method_list_str)s
+
+class %(cls_name)s(%(cls_name)sBase, Client):
+    pass
+
+
+class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
+    pass
+"""
+
+        def find_plugins(name):
+            try:
+                module = importlib.import_module("bots.%s" % name)
+            except ImportError:
+                assert False, "[%s] client class should be added!" % name
+            return module.__file__.split(os.sep)[-3]
+
+        for entity_name, client_methods in entity_client_methods.items():
+            plugin_name = find_plugins(entity_name)
+            method = "def %s(%s):\r\n        pass"
+            method_list = []
+            for k, v in client_methods.items():
+                method_list.append(method % (k, ", ".join(["self"] + ["arg%s" % (i + 1) for i in range(len(v))])))
+            method_list_str = ("\r\n\r\n    ".join(method_list) if method_list else "pass") + "\r\n"
+
+            cls.write((template_player_str if entity_name == "Avatar" else template_proxy_str) %
+                      dict(app="bots", cls_name=entity_name, plugin_name=plugin_name, method_list_str=method_list_str),
+                      cls.PLUGINS_PROXY_BOTS_DIR, "%s.py" % entity_name)
 
     @classmethod
     def discover(cls):
@@ -512,5 +564,6 @@ class %(cls_name)s(%(cls_name)sBase):
         cls.init__settings()
         cls.init__user_type()
         cls.init__entity()
+        cls.init__bots()
         SHOW_MSG("""==============\n""")
         SHOW_MSG("""plugins completed!!""")

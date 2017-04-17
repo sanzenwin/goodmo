@@ -1,3 +1,3 @@
 from common.dispatcher import Signal
 
-redis_discover = Signal()
+plugins_completed = Signal()

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodExposed, Client, ClientMethod
+from common.utils import ExpiredData, TodayData, WeekData, MonthData, YearData
 
 
 class Asset(object):
@@ -16,6 +17,16 @@ class Asset(object):
         Flags=Property.Flags.BASE_AND_CLIENT,
         Persistent=Property.Persistent.true
     )
+
+    data = Property(
+        Type=Type.PYTHON,
+        Flags=Property.Flags.BASE,
+        Default={},
+        Persistent=Property.Persistent.true
+    )
+
+    def __init__(self):
+        super().__init__()
 
     def modifyName(self, changed):
         self.name = changed

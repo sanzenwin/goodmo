@@ -19,7 +19,8 @@ class Guarantee(object):
 
     def __init__(self):
         super().__init__()
-        self.createGuarantee()
+        if self.databaseID and not self.guaranteeID:
+            self.createGuarantee()
 
     @Event.method
     def onGuaranteeCreated(self):
@@ -44,13 +45,11 @@ class Guarantee(object):
                 self.writeToDB(callback)
             else:
                 self.destroy()
-
-        if self.databaseID and not self.guaranteeID:
-            guarantee = KBEngine.createBaseLocally('Guarantee', {})
-            if guarantee:
-                guarantee.writeToDB(callback)
-            else:
-                self.destroy()
+        guarantee = KBEngine.createBaseLocally('Guarantee', {})
+        if guarantee:
+            guarantee.writeToDB(callback)
+        else:
+            self.destroy()
 
     def onLogin(self):
         Equalization.PlayerManager(self.guaranteeID).run(self.guaranteeID, [])

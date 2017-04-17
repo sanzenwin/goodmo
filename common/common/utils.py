@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+import re
 import types
 import time
 import datetime
@@ -24,15 +26,19 @@ class ServerTime(object):
 
     def stamp(self, to=None):
         if to is None:
-            to = datetime.datetime.now()
+            to = self.now()
         delta = to - self.genesis
         return int(delta.total_seconds() * 1000)
+
+    @staticmethod
+    def now():
+        return datetime.datetime.now()
 
     def get_date(self, stamp):
         return self.genesis + datetime.timedelta(milliseconds=float(stamp))
 
-    def make_time(self, *args):
-        return datetime.datetime(*args)
+    def make_time(self, *args, **kwargs):
+        return datetime.datetime(*args, **kwargs)
 
 
 server_time = ServerTime()
@@ -122,3 +128,127 @@ def load_class(path):
 
     return klass
 
+
+module_name_re = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
+
+
+def get_module_list(*path):
+    target_dir = os.path.join(*path)
+    try:
+        for filename in os.listdir(target_dir):
+            pathname = os.path.join(target_dir, filename)
+            if os.path.isfile(pathname):
+                if filename.endswith('.py') and filename != "__init__.py" and module_name_re.match(filename[:-3]):
+                    yield filename[:-3]
+            else:
+                if module_name_re.match(filename) and filename != "__pycache__" and os.path.isfile(
+                        os.path.join(pathname, '__init__.py')):
+                    yield filename
+    except FileNotFoundError:
+        pass
+
+
+def get_module_list_m(module_name):
+    module = import_module(module_name)
+    path = os.path.dirname(module.__file__)
+    return get_module_list(path)
+
+
+class Data(object):
+    def __init__(self, data):
+        self.data = data
+
+    def get(self, key, default=None):
+        return self.data.get(key, default)
+
+    def set(self, key, value):
+        self.data[key] = value
+
+    def pop(self, key, default=None):
+        return self.data.pop(key, default)
+
+
+class StampData(Data):
+    def __init__(self, data):
+        super().__init__(data)
+        self.__stamp__ = self.data.setdefault("__stamp__", dict())
+
+    def _is_expired(self, key):
+        stamp = self.__stamp__.get(key)
+        if stamp is None:
+            return False
+        return not self.check_stamp(key, stamp)
+
+    def check_stamp(self, key, stamp):
+        raise NotImplementedError()
+
+    def set(self, key, value, stamp=True):
+        super().set(key, value)
+        if stamp:
+            self.__stamp__[key] = server_time.stamp()
+
+    def get(self, key, default=None):
+        if self._is_expired(key):
+            self.pop(key)
+            return default
+        return super().get(key, default)
+
+    def pop(self, key, default=None):
+        self.__stamp__.pop(key, None)
+        return super().pop(key, default)
+
+
+class ExpiredData(StampData):
+    def __init__(self, data):
+        super().__init__(data)
+        self.__expired__ = self.data.setdefault("__expired__", dict())
+
+    def check_stamp(self, key, stamp):
+        expired = self.__expired__.get(key)
+        if expired is not None and expired + stamp <= server_time.stamp():
+            return False
+        return True
+
+    def set(self, key, value, expired=None):
+        has_expired = expired is not None
+        if has_expired:
+            self.__expired__[key] = expired
+        super().set(key, value, has_expired)
+
+    def pop(self, key, default=None):
+        self.__expired__.pop(key, None)
+        return super().pop(key, default)
+
+
+class DateDate(StampData):
+    def check_stamp(self, key, stamp):
+        date = server_time.get_date(stamp)
+        now = server_time.now()
+        return self.check_date(date, now)
+
+    def check_date(self, date, now):
+        raise NotImplementedError()
+
+
+class TodayData(DateDate):
+    def check_date(self, date, now):
+        return date.year == now.year and date.month == now.month and date.day == now.day
+
+
+class WeekData(DateDate):
+    week_seconds = 7 * 24 * 60 * 60
+
+    def check_date(self, date, now):
+        if now.isoweekday() < date.isoweekday():
+            return False
+        return (now - date).total_seconds() < self.week_seconds
+
+
+class MonthData(DateDate):
+    def check_date(self, date, now):
+        return date.year == now.year and date.month == now.month
+
+
+class YearData(DateDate):
+    def check_date(self, date, now):
+        return date.year == now.year

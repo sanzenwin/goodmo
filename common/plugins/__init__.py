@@ -4,9 +4,11 @@ import re
 import importlib
 import KBEngine
 from collections import OrderedDict
+from common.utils import get_module_list
 from kbe.core import Equalization, KBEngineProxy, Redis
 from kbe.protocol import Type, Property, AnyProperty, Volatile, Base, Cell, Client
 from plugins.conf import SettingsEntity, EqualizationMixin
+from plugins.conf.signals import plugins_completed
 
 
 class Plugins(object):
@@ -28,7 +30,7 @@ class Plugins(object):
         baseapp="base",
         cellapp="cell",
         interfaces="interface",
-        bots="bot",
+        bots="bots",
         loginapp="login"
     )[KBEngine.component]
 
@@ -38,24 +40,12 @@ class Plugins(object):
 
     @classmethod
     def get_module_list(cls, *path):
-        target_dir = os.path.join(*path)
-        try:
-            for filename in os.listdir(target_dir):
-                pathname = os.path.join(target_dir, filename)
-                if os.path.isfile(pathname):
-                    if filename.endswith('.py') and filename != "__init__.py" and cls.r.match(filename[:-3]):
-                        yield filename[:-3]
-                else:
-                    if cls.r.match(filename) and filename != "__pycache__" and os.path.isfile(
-                            os.path.join(pathname, '__init__.py')):
-                        yield filename
-        except FileNotFoundError:
-            pass
+        return get_module_list(*path)
 
     @classmethod
     def init__sys_path(cls):
         sys.path = [cls.PLUGINS_OUTER_DIR, cls.PLUGINS_DIR] + sys.path
-        if cls.app in ("base", "cell"):
+        if cls.app in ("base", "cell", "bots"):
             sys.path.insert(0, cls.PLUGINS_PROXY_DIR)
         settings = importlib.import_module("settings")
         for name in reversed(settings.install_apps):
@@ -68,8 +58,10 @@ class Plugins(object):
                 assert False, "can not find the app [%s] by name" % name
         for name, path in cls.apps.items():
             sys.path.append(path)
-            app_path = os.path.join(path, cls.app)
-            sys.path.append(app_path)
+            if cls.app in ("base", "cell", "bots"):
+                app_path = os.path.join(path, cls.app)
+                if os.path.exists(app_path):
+                    sys.path.append(app_path)
 
     @classmethod
     def init__settings(cls):
@@ -181,6 +173,7 @@ class Plugins(object):
                     user_types.append(m)
         for m in user_types:
             importlib.import_module(m)
+        Type.finish_dict_type()
 
     @classmethod
     def init__charge(cls):
@@ -203,7 +196,7 @@ class Plugins(object):
     def discover(cls):
         cls.init__sys_path()
         cls.init__settings()
-        if cls.app in ("base", "cell", "bot"):
+        if cls.app in ("base", "cell", "bots"):
             cls.init__user_type()
         if cls.app in ("base", "cell"):
             cls.init__entity()
@@ -212,7 +205,7 @@ class Plugins(object):
         Redis.discover()
         if cls.app == "interface":
             cls.init__charge()
-
+        plugins_completed.send(sender=cls)
 
 if os.getenv("KBE_PLUGINS_AUTO_GENERATE"):
     from .auto_generate import Plugins

@@ -5,7 +5,6 @@ import redis
 import KBEngine
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.xml import Xml
-from .signals import redis_discover
 try:
     import cPickle as pickle
 except ImportError:
@@ -137,4 +136,3 @@ class Redis(object):
                 proxy = getattr(cls, k, None) or cls.Proxy()
                 proxy.attach(m, redis_map[n])
                 setattr(cls, k, proxy)
-        redis_discover.send(sender=cls)
