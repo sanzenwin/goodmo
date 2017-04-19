@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import KBEngine
 from kbe.log import DEBUG_MSG
-from kbe import status_code
 
 
 class Account(KBEngine.Entity):
@@ -18,13 +17,12 @@ class Account(KBEngine.Entity):
         DEBUG_MSG("Account:onReqAvatarList::%s" % (list(infos)))
         self.base.reqCreateAvatar()
 
-    def onCreateAvatarResult(self, retcode, info):
+    def onCreateAvatarResult(self, info):
         """
         defined method.
         """
-        DEBUG_MSG("Account:onCreateAvatarResult::%s, retcode=%i" % (dict(info), retcode))
-        if retcode == status_code.RESULT_CREATE_AVATAR_SUCCESS:
-            self.base.reqSelectAvatar(info["dbid"])
+        DEBUG_MSG("Account:onCreateAvatarResult::%s" % dict(info))
+        self.base.reqSelectAvatar(info["dbid"])
 
     def onRemoveAvatar(self, dbid):
         """

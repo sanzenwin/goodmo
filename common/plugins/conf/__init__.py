@@ -50,3 +50,7 @@ class EqualizationMixin(object):
     def init_equalization_format(self):
         item = self.equalization_list()[0]
         self.equalization_format = self.__class__.__name__ + "_" + "_".join(["%s"] * len(item))
+
+
+class Str(str):
+    pass

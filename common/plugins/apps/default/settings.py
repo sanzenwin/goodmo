@@ -1,4 +1,5 @@
-from plugins.conf import SettingsNode, SettingsEntity, EqualizationMixin
+# coding:utf-8
+from plugins.conf import Str, SettingsNode, SettingsEntity, EqualizationMixin
 
 
 class PlayerManager(SettingsEntity, EqualizationMixin):
@@ -28,3 +29,7 @@ class Avatar(SettingsEntity):
 
 class Guarantee(SettingsEntity):
     delayDestroySeconds = 5 * 60
+
+
+class RetCode(SettingsNode):
+    ACCOUNT_CREATE_AVATAR_TOP_LIMIT = Str("角色数目已达到上限，无法创建新的角色")

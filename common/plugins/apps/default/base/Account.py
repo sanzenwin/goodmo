@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import KBEngine
 import settings
+import ret_code
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
-from kbe import status_code
 from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodExposed, Client, ClientMethod
 from kbe.xml import settings_kbengine
 from DEFAULT import TAvatarInfo
@@ -17,8 +17,9 @@ class Account(KBEngine.Proxy):
     )
 
     client = Client(
+        onRetCode=ClientMethod(Type.RET_CODE(Type.UINT16)),
         onReqAvatarList=ClientMethod(Type.AVATAR_INFO.array),
-        onCreateAvatarResult=ClientMethod(Type.UINT8, Type.AVATAR_INFO),
+        onCreateAvatarResult=ClientMethod(Type.AVATAR_INFO),
         onRemoveAvatar=ClientMethod(Type.DBID)
     )
 
@@ -72,7 +73,7 @@ class Account(KBEngine.Proxy):
     def reqCreateAvatar(self):
         if len(self.avatars) >= settings.Account.avatarTotalLimit:
             DEBUG_MSG("Account[%i].reqCreateAvatar: character=%s.\n" % (self.id, self.avatars))
-            self.client.onCreateAvatarResult(status_code.RESULT_CREATE_AVATAR_TOP_LIMIT, TAvatarInfo())
+            self.client.onRetCode(ret_code.ACCOUNT_CREATE_AVATAR_TOP_LIMIT)
             return
         # 根据前端类别给出出生点
         # Reference: http://www.kbengine.org/docs/programming/clientsdkprogramming.html, client types
@@ -153,6 +154,6 @@ class Account(KBEngine.Proxy):
             self.writeToDB()
             avatar.destroy()
             if self.client:
-                self.client.onCreateAvatarResult(status_code.RESULT_CREATE_AVATAR_SUCCESS, avatarinfo)
+                self.client.onCreateAvatarResult(avatarinfo)
         else:
             ERROR_MSG("Account::__onAvatarSaved:(%i): failed!" % self.id)

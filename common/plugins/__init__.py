@@ -7,7 +7,7 @@ from collections import OrderedDict
 from common.utils import get_module_list
 from kbe.core import Equalization, KBEngineProxy, Redis
 from kbe.protocol import Type, Property, AnyProperty, Volatile, Base, Cell, Client
-from plugins.conf import SettingsEntity, EqualizationMixin
+from plugins.conf import SettingsNode, EqualizationMixin
 from plugins.conf.signals import plugins_completed
 
 
@@ -35,6 +35,7 @@ class Plugins(object):
     )[KBEngine.component]
 
     PLUGINS_PROXY_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", app)
+    PLUGINS_PROXY_COMMON_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "common")
 
     interface_handle_list = []
 
@@ -46,7 +47,7 @@ class Plugins(object):
     def init__sys_path(cls):
         sys.path = [cls.PLUGINS_OUTER_DIR, cls.PLUGINS_DIR] + sys.path
         if cls.app in ("base", "cell", "bots"):
-            sys.path.insert(0, cls.PLUGINS_PROXY_DIR)
+            sys.path = [cls.PLUGINS_PROXY_COMMON_DIR, cls.PLUGINS_PROXY_DIR] + sys.path
         settings = importlib.import_module("settings")
         for name in reversed(settings.install_apps):
             for path in sys.path:
@@ -70,7 +71,7 @@ class Plugins(object):
             try:
                 settings = importlib.import_module(name)
                 for k, v in settings.__dict__.items():
-                    if isinstance(v, type) and issubclass(v, SettingsEntity):
+                    if isinstance(v, type) and issubclass(v, SettingsNode):
                         base_list = settings_dict.setdefault(k, [])
                         if v not in base_list:
                             base_list.append(v)

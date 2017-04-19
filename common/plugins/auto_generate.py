@@ -6,10 +6,10 @@ import codecs
 import shutil
 import KBEngine
 from collections import OrderedDict
-from common.utils import get_module_list
+from common.utils import get_module_list, load_module_attr
 from kbe.log import SHOW_MSG
 from kbe.protocol import Type, Property, Parent, Implements, Volatile, Properties, Client, Base, Cell, Entity, Entities
-from plugins.conf import SettingsEntity, EqualizationMixin
+from plugins.conf import SettingsNode, EqualizationMixin
 
 for i in range(len(sys.path)):
     sys.path[i] = os.path.normpath(sys.path[i])
@@ -231,6 +231,7 @@ class Plugins(object):
     PLUGINS_PROXY_BASE_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "base")
     PLUGINS_PROXY_CELL_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "cell")
     PLUGINS_PROXY_BOTS_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "bots")
+    PLUGINS_PROXY_COMMON_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "common")
 
     r = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
     apps = OrderedDict()
@@ -395,8 +396,8 @@ class %(cls_name)s(%(cls_name)sBase):
                 assert False, "can not find the app [%s] by name" % name
         for name, path in cls.apps.items():
             sys.path.append(path)
-            app_path = os.path.join(path, "base")
-            sys.path.append(app_path)
+            sys.path.append(os.path.join(path, "base"))
+            sys.path.append(os.path.join(path, "plugins"))
 
     @classmethod
     def init__settings(cls):
@@ -405,7 +406,7 @@ class %(cls_name)s(%(cls_name)sBase):
             try:
                 settings = importlib.import_module(name)
                 for k, v in settings.__dict__.items():
-                    if isinstance(v, type) and issubclass(v, SettingsEntity):
+                    if isinstance(v, type) and issubclass(v, SettingsNode):
                         base_list = settings_dict.setdefault(k, [])
                         if v not in base_list:
                             base_list.append(v)
@@ -558,6 +559,13 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
                       cls.PLUGINS_PROXY_BOTS_DIR, "%s.py" % entity_name)
 
     @classmethod
+    def init__apps(cls):
+        for name in cls.apps:
+            main = load_module_attr("%s.plugins.setup.main" % name)
+            if main:
+                main(cls, name)
+
+    @classmethod
     def discover(cls):
         cls.clear_dir()
         cls.init__sys_path()
@@ -565,5 +573,6 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
         cls.init__user_type()
         cls.init__entity()
         cls.init__bots()
+        cls.init__apps()
         SHOW_MSG("""==============\n""")
         SHOW_MSG("""plugins completed!!""")

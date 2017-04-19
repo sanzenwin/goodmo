@@ -95,3 +95,4 @@ ENV/
 /common/plugins/proxy/base/*
 /common/plugins/proxy/cell/*
 /common/plugins/proxy/bots/*
+/common/plugins/proxy/common/*

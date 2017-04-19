@@ -109,24 +109,15 @@ Event.Container = Container
 del Container
 
 
-def load_class(path):
-    """
-    Loads class from path.
-    """
-
-    mod_name, klass_name = path.rsplit('.', 1)
+def load_module_attr(path):
+    mod_name, attr_name = path.rsplit('.', 1)
 
     try:
         mod = import_module(mod_name)
-    except AttributeError as e:
-        raise Exception('Error importing {0}: "{1}"'.format(mod_name, e))
+    except ImportError:
+        return None
 
-    try:
-        klass = getattr(mod, klass_name)
-    except AttributeError:
-        raise Exception('Module "{0}" does not define a "{1}" class'.format(mod_name, klass_name))
-
-    return klass
+    return getattr(mod, attr_name, None)
 
 
 module_name_re = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
