@@ -74,7 +74,7 @@ class Event(object):
             return target
 
         event = {}
-        for c in target.mro():
+        for c in reversed(target.mro()):
             for n, f in c.__dict__.items():
                 if n in event_name_set and getattr(f, "__proxy__", None) is not cls:
                     lst = event.setdefault(n, [])
