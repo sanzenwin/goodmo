@@ -18,6 +18,12 @@ class Asset(object):
         Persistent=Property.Persistent.true
     )
 
+    avatarCode = Property(
+        Type=Type.UNICODE,
+        Flags=Property.Flags.BASE_AND_CLIENT,
+        Persistent=Property.Persistent.true
+    )
+
     data = Property(
         Type=Type.PYTHON,
         Flags=Property.Flags.BASE,
