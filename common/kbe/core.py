@@ -18,6 +18,19 @@ class MetaOfEqualization(type):
 
 class Equalization(object, metaclass=MetaOfEqualization):
     class Proxy(object):
+        class InvalidProxy(object):
+            def __init__(self, entity_name, keys):
+                self.entity_name = entity_name
+                self.keys = keys
+                self.call = ""
+
+            def __getattr__(self, item):
+                self.call = item
+                return self.proxy
+
+            def proxy(self, *args, **kwargs):
+                ERROR_MSG("Equalization error call: %s, %s, %s" % (self.entity_name, self.keys, self.call))
+
         def __init__(self, entity):
             super().__init__()
             self.entity = entity
@@ -25,7 +38,7 @@ class Equalization(object, metaclass=MetaOfEqualization):
         def __call__(self, *keys):
             path = self.entity.equalization(*keys)
             key = self.entity.equalization_format % tuple(path)
-            return KBEngine.globalData["Equalization"][key]
+            return KBEngine.globalData["Equalization"].get(key, self.InvalidProxy(self.entity.__class__.__name__, keys))
 
         def path(self, *keys):
             return self.entity.equalization(*keys)
