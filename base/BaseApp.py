@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import KBEngine
+from common.asyncHttp import AsyncHttp
 from kbe.utils import TimerProxy
 from kbe.core import Equalization
 
@@ -17,8 +18,10 @@ class BaseApp(KBEngine.Base, TimerProxy):
 
     def __init__(self):
         super().__init__()
-        # self.addTimerProxy(settings.BaseApp.asyncHttpTickFrequency, AsyncHttp.run_frame,
-        #                    settings.BaseApp.asyncHttpTickFrequency)
+        import settings
+        if settings.BaseApp.enableAsyncHttp:
+            self.addTimerProxy(settings.BaseApp.asyncHttpTickFrequency, AsyncHttp.run_frame,
+                               settings.BaseApp.asyncHttpTickFrequency)
 
         if self.groupIndex == 1:
             KBEngine.createBaseLocally('Equalization', dict())
