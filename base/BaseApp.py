@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import KBEngine
+import settings
 from common.asyncHttp import AsyncHttp
 from kbe.utils import TimerProxy
 from kbe.core import Equalization
@@ -18,7 +19,6 @@ class BaseApp(KBEngine.Base, TimerProxy):
 
     def __init__(self):
         super().__init__()
-        import settings
         if settings.BaseApp.enableAsyncHttp:
             self.addTimerProxy(settings.BaseApp.asyncHttpTickFrequency, AsyncHttp.run_frame,
                                settings.BaseApp.asyncHttpTickFrequency)

@@ -2,9 +2,6 @@
 import os
 from kbe.log import INFO_MSG
 
-"""
-"""
-
 
 def onDBMgrReady():
     """

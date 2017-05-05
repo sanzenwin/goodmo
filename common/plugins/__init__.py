@@ -210,3 +210,4 @@ class Plugins(object):
 
 if os.getenv("KBE_PLUGINS_AUTO_GENERATE"):
     from .auto_generate import Plugins
+Plugins.discover()

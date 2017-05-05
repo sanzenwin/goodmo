@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import KBEngine
 from kbe.log import INFO_MSG
 
 """

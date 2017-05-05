@@ -4,6 +4,7 @@ import re
 import importlib
 import codecs
 import shutil
+import subprocess
 import KBEngine
 from collections import OrderedDict
 from common.utils import get_module_list, load_module_attr
@@ -225,6 +226,8 @@ class Plugins(object):
     CELL_DIR = os.path.join(HOME_DIR, "cell")
     DEF_DIR = os.path.join(HOME_DIR, "entity_defs")
     COMMON_DIR = os.path.join(HOME_DIR, "common")
+    THIRD_PACKAGE_DIR = os.path.join(os.path.dirname(os.path.dirname(HOME_DIR)), "kbe", "res", "scripts", "common",
+                                     "Lib", "site-packages")
     PLUGINS_DIR = os.path.join(COMMON_DIR, "plugins", "apps")
     PLUGINS_OUTER_DIR = os.path.join(os.path.dirname(HOME_DIR), "apps")
 
@@ -400,6 +403,13 @@ class %(cls_name)s(%(cls_name)sBase):
             sys.path.append(os.path.join(path, "plugins"))
 
     @classmethod
+    def init__third_package(cls):
+        install = []
+        for name in cls.apps:
+            install.extend(list(load_module_attr("%s.settings.__third_package__" % name) or []))
+        os.system("pip3.4 install -t %s %s" % (cls.THIRD_PACKAGE_DIR, " ".join(set(install))))
+
+    @classmethod
     def init__settings(cls):
         settings_dict = {}
         for name in ["%s.settings" % name for name in cls.apps] + ["plugins.conf.global_settings"]:
@@ -567,12 +577,16 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
 
     @classmethod
     def discover(cls):
-        cls.clear_dir()
-        cls.init__sys_path()
-        cls.init__settings()
-        cls.init__user_type()
-        cls.init__entity()
-        cls.init__bots()
-        cls.init__apps()
+        if os.getenv("KBE_PLUGINS_AUTO_GENERATE__ONLY_INSTALL_PACKAGE"):
+            cls.init__sys_path()
+            cls.init__third_package()
+        else:
+            cls.clear_dir()
+            cls.init__sys_path()
+            cls.init__settings()
+            cls.init__user_type()
+            cls.init__entity()
+            cls.init__bots()
+            cls.init__apps()
         SHOW_MSG("""==============\n""")
         SHOW_MSG("""plugins completed!!""")

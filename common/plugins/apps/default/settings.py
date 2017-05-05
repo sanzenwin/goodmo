@@ -1,6 +1,8 @@
 # coding:utf-8
 from plugins.conf import Str, SettingsNode, SettingsEntity, EqualizationMixin
 
+__third_package__ = "tornado", "hiredis", "redis", "pymysql"
+
 
 class PlayerManager(SettingsEntity, EqualizationMixin):
     equalization__mod_base = 1

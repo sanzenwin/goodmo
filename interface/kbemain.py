@@ -2,14 +2,13 @@
 import os
 import json
 import KBEngine
+import plugins
+import settings
 from kbe.log import INFO_MSG, ERROR_MSG
 from kbe.xml import settings_kbengine
 from common.asyncHttp import AsyncHttp
-from plugins import Plugins
 
-Plugins.discover()
 
-import settings
 """
 interfaces进程主要处理KBEngine服务端与第三方平台的接入接出工作。
 目前支持几种功能:

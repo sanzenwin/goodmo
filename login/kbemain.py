@@ -3,13 +3,12 @@ import os
 import json
 import uuid
 import KBEngine
+import plugins
+import settings
 from kbe.xml import settings_kbengine
 from kbe.log import INFO_MSG, ERROR_MSG
-from plugins import Plugins
 
-Plugins.discover()
 
-import settings
 """
 loginapp进程主要处理KBEngine服务端登陆、创建账号等工作。
 目前脚本支持几种功能:

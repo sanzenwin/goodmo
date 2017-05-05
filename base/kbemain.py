@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
+import plugins
 from BaseApp import BaseApp
 from kbe.log import DEBUG_MSG, INFO_MSG, WARNING_MSG, ERROR_MSG
-from plugins import Plugins
-
-Plugins.discover()
 
 
 def onBaseAppReady(isBootstrap):
