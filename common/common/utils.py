@@ -58,8 +58,10 @@ class Event(object):
     def open(cls, target):
         def bind(func_name):
             def proxy(self, *args, **kwargs):
+                ret = []
                 for func in new_target.__event__[func_name]:
-                    func(self, *args, **kwargs)
+                    ret.append(func(self, *args, **kwargs))
+                return ret
 
             proxy.__proxy__ = cls
             setattr(new_target, func_name, proxy)
