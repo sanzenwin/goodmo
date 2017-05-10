@@ -12,7 +12,7 @@ class Guarantee(object):
 
     guaranteeID = Property(
         Type=Type.DBID,
-        Flags=Property.Flags.BASE,
+        Flags=Property.Flags.BASE_AND_CLIENT,
         Persistent=Property.Persistent.true,
         Req=True
     )

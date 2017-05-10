@@ -4,18 +4,22 @@ import KBEngine
 import settings
 from common.asyncHttp import AsyncHttp
 from kbe.utils import TimerProxy
-from kbe.core import Equalization
+from kbe.core import Equalization, Database
 
 
 class BaseApp(KBEngine.Base, TimerProxy):
     @classmethod
     def onReadyForLogin(cls):
-        return 1.0 if Equalization.isCompleted() else 0.0
+        return 1.0 if Equalization.isCompleted() and Database.isCompleted() else 0.0
 
     @classmethod
-    def createBaseLocally(cls):
+    def onBaseAppReady(cls):
         KBEngine.createBaseLocally('BaseApp', dict(groupIndex=int(os.getenv("KBE_BOOTIDX_GROUP")),
                                                    globalIndex=int(os.getenv("KBE_BOOTIDX_GLOBAL"))))
+
+    @classmethod
+    def onInit(cls, isReload):
+        pass
 
     def __init__(self):
         super().__init__()
@@ -25,6 +29,7 @@ class BaseApp(KBEngine.Base, TimerProxy):
 
         if self.groupIndex == 1:
             KBEngine.createBaseLocally('Equalization', dict())
+            Database.discover()
         self.checkEqualizationTimerID = self.addTimerProxy(0.1, self.checkEqualization, 0.1)
 
     def checkEqualization(self):

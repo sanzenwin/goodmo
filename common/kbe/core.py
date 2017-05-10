@@ -2,9 +2,12 @@
 import os
 import importlib
 import redis
+import pymysql
 import KBEngine
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
-from kbe.xml import Xml
+from kbe.xml import Xml, settings_kbengine
+from kbe.signals import database_completed
+
 try:
     import cPickle as pickle
 except ImportError:
@@ -149,3 +152,26 @@ class Redis(object):
                 proxy = getattr(cls, k, None) or cls.Proxy()
                 proxy.attach(m, redis_map[n])
                 setattr(cls, k, proxy)
+
+
+class Database(object):
+    __taskID = 0
+    __taskSet = set()
+
+    @classmethod
+    def discover(cls):
+        database_completed.send(sender=cls)
+
+    @classmethod
+    def addTask(cls):
+        cls.__taskID += 1
+        cls.__taskSet.add(cls.__taskID)
+        return cls.__taskID
+
+    @classmethod
+    def completeTask(cls, taskID):
+        cls.__taskSet.remove(taskID)
+
+    @classmethod
+    def isCompleted(cls):
+        return not cls.__taskSet

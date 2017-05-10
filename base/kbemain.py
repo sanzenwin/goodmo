@@ -15,7 +15,7 @@ def onBaseAppReady(isBootstrap):
     INFO_MSG('onBaseAppReady: isBootstrap=%s, appID=%s, bootstrapGroupIndex=%s, bootstrapGlobalIndex=%s' % \
              (isBootstrap, os.getenv("KBE_COMPONENTID"), os.getenv("KBE_BOOTIDX_GROUP"),
               os.getenv("KBE_BOOTIDX_GLOBAL")))
-    BaseApp.createBaseLocally()
+    BaseApp.onBaseAppReady()
 
 
 def onReadyForLogin(isBootstrap):
@@ -49,6 +49,7 @@ def onInit(isReload):
     @type isReload: bool
     """
     INFO_MSG('onInit::isReload:%s' % isReload)
+    BaseApp.onInit(isReload)
 
 
 def onFini():

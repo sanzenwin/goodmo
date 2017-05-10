@@ -5,12 +5,13 @@ from kbe.protocol import Type
 
 
 def client(obj):
-    return obj.dump(obj)
+    return obj.dump(obj) if hasattr(obj, "dump") else PythonType.dump(obj)
 
 
 def client_list(lst):
     if lst:
-        return ArrayType(lst[0].__class__).dump(lst)
+        v = lst[0]
+        return ArrayType(v.__class__ if hasattr(v, "dump") else PythonType).dump(lst)
     return []
 
 
