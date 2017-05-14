@@ -145,7 +145,7 @@ class Redis(object):
             if hasattr(v, "redis"):
                 objects[k] = v.redis()
                 for r in objects[k].values():
-                    redis_set.add(r)
+                    redis_set.add(cls.dumps(r))
         if settings.BaseApp.enableAsyncio:
             cls.generateAsyncRedis(redis_set, objects)
         else:
@@ -156,15 +156,16 @@ class Redis(object):
         for k, v in objects.items():
             for m, n in v.items():
                 proxy = getattr(cls, k, None) or cls.Proxy()
-                proxy.attach(m, redis_map[n])
+                proxy.attach(m, redis_map[cls.dumps(n)])
                 setattr(cls, k, proxy)
         cls.Proxy.ready = True
 
     @classmethod
     def generateRedis(cls, redis_set, objects):
         redis_map = dict()
-        for r in redis_set:
-            redis_map[r] = redis.StrictRedis(host=r["host"], port=r["port"], db=r["db"], password=r.get("password"))
+        for p in redis_set:
+            r = cls.loads(p)
+            redis_map[p] = redis.StrictRedis(host=r["host"], port=r["port"], db=r["db"], password=r.get("password"))
         cls.attach(redis_map, objects)
 
     @classmethod
@@ -172,8 +173,9 @@ class Redis(object):
         @asyncio.coroutine
         def init_connections():
             redis_map = dict()
-            for r in redis_set:
-                redis_map[r] = yield from aioredis.create_redis((r["host"], r["port"]), db=r["db"],
+            for p in redis_set:
+                r = cls.loads(p)
+                redis_map[p] = yield from aioredis.create_redis((r["host"], r["port"]), db=r["db"],
                                                                 password=r.get("password"))
             cls.attach(redis_map, objects)
 
