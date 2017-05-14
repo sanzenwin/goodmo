@@ -245,3 +245,32 @@ class MonthData(DateDate):
 class YearData(DateDate):
     def check_date(self, date, now):
         return date.year == now.year
+
+
+class PerformanceWatcher(object):
+    def __init__(self, debug=True):
+        self.debug = debug
+        self.count = 1
+        self.last_count = 0
+        self.last_time = time.monotonic()
+        self._t0 = 0
+
+    def incr(self):
+        self.count += 1
+
+    def log_result(self):
+        if not self.debug:
+            return
+        print("\nlog_result: %sms\n" % ((time.monotonic() - self.last_time) / ((self.count - self.last_count) or 1) * 1e3))
+        self.last_count = self.count
+        self.last_time = time.monotonic()
+
+    def t0(self):
+        self._t0 = time.monotonic()
+
+    def log_t(self):
+        if not self.debug:
+            return
+        print((time.monotonic() - self._t0) * 1e3, "ms")
+        self.t0()
+

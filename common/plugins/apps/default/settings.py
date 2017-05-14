@@ -1,7 +1,7 @@
 # coding:utf-8
 from plugins.conf import Str, SettingsNode, SettingsEntity, EqualizationMixin
 
-__third_package__ = "tornado", "hiredis", "redis", "pymysql"
+__third_package__ = "tornado", "aioredis", "redis==2.9.0", "pymysql"
 
 
 class PlayerManager(SettingsEntity, EqualizationMixin):

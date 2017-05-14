@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 import os
+import asyncio
 import importlib
+import pickle
 import redis
-import pymysql
+import aioredis
 import KBEngine
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.xml import Xml, settings_kbengine
+from common.dispatcher import receiver
 from kbe.signals import database_completed
-
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+from plugins.conf.signals import plugins_completed
+from kbe.signals import baseapp_ready
 
 
 class MetaOfEqualization(type):
@@ -123,6 +123,8 @@ class KBEngineProxy(object):
 
 class Redis(object):
     class Proxy(object):
+        ready = False
+
         def attach(self, key, r):
             setattr(self, key, r)
 
@@ -144,14 +146,42 @@ class Redis(object):
                 objects[k] = v.redis()
                 for r in objects[k].values():
                     redis_set.add(r)
-        redis_map = dict()
-        for r in redis_set:
-            redis_map[r] = redis.StrictRedis(host=r[0], port=r[1], db=r[2])
+        if settings.BaseApp.enableAsyncio:
+            cls.generateAsyncRedis(redis_set, objects)
+        else:
+            cls.generateRedis(redis_set, objects)
+
+    @classmethod
+    def attach(cls, redis_map, objects):
         for k, v in objects.items():
             for m, n in v.items():
                 proxy = getattr(cls, k, None) or cls.Proxy()
                 proxy.attach(m, redis_map[n])
                 setattr(cls, k, proxy)
+        cls.Proxy.ready = True
+
+    @classmethod
+    def generateRedis(cls, redis_set, objects):
+        redis_map = dict()
+        for r in redis_set:
+            redis_map[r] = redis.StrictRedis(host=r["host"], port=r["port"], db=r["db"], password=r.get("password"))
+        cls.attach(redis_map, objects)
+
+    @classmethod
+    def generateAsyncRedis(cls, redis_set, objects):
+        @asyncio.coroutine
+        def init_connections():
+            redis_map = dict()
+            for r in redis_set:
+                redis_map[r] = yield from aioredis.create_redis((r["host"], r["port"]), db=r["db"],
+                                                                password=r.get("password"))
+            cls.attach(redis_map, objects)
+
+        asyncio.async(init_connections())
+
+    @classmethod
+    def isCompleted(cls):
+        return cls.Proxy.ready
 
 
 class Database(object):
@@ -175,3 +205,16 @@ class Database(object):
     @classmethod
     def isCompleted(cls):
         return not cls.__taskSet
+
+
+@receiver(plugins_completed)
+def discover(signal, sender):
+    if sender.app in ("base", "cell"):
+        Equalization.discover()
+        KBEngineProxy.discover()
+    Redis.discover()
+
+
+@receiver(baseapp_ready)
+def registerCompleted(signal, sender):
+    sender.addCompletedObject(Equalization, Redis, Database)

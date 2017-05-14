@@ -4,5 +4,5 @@ from . import SettingsEntity
 
 class BaseApp(SettingsEntity):
     enableAsyncHttp = False
-    asyncHttpTickFrequency = 1 / 1000
+    enableAsyncio = False
     equalizationBaseappAmount = 1

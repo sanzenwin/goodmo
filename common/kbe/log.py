@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+import builtins
 import KBEngine
 
 
 def printMsg(args, isPrintPath):
-    for m in args:
-        print(m)
+    __print__(*args)
 
 
 def TRACE_MSG(*args):
@@ -35,3 +35,10 @@ def ERROR_MSG(*args):
 
 def SHOW_MSG(*args):
     ERROR_MSG(*args)
+
+
+def _print(*args, sep=' ', end='\n', file=None):
+    ERROR_MSG(*args)
+
+__print__ = print
+builtins.print = _print

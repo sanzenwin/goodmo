@@ -7,6 +7,9 @@ import settings
 from kbe.log import INFO_MSG, ERROR_MSG
 from kbe.xml import settings_kbengine
 from common.asyncHttp import AsyncHttp
+from common.asyncio import asyncio_loop
+
+gameTimeInterval = 0.5 / settings_kbengine.gameUpdateHertz.value
 
 
 """
@@ -44,12 +47,19 @@ def onInterfaceAppReady():
     INFO_MSG('onInterfaceAppReady: bootstrapGroupIndex=%s, bootstrapGlobalIndex=%s' % \
              (os.getenv("KBE_BOOTIDX_GROUP"), os.getenv("KBE_BOOTIDX_GLOBAL")))
 
-    KBEngine.addTimer(settings.BaseApp.asyncHttpTickFrequency, settings.BaseApp.asyncHttpTickFrequency,
-                      onAsyncHttpTick)
+    if settings.BaseApp.enableAsyncHttp:
+        KBEngine.addTimer(gameTimeInterval, gameTimeInterval, onAsyncHttpTick)
+
+    if settings.BaseApp.enableAsyncio:
+        KBEngine.addTimer(gameTimeInterval, gameTimeInterval, onAsyncioTick)
 
 
 def onAsyncHttpTick(timerID):
     AsyncHttp.run_frame()
+
+
+def onAsyncioTick(timerID):
+    asyncio_loop.run_frame()
 
 
 def onInterfaceAppShutDown():
