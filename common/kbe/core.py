@@ -134,7 +134,7 @@ class Redis(object):
 
     @classmethod
     def loads(cls, s):
-        return pickle.loads(s)
+        return s if s is None else pickle.loads(s)
 
     @classmethod
     def discover(cls):
