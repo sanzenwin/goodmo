@@ -39,7 +39,7 @@ class BaseApp(KBEngine.Base, TimerProxy):
         self.checkEqualizationTimerID = self.addTimerProxy(0.1, self.checkEqualization, 0.1)
 
     def addCompletedObject(self, *args):
-        self.completedSet.union(args)
+        self.completedSet.update(args)
 
     def checkEqualization(self):
         if KBEngine.globalData.get("Equalization"):
