@@ -26,7 +26,7 @@ class SettingsEntity(SettingsNode):
     pass
 
 
-class EqualizationMixin(object):
+class EqualizationMixin:
     min_int = -sys.maxsize
     equalization_format = "%s"
 

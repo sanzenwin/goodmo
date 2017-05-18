@@ -82,6 +82,8 @@ class Equalization(object, metaclass=MetaOfEqualization):
 
 
 class KBEngineProxy(object):
+    bindAll = False
+
     @classmethod
     def optimize(cls, target):
         def bind(func_name):
@@ -98,7 +100,7 @@ class KBEngineProxy(object):
         methods = dict(baseapp="BaseMethods", cellapp="CellMethods")[KBEngine.component]
         if defs[methods]:
             for nodeName in defs[methods].nodeNames:
-                if defs[methods][nodeName]["Exposed"]:
+                if defs[methods][nodeName]["Exposed"]or cls.bindAll:
                     bind(nodeName)
         return target
 
@@ -114,7 +116,7 @@ class KBEngineProxy(object):
 
         entities = Xml("entities.xml")
         for nodeName in entities.nodeNames:
-            if entities[nodeName].attrs.get("hasClient") == "true":
+            if entities[nodeName].attrs.get("hasClient") == "true" or cls.bindAll:
                 module = importlib.import_module(nodeName)
                 proxy_class = getattr(module, nodeName)
                 bind(proxy_class)

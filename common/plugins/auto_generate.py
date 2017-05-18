@@ -476,7 +476,7 @@ class %(cls_name)s(%(cls_name)sBase):
                 v2c = cls.entities[EntityOfCell].get(k, {}).get(k2)
                 print(v2.entity)
                 handle(v2, v2c)
-                has_client = issubclass(v2.entity, KBEngine.Proxy)
+                has_client = issubclass(v2.entity, KBEngine.Proxy) or (v2c and hasattr(v2c.entity, "client"))
                 info = dict(
                     key=("A" if v2.entity_name == "Equalization" else "") + ("B" if v2.plugin else "A") + (
                         "A" if has_client else "B") + v2.entity_name,

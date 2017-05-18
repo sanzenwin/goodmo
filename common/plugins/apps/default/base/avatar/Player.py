@@ -22,6 +22,3 @@ class Player(object):
 
     def onLogout(self):
         Equalization.PlayerManager(self.guaranteeID).removePlayer(self.guaranteeID)
-
-    def onCreated(self):
-        pass

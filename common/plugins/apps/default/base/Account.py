@@ -152,7 +152,6 @@ class Account(KBEngine.Proxy):
             avatarinfo.name = avatar.name
             self.avatars.append(avatarinfo)
             self.writeToDB()
-            avatar.onCreated()
             avatar.destroy()
             if self.client:
                 self.client.onCreateAvatarResult(avatarinfo)
