@@ -4,25 +4,14 @@ import Math
 from kbe.protocol import Type
 
 
-def client(obj):
-    return obj.dump(obj) if hasattr(obj, "dump") else PythonType.dump(obj)
-
-
-def client_list(lst):
-    if lst:
-        v = lst[0]
-        return ArrayType(v.__class__ if hasattr(v, "dump") else PythonType).dump(lst)
-    return []
-
-
 class PythonType(object):
     @classmethod
-    def dump(cls, v):
-        return json.dumps(v)
+    def dump(cls, v, client_flag):
+        return json.dumps(v) if client_flag else v
 
     @classmethod
-    def load(cls, v):
-        return json.loads(v)
+    def load(cls, v, client_flag):
+        return json.loads(v) if client_flag else v
 
 
 class ArrayType(object):
@@ -38,27 +27,22 @@ class ArrayType(object):
         result.append(element_type)
         return str(result)
 
-    def load_from_pure_list(self, lst):
-        if issubclass(self.element_type, DictType):
-            return [self.element_type().createFromRecursionDict(e) for e in lst]
-        elif isinstance(self.element_type, self.__class__):
-            return [self.element_type.load_from_pure_list(e) for e in lst]
-        else:
-            return lst
+    def dump(self, v, client_flag):
+        return [self.element_type.dump(d, client_flag) for d in v]
 
-    def dump_to_pure_list(self, lst):
-        if issubclass(self.element_type, DictType):
-            return [e.asRecursionDict() for e in lst]
-        elif isinstance(self.element_type, self.__class__):
-            return [self.element_type.dump_to_pure_list(e) for e in lst]
-        else:
-            return lst
+    def load(self, v, client_flag):
+        return [self.element_type.load(d, client_flag) for d in v]
 
-    def dump(self, v):
-        return [self.element_type.dump(d) for d in v]
 
-    def load(self, v):
-        return [self.element_type.load(d) for d in v]
+def client(obj):
+    return PythonType.dump(obj, True)
+
+
+_client_list_handle = ArrayType(PythonType)
+
+
+def client_list(lst):
+    return _client_list_handle.dump(lst, True)
 
 
 class MetaOfDictType(type):
@@ -180,7 +164,7 @@ class MetaOfDictType(type):
                              v.client_flag and v.str() not in Type.dicts}
         cls.recursion_fields = {k: cls.get_r_value(v) for k, v in cls.properties_type.items() if
                                 v.final_x().str() in Type.dicts}
-        cls.recursion_fields.update(cls.client_fields)
+        # cls.recursion_fields.update(cls.client_fields)
 
         cls.dict_properties = dict()
         for c in reversed(cls.mro()):
@@ -219,7 +203,7 @@ class MetaOfDictType(type):
 
 
 class DictType(object, metaclass=MetaOfDictType):
-    client_flag = False
+    client_flag = True
     properties = dict()
     properties_type = dict()
     client_fields = dict()
@@ -241,14 +225,27 @@ class DictType(object, metaclass=MetaOfDictType):
         obj.createFromRecursionDict(self.asRecursionDict())
         return obj
 
+    @staticmethod
+    def _setClient(obj, isClient):
+        obj.client_flag = isClient
+        for k, tv in obj.recursion_fields.items():
+            v = getattr(obj, k)
+            if isinstance(v, DictType):
+                DictType._setClient(v, isClient)
+            elif isinstance(tv, ArrayType):
+                for v2 in v:
+                    DictType._setClient(v2, isClient)
+
     @property
     def client(self):
-        self.client_flag = True
+        if not self.client_flag:
+            DictType._setClient(self, True)
         return self
 
     @property
     def server(self):
-        self.client_flag = False
+        if self.client_flag:
+            DictType._setClient(self, False)
         return self
 
     @classmethod
@@ -262,15 +259,15 @@ class DictType(object, metaclass=MetaOfDictType):
             if self.client_flag:
                 client_handle = self.client_fields.get(k, None)
                 if client_handle:
-                    v = client_handle.dump(v)
+                    v = client_handle.dump(v, self.client_flag)
             ret[k] = v
         return ret
 
     def createFromDict(self, dictData):
         for k, v in dictData.items():
             client_handle = self.client_fields.get(k, None)
-            if client_handle and isinstance(v, str):
-                v = client_handle.load(v)
+            if client_handle:
+                v = client_handle.load(v, self.client_flag)
             setattr(self, k, v)
         return self
 
@@ -278,27 +275,37 @@ class DictType(object, metaclass=MetaOfDictType):
         ret = dict()
         for k in self.dict_properties.keys():
             v = getattr(self, k)
-            recursion_handle = self.recursion_fields.get(k, None)
-            if recursion_handle:
-                v = recursion_handle.dump(v)
+            if self.client_flag:
+                client_handle = self.client_fields.get(k, None)
+                if client_handle:
+                    v = client_handle.dump(v, self.client_flag)
+            else:
+                recursion_handle = self.recursion_fields.get(k, None)
+                if recursion_handle:
+                    v = recursion_handle.dump(v, self.client_flag)
             ret[k] = v
         return ret
 
     def createFromRecursionDict(self, dictData):
         for k, v in dictData.items():
+            client_handle = self.client_fields.get(k, None)
+            if client_handle:
+                v = client_handle.load(v, self.client_flag)
             recursion_handle = self.recursion_fields.get(k, None)
             if recursion_handle:
-                v = recursion_handle.load(v)
+                v = recursion_handle.load(v, self.client_flag)
             setattr(self, k, v)
         return self
 
     @classmethod
-    def dump(cls, v):
-        return v.asDict()
+    def dump(cls, v, client_flag):
+        v = v.client if client_flag else v.server
+        return v.asRecursionDict()
 
     @classmethod
-    def load(cls, v):
-        return cls().createFromDict(v)
+    def load(cls, v, client_flag):
+        o = cls().client if client_flag else cls().server
+        return o.createFromRecursionDict(v)
 
 
 class GenericDictType(DictType):
