@@ -9,6 +9,7 @@ import KBEngine
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.xml import Xml, settings_kbengine
 from common.dispatcher import receiver
+from common.utils import load_module_attr
 from kbe.signals import database_completed
 from plugins.conf.signals import plugins_completed
 from kbe.signals import baseapp_ready
@@ -117,10 +118,13 @@ class KBEngineProxy(object):
         entities = Xml("entities.xml")
         for nodeName in entities.nodeNames:
             if entities[nodeName].attrs.get("hasClient") == "true" or cls.bindAll:
-                module = importlib.import_module(nodeName)
-                proxy_class = getattr(module, nodeName)
+                try:
+                    m = importlib.import_module(nodeName)
+                except ImportError:
+                    continue
+                proxy_class = getattr(m, nodeName)
                 bind(proxy_class)
-                setattr(module, nodeName, cls.optimize(proxy_class))
+                setattr(m, nodeName, cls.optimize(proxy_class))
 
 
 class Redis(object):
