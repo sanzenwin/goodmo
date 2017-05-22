@@ -13,7 +13,7 @@ class Plugins(PluginsBase):
         install = []
         for name in cls.apps:
             install.extend(list(load_module_attr("%s.settings.__third_package__" % name) or []))
-        os.system("pip3.4 install -t %s %s" % (cls.THIRD_PACKAGE_DIR, " ".join(set(install))))
+        os.system("pip3 install -t %s %s" % (cls.THIRD_PACKAGE_DIR, " ".join(set(install))))
 
     @classmethod
     def discover(cls):

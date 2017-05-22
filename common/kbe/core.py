@@ -213,8 +213,9 @@ class Database(object):
 
 @receiver(plugins_completed)
 def discover(signal, sender):
-    if sender.app in ("base", "cell"):
+    if sender.app in ("base", ):
         Equalization.discover()
+    if sender.app in ("base", "cell"):
         KBEngineProxy.discover()
     Redis.discover()
 
