@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
+import plugins
 from kbe.log import DEBUG_MSG
-from plugins import Plugins
-
-Plugins.discover()
 
 
 def onInit(isReload):
