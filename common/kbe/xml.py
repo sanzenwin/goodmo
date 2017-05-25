@@ -5,7 +5,7 @@ import xml.dom.minidom
 import KBEngine
 
 if KBEngine.component == "bots":
-    resPathList = os.getenv("KBE_RES_PATH").split(";")[::-1]
+    resPathList = re.split(';|:', os.getenv("KBE_RES_PATH"))[::-1]
 
     def getResFullPath(filename):
         for resPath in resPathList:
