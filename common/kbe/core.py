@@ -152,7 +152,7 @@ class Redis(object):
                 objects[k] = v.redis()
                 for r in objects[k].values():
                     redis_set.add(cls.dumps(r))
-        if settings.BaseApp.enableAsyncio:
+        if settings.Global.enableAsyncio:
             cls.generateAsyncRedis(redis_set, objects)
         else:
             cls.generateRedis(redis_set, objects)

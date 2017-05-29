@@ -2,7 +2,10 @@
 from . import SettingsEntity
 
 
-class BaseApp(SettingsEntity):
+class Global(SettingsEntity):
     enableAsyncHttp = False
     enableAsyncio = False
+
+
+class BaseApp(SettingsEntity):
     equalizationBaseappAmount = 1

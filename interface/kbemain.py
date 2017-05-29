@@ -47,10 +47,10 @@ def onInterfaceAppReady():
     INFO_MSG('onInterfaceAppReady: bootstrapGroupIndex=%s, bootstrapGlobalIndex=%s' % \
              (os.getenv("KBE_BOOTIDX_GROUP"), os.getenv("KBE_BOOTIDX_GLOBAL")))
 
-    if settings.BaseApp.enableAsyncHttp:
+    if settings.Global.enableAsyncHttp:
         KBEngine.addTimer(gameTimeInterval, gameTimeInterval, onAsyncHttpTick)
 
-    if settings.BaseApp.enableAsyncio:
+    if settings.Global.enableAsyncio:
         KBEngine.addTimer(gameTimeInterval, gameTimeInterval, onAsyncioTick)
 
 

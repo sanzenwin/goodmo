@@ -48,7 +48,7 @@ class BaseApp(KBEngine.Base, TimerProxy):
             Equalization.createBaseLocally()
 
     def tickLoop(self):
-        if settings.BaseApp.enableAsyncHttp:
+        if settings.Global.enableAsyncHttp:
             self.addTimerProxy(gameTimeInterval, AsyncHttp.run_frame, gameTimeInterval)
-        if settings.BaseApp.enableAsyncio:
+        if settings.Global.enableAsyncio:
             self.addTimerProxy(gameTimeInterval, asyncio_loop.run_frame, gameTimeInterval)
