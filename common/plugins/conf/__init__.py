@@ -13,6 +13,9 @@ class SettingsNode(object):
     def __getitem__(self, item):
         return getattr(self, item)
 
+    def __getattr__(self, item):
+        return None
+
     def collect_nodes(self):
         nodeNames = set()
         for c in self.__class__.mro():
