@@ -5,6 +5,7 @@ import ret_code
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodExposed, Client, ClientMethod
 from kbe.xml import settings_kbengine
+from plugins.conf.signals import change_newbie_data
 from DEFAULT import TAvatarInfo
 
 
@@ -93,6 +94,7 @@ class Account(KBEngine.Proxy):
         newbieData = settings.Avatar.newbieData.dict
         newbieData["name"] = prefix + str(len(self.avatars) + 1) + str(
             self.databaseID + settings.Avatar.nameIndexRadix)
+        change_newbie_data.send(sender=self, data=newbieData)
         avatar = KBEngine.createBaseLocally('Avatar', newbieData)
         if avatar:
             avatar.writeToDB(self.__onAvatarSaved)
