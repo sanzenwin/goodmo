@@ -148,7 +148,7 @@ class Redis(object):
         redis_set = set()
         objects = {}
         for k, v in settings.__dict__.items():
-            if hasattr(v, "redis"):
+            if hasattr(v, "redis") and v.redis:
                 objects[k] = v.redis()
                 for r in objects[k].values():
                     redis_set.add(cls.dumps(r))
