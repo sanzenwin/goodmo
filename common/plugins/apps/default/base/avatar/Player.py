@@ -5,6 +5,8 @@ from kbe.core import Equalization
 
 @Event.interface
 class Player(object):
+    isValid = False
+
     def onClientDeath(self):
         pass
 
@@ -19,6 +21,8 @@ class Player(object):
 
     def onLogin(self):
         Equalization.PlayerManager(self.guaranteeID).addPlayer(self.guaranteeID, self.object)
+        self.isValid = True
 
     def onLogout(self):
+        self.isValid = False
         Equalization.PlayerManager(self.guaranteeID).removePlayer(self.guaranteeID)
