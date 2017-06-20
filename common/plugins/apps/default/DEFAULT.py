@@ -16,3 +16,7 @@ class TCall(DictType):
             method(*self.args)
         else:
             ERROR_MSG('error call:%s, %s, %s' % (obj, self.method, self.args))
+
+
+class DefaultType:
+    Type.BOOL(Type.UINT8)

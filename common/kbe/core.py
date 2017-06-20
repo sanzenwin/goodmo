@@ -54,7 +54,7 @@ class Equalization(object, metaclass=MetaOfEqualization):
         settings = importlib.import_module("settings")
         equalization = importlib.import_module("Equalization")
         for k, v in settings.__dict__.items():
-            if hasattr(v, "equalization"):
+            if hasattr(v, "equalization") and v.equalization:
                 setattr(cls, k, cls.Proxy(v))
                 cls.entities[k] = v
         equalization.Equalization.discover()

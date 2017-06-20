@@ -248,7 +248,8 @@ class Plugins(object):
         EntityOfCell: {}
     }
 
-    template_proxy_str = """from %(plugin_name)s.%(app)s.%(cls_name)s import %(cls_name)s as %(cls_name)sBase\n\n
+    template_proxy_str = """from %(plugin_name)s.%(app)s.%(cls_name)s import *
+from %(plugin_name)s.%(app)s.%(cls_name)s import %(cls_name)s as %(cls_name)sBase\n\n
 class %(cls_name)s(%(cls_name)sBase):
     pass
 """

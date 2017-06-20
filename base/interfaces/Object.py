@@ -2,7 +2,7 @@
 from kbe.protocol import Base, BaseMethod
 
 
-class Object(object):
+class Object:
     base = Base(
         release=BaseMethod()
     )
