@@ -43,7 +43,6 @@ class BaseApp(KBEngine.Base, TimerProxy):
 
     def checkEqualization(self):
         if KBEngine.globalData.get("Equalization"):
-            self.delTimerProxy(self.checkEqualizationTimerID)
             self.checkEqualizationTimerID = None
             Equalization.createBaseLocally()
 
