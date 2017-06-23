@@ -116,8 +116,11 @@ def load_module_attr(path):
 
     try:
         mod = import_module(mod_name)
-    except ImportError:
-        return None
+    except ImportError as e:
+        m = re.search("No module named '(\S*)'", e.args[0])
+        if m and m.group(1) in mod_name:
+            return None
+        raise ImportError(*e.args)
 
     return getattr(mod, attr_name, None)
 
