@@ -111,7 +111,7 @@ Event.Container = Container
 del Container
 
 
-def load_module_attr(path):
+def load_module_attr(path, default=None):
     mod_name, attr_name = path.rsplit('.', 1)
 
     try:
@@ -119,10 +119,10 @@ def load_module_attr(path):
     except ImportError as e:
         m = re.search("No module named '(\S*)'", e.args[0])
         if m and m.group(1) in mod_name:
-            return None
+            return default
         raise ImportError(*e.args)
 
-    return getattr(mod, attr_name, None)
+    return getattr(mod, attr_name, default)
 
 
 module_name_re = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")

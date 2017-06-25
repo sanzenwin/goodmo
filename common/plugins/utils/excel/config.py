@@ -25,7 +25,7 @@ MAP_DATA_ROW = 3
 EXPORT_MAP_SHEET = '=代对表='
 
 # 文件编码，导出文件的编码设为UTF-8
-FILE_CODE = "GB2312"
+FILE_CODE = "utf-8"#"GB2312"
 
 ############################
 # 命令相关				   #

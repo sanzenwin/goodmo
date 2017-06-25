@@ -222,8 +222,12 @@ class Plugins(object):
     BOTS_DIR = os.path.join(HOME_DIR, "bots")
     BASE_DIR = os.path.join(HOME_DIR, "base")
     CELL_DIR = os.path.join(HOME_DIR, "cell")
+    DATA_DIR = os.path.join(HOME_DIR, "data")
     DEF_DIR = os.path.join(HOME_DIR, "entity_defs")
     COMMON_DIR = os.path.join(HOME_DIR, "common")
+    RES_DIR = os.path.join(os.path.dirname(HOME_DIR), "res")
+    EXCEL_DIR = os.path.join(RES_DIR, "excel")
+    EXCEL_DATA_DIR = os.path.join(DATA_DIR, "excel_data")
     PLUGINS_DIR = os.path.join(COMMON_DIR, "plugins", "apps")
     PLUGINS_OUTER_DIR = os.path.join(os.path.dirname(HOME_DIR), "apps")
 
@@ -367,9 +371,10 @@ class %(cls_name)s(%(cls_name)sBase):
                 shutil.rmtree(dir_name)
             os.makedirs(dir_name)
 
-        clear(Plugins.DEF_DIR)
-        clear(Plugins.PLUGINS_PROXY_BASE_DIR)
-        clear(Plugins.PLUGINS_PROXY_CELL_DIR)
+        clear(cls.DEF_DIR)
+        clear(cls.DATA_DIR)
+        clear(cls.PLUGINS_PROXY_BASE_DIR)
+        clear(cls.PLUGINS_PROXY_CELL_DIR)
 
     @classmethod
     def write(cls, s, *path):
@@ -561,14 +566,29 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
     @classmethod
     def init__apps(cls):
         for name in cls.apps:
-            main = load_module_attr("%s.plugins.setup.main" % name)
-            if main:
-                main(cls, name)
+            setup = load_module_attr("%s.plugins.setup" % name)
+            if setup:
+                setup(cls, name)
+
+    @classmethod
+    def init__proxy_module(cls):
+        class Proxy:
+            def __getattr__(self, item):
+                return 0
+        for name in cls.apps:
+            proxy_modules = load_module_attr("%s.plugins.__proxy_modules__" % name, [])
+            for modules in proxy_modules:
+                modules = modules.split(".")
+                for i in range(1, len(modules) + 1):
+                    m = ".".join(modules[:i])
+                    if m not in sys.modules:
+                        sys.modules[m] = Proxy()
 
     @classmethod
     def discover(cls):
         cls.clear_dir()
         cls.init__sys_path()
+        cls.init__proxy_module()
         cls.init__settings()
         cls.init__user_type()
         cls.init__entity()

@@ -474,7 +474,10 @@ class xlsx2py(object):
             # stream += xlsxtool.dict_to_text(datas) + "\n"
             stream += "%s\n" % (datas)
             self.xlsxWrite(stream)
-            jsonhandle = codecs.open(self.fileHandler.stream.name + "." + dataName + ".json", "w+", 'utf-8')
+            mainName = self.fileHandler.stream.name
+            if mainName.endswith(".py"):
+                mainName = mainName[:-3]
+            jsonhandle = codecs.open(mainName + "." + dataName + ".json", "w+", 'utf-8')
             s = json.dumps(datas)
             jsonhandle.write("{%s}" % (s[1:-1]))
             jsonhandle.close()
@@ -543,7 +546,6 @@ class xlsx2py(object):
 
     def getSheetsCounts(self):
         return reduce(lambda x, y: x + y, [self.xbook.getColCount(index) for index in self.__exportSheetIndex])
-
 
 EXPORT_SIGN['.'] = xlsx2py.isNotEmpty
 EXPORT_SIGN['$'] = xlsx2py.needReplace

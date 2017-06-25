@@ -30,6 +30,23 @@ def funcInt(mapDict, dctData, chilidDict, data):
     return v
 
 
+def funcIntNull(mapDict, dctData, chilidDict, data):
+    """
+    返回int数据
+    """
+    try:
+        v = eval(data)
+    except:
+        return None
+
+    v = int(v)
+
+    if type(v) != int:
+        return None
+
+    return v
+
+
 def funcFloat(mapDict, dctData, chilidDict, data):
     """
     返回float数据
