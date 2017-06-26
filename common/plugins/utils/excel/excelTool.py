@@ -1,12 +1,12 @@
-# -*- coding: gb2312 -*-
+# -*- coding:utf-8 -*-
 import os
 import xlrd
 
 
 class ExcelTool:
     """
-    ¼òµ¥µÄ·â×°excel¸÷ÖÖ²Ù×÷
-    ÏµÍ³ÒªÇó£¬ windowsÏµÍ³£¬ °²×°python2.6ÒÔ¼°pywin32-214.win32-py2.6.exe, ÒÔ¼°ms office
+    ç®€å•çš„å°è£…excelå„ç§æ“ä½œ
+    ç³»ç»Ÿè¦æ±‚ï¼Œ windowsç³»ç»Ÿï¼Œ å®‰è£…python2.6ä»¥åŠpywin32-214.win32-py2.6.exe, ä»¥åŠms office
     """
 
     def __init__(self, fileName):
@@ -15,87 +15,87 @@ class ExcelTool:
 
     def getWorkbook(self, forcedClose=False):
         """
-        Èç¹ûWorkbookÒÑ¾­´ò¿ªĞèÒªÏÈ¹Ø±Õºó´ò¿ª
-        forcedClose£ºÊÇ·ñÇ¿ÖÆ¹Ø±Õ£¬ºó´ò¿ª¸ÃWorkbook
+        å¦‚æœWorkbookå·²ç»æ‰“å¼€éœ€è¦å…ˆå…³é—­åæ‰“å¼€
+        forcedCloseï¼šæ˜¯å¦å¼ºåˆ¶å…³é—­ï¼Œåæ‰“å¼€è¯¥Workbook
         """
         self.__xlsx = xlrd.open_workbook(self.fileName)
         return True
 
     def close(self, saveChanges=False):
         """
-        ¹Ø±ÕexcelÓ¦ÓÃ
+        å…³é—­excelåº”ç”¨
         """
         self.__xlsx.release_resources()
 
     def getSheetCount(self):
         """
-        »ñµÃ¹¤×÷±í¸öÊı
+        è·å¾—å·¥ä½œè¡¨ä¸ªæ•°
         """
         return len(self.__xlsx.sheets())
 
     def getSheetNameByIndex(self, index):
         """
-        »ñµÃexcelÉÏÖ¸¶¨Ë÷ÒıÎ»ÖÃÉÏµÄ±íÃû³Æ
+        è·å¾—excelä¸ŠæŒ‡å®šç´¢å¼•ä½ç½®ä¸Šçš„è¡¨åç§°
         """
         return self.__xlsx.sheet_by_index(index - 1).name
 
     def getSheetByIndex(self, index):
         """
-        »ñµÃexcelÉÏÖ¸¶¨Ë÷ÒıÎ»ÖÃÉÏµÄ±í
+        è·å¾—excelä¸ŠæŒ‡å®šç´¢å¼•ä½ç½®ä¸Šçš„è¡¨
         """
         return self.__xlsx.sheet_by_index(index - 1)
 
     def getRowCount(self, sheetIndex):
         """
-        »ñµÃÒ»ÅÅÓĞ¶àÉÙÔªËØ
+        è·å¾—ä¸€æ’æœ‰å¤šå°‘å…ƒç´ 
         """
         return self.getSheetByIndex(sheetIndex).ncols
 
     def getColCount(self, sheetIndex):
         """
-        »ñµÃÒ»ÁĞÓĞ¶àÉÙÔªËØ
+        è·å¾—ä¸€åˆ—æœ‰å¤šå°‘å…ƒç´ 
         """
         return self.getSheetByIndex(sheetIndex).nrows
 
     def getValue(self, sheet, row, col):
         """
-        »ñµÃÄ³¸ö¹¤×÷±íµÄÄ³¸öÎ»ÖÃÉÏµÄÖµ
+        è·å¾—æŸä¸ªå·¥ä½œè¡¨çš„æŸä¸ªä½ç½®ä¸Šçš„å€¼
         """
         return sheet.cell_value(row, col).value
 
     def getText(self, sheet, row, col):
         """
-        »ñµÃÄ³¸ö¹¤×÷±íµÄÄ³¸öÎ»ÖÃÉÏµÄÖµ
+        è·å¾—æŸä¸ªå·¥ä½œè¡¨çš„æŸä¸ªä½ç½®ä¸Šçš„å€¼
         """
         return sheet.cell_value(row, col).value
 
     def getRowValues(self, sheet, row):
         """
-        ÕûÅÅ
+        æ•´æ’
         """
         return sheet.row_values(row)
 
     def getSheetRowIters(self, sheet, row):
         """
-        ĞĞµü´úÆ÷
+        è¡Œè¿­ä»£å™¨
         """
         return iter(sheet.row_values(row))
 
     def getSheetColIters(self, sheet, col):
         """
-        ÁĞµü´úÆ÷
+        åˆ—è¿­ä»£å™¨
         """
         return iter(sheet.col_values(col))
 
     def getColValues(self, sheet, col):
         """
-        ÕûÁĞ
+        æ•´åˆ—
         """
         return sheet.col_values(col)
 
 
 # ---------------------------------------------------------------------
-#   Ê¹ÓÃÀı×Ó
+#   ä½¿ç”¨ä¾‹å­
 # ---------------------------------------------------------------------
 def main():
     xbook = ExcelTool("d:\\test1.xlsx")

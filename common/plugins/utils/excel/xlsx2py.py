@@ -1,4 +1,4 @@
-# -*- coding: gb2312 -*-
+# -*- coding:utf-8 -*-
 import sys
 import re
 import os
@@ -25,7 +25,7 @@ def siginit(sigNum, sigHandler):
     sys.exit(1)
 
 
-signal.signal(signal.SIGINT, siginit)  # Ctrl-c´¦Àí
+signal.signal(signal.SIGINT, siginit)  # Ctrl-cå¤„ç†
 
 
 def hasFunc(funcName):
@@ -38,19 +38,18 @@ def getFunc(funcName):
     return getattr(functions, funcName)
 
 
-g_dctDatas = {}
-g_fdatas = {}
-
-
 class xlsx2py(object):
     """
-    ½«excelÊý¾Ýµ¼³öÎªpyÎÄ¼þ Ê¹ÓÃ¹ý³ÌÐèÒª½øÐÐ±àÂë×ª»»
+    å°†excelæ•°æ®å¯¼å‡ºä¸ºpyæ–‡ä»¶ ä½¿ç”¨è¿‡ç¨‹éœ€è¦è¿›è¡Œç¼–ç è½¬æ¢
     """
 
     def __init__(self, infile, outfile):
-        sys.excepthook = xlsxError.except_hook  # traceback´¦Àí,Ï£ÍûÊä³öÖÐÎÄ
-        self.infile = os.path.abspath(infile)  # ÔÝ´æexcelÎÄ¼þÃû
-        self.outfile = os.path.abspath(outfile)  # dataÎÄ¼þÃû
+        self.g_dctDatas = {}
+        self.g_fdatas = {}
+
+        sys.excepthook = xlsxError.except_hook  # tracebackå¤„ç†,å¸Œæœ›è¾“å‡ºä¸­æ–‡
+        self.infile = os.path.abspath(infile)  # æš‚å­˜excelæ–‡ä»¶å
+        self.outfile = os.path.abspath(outfile)  # dataæ–‡ä»¶å
         return
 
     def __initXlsx(self):
@@ -61,36 +60,36 @@ class xlsx2py(object):
 
     def resetXlsx(self):
         """
-        ÊäÈëO(other)µÄ»Øµ÷
-        ¹Ø±ÕÒÑ´ò¿ªµÄexcel£¬È»ºóÖØÐÂ´ò¿ª
+        è¾“å…¥O(other)çš„å›žè°ƒ
+        å…³é—­å·²æ‰“å¼€çš„excelï¼Œç„¶åŽé‡æ–°æ‰“å¼€
         """
         self.xbook.getWorkbook(forcedClose=True)
 
     def __initInfo(self):
-        self.__exportSheetIndex = []  # ´æ´¢¿Éµ¼±íµÄË÷Òý
-        self.headerDict = {}  # µ¼³ö±íµÚÒ»ÐÐ×ªÎª×Öµä
-        self.mapDict = {}  # ´ú¶Ô±íÉú³ÉµÄ×Öµä(µÚÒ»ÐÐÊÇ´ú¶Ô±íËµÃ÷ºöÂÔ)
+        self.__exportSheetIndex = []  # å­˜å‚¨å¯å¯¼è¡¨çš„ç´¢å¼•
+        self.headerDict = {}  # å¯¼å‡ºè¡¨ç¬¬ä¸€è¡Œè½¬ä¸ºå­—å…¸
+        self.mapDict = {}  # ä»£å¯¹è¡¨ç”Ÿæˆçš„å­—å…¸(ç¬¬ä¸€è¡Œæ˜¯ä»£å¯¹è¡¨è¯´æ˜Žå¿½ç•¥)
 
-    #####################Ö´ÐÐÖ÷Ìâ##########################
+    #####################æ‰§è¡Œä¸»é¢˜##########################
     def run(self):
         """
-        ´øÓÐ$µÄÁÐÊý¾ÝÐèÒª´ú¶Ô±í,Ê×ÏÈÉú³É´ú¶Ô×Öµä
+        å¸¦æœ‰$çš„åˆ—æ•°æ®éœ€è¦ä»£å¯¹è¡¨,é¦–å…ˆç”Ÿæˆä»£å¯¹å­—å…¸
         """
-        self.__initXlsx()  # ³õÊ¼excelÏà¹Ø
-        self.__initInfo()  # ³õÊ¼µ¼±íÏà¹Ø
+        self.__initXlsx()  # åˆå§‹excelç›¸å…³
+        self.__initInfo()  # åˆå§‹å¯¼è¡¨ç›¸å…³
         self.openFile()
-        self.sth4Nth()  # ½øÈëÏÂÒ»¸ö½×¶Î
-        self.constructMapDict()  # Éú³É´ú¶Ô×Öµä
+        self.sth4Nth()  # è¿›å…¥ä¸‹ä¸€ä¸ªé˜¶æ®µ
+        self.constructMapDict()  # ç”Ÿæˆä»£å¯¹å­—å…¸
         self.__onRun()
 
     def __onRun(self):
-        self.writeLines = 0  # ¼ÇÂ¼ÒÑÐ´ÈëµÄexcelµÄÐÐÊý
-        self.parseDefineLine()  # ·ÖÎöÎÄ¼þ
+        self.writeLines = 0  # è®°å½•å·²å†™å…¥çš„excelçš„è¡Œæ•°
+        self.parseDefineLine()  # åˆ†æžæ–‡ä»¶
 
-    ###############Ñ°ÕÒ´ú¶Ô±íºÍ±ê¼Çµ¼ÈëµÄ±í##################
+    ###############å¯»æ‰¾ä»£å¯¹è¡¨å’Œæ ‡è®°å¯¼å…¥çš„è¡¨##################
     def sth4Nth(self):
         """
-        something for nothing, ´ú¶Ô±íºÍµ¼Èë±íÐèÒªÓÐ
+        something for nothing, ä»£å¯¹è¡¨å’Œå¯¼å…¥è¡¨éœ€è¦æœ‰
         """
         for index in range(1, self.xbook.getSheetCount() + 1):
             sheetName = self.xbook.getSheetNameByIndex(index)
@@ -117,13 +116,13 @@ class xlsx2py(object):
 
     def __onFindExportSheet(self, Eindex):
         """
-        Íê±Ï
+        å®Œæ¯•
         """
         self.__exportSheetIndex.append(Eindex)
 
     def constructMapDict(self):
         """
-        Éú³É´ú¶Ô×Öµä£¬ ´ú¶Ô±íÖ»ÓÐÒ»¸ö
+        ç”Ÿæˆä»£å¯¹å­—å…¸ï¼Œ ä»£å¯¹è¡¨åªæœ‰ä¸€ä¸ª
         """
         mapDict = {}
         sheet = self.xbook.getSheetByIndex(self.mapIndex)
@@ -135,28 +134,28 @@ class xlsx2py(object):
             if colValues:
                 for v in [e for e in colValues[1:] if e and e[0] and isinstance(e[0], str) and e[0].strip()]:
                     print(v)
-                    mapStr = v.replace('£º', ":")  # ÖÐÎÄ"£º"ºÍ":"
+                    mapStr = v.replace('ï¼š', ":")  # ä¸­æ–‡"ï¼š"å’Œ":"
                     try:
                         k, v = mapStr.split(":")
                         k = str.strip(k)
                         v = str.strip(v)
                         mapDict[k] = v
                     except Exception as errstr:
-                        print("waring£ºÐèÒª¼ì²é´ú¶Ô±í µÚ%dÁÐ, err=%s" % (col, errstr))
+                        print("waringï¼šéœ€è¦æ£€æŸ¥ä»£å¯¹è¡¨ ç¬¬%dåˆ—, err=%s" % (col, errstr))
         self.__onConstruct(mapDict)
         return
 
     def __onConstruct(self, mapDict):
         """
-        ´ú¶Ô×ÖµäÉú³ÉÍê±Ï
+        ä»£å¯¹å­—å…¸ç”Ÿæˆå®Œæ¯•
         """
         self.mapDict = mapDict
         return
 
-    #####################ÎÄ¼þÍ·¼ì²â#######################
+    #####################æ–‡ä»¶å¤´æ£€æµ‹#######################
     def parseDefineLine(self):
-        self.__checkDefine()  # ¼ì²é¶¨ÒåÊÇ·ñÕýÈ·
-        self.__checkData()  # ¼ì²éÊý¾ÝÊÇ·ñ·ûºÏ¹æÔò
+        self.__checkDefine()  # æ£€æŸ¥å®šä¹‰æ˜¯å¦æ­£ç¡®
+        self.__checkData()  # æ£€æŸ¥æ•°æ®æ˜¯å¦ç¬¦åˆè§„åˆ™
 
     def __reCheck(self, head):
         pattern = "(\w+)(\[.*])(\[\w+\])"
@@ -179,51 +178,51 @@ class xlsx2py(object):
 
     def __checkDefine(self):
         """
-        µÚÒ»ÐÐµÄ¸öÔªËØÊÇ·ñ·ûºÏ¶¨Òå¸ñÊ½"name[signs][func]"ÒÔ¼°keyÊÇ·ñ·ûºÏ¹æ¶¨
+        ç¬¬ä¸€è¡Œçš„ä¸ªå…ƒç´ æ˜¯å¦ç¬¦åˆå®šä¹‰æ ¼å¼"name[signs][func]"ä»¥åŠkeyæ˜¯å¦ç¬¦åˆè§„å®š
         """
-        print("¼ì²âÎÄ¼þÍ·(µÚÒ»ÐÐ)ÊÇ·ñÕýÈ·")
+        print("æ£€æµ‹æ–‡ä»¶å¤´(ç¬¬ä¸€è¡Œ)æ˜¯å¦æ­£ç¡®")
         for index in self.__exportSheetIndex:
             self.sheetKeys = []
             headList = self.xbook.getRowValues(self.xbook.getSheetByIndex(index), EXPORT_DEFINE_ROW - 1)
-            enName = []  # ¼ì²éÃüÃûÖØ¸´ÁÙÊ±±äÁ¿
+            enName = []  # æ£€æŸ¥å‘½åé‡å¤ä¸´æ—¶å˜é‡
             reTuples = []
 
             self.headerDict[index] = {}
             for c, head in enumerate(headList):
-                if head is None or head.strip() == '':  # µ¼³ö±íµÄµÚÒ»ÐÐNone, ÔòÕâÒ»ÁÐ½«±»ºöÂÔ
+                if head is None or head.strip() == '':  # å¯¼å‡ºè¡¨çš„ç¬¬ä¸€è¡ŒNone, åˆ™è¿™ä¸€åˆ—å°†è¢«å¿½ç•¥
                     self.__onCheckSheetHeader(self.headerDict[index], c, None)
                     continue
 
                 reTuple = self.__reCheck(head)
 
-                if len(reTuple) == 3:  # ¶¨Òå±»·Ö²ðÎªÈý²¿·Ö:name, signs, func,signs¿ÉÒÔÊÇ¿Õ
+                if len(reTuple) == 3:  # å®šä¹‰è¢«åˆ†æ‹†ä¸ºä¸‰éƒ¨åˆ†:name, signs, func,signså¯ä»¥æ˜¯ç©º
                     name, signs, funcName = reTuple[0], reTuple[1][1:-1], reTuple[2][1:-1]
                     name = self.__convertKeyName(name)
-                    for s in signs:  # ·ûºÅ¶¨ÒåÊÇ·ñÔÚ¹æÔòÖ®ÄÚ
+                    for s in signs:  # ç¬¦å·å®šä¹‰æ˜¯å¦åœ¨è§„åˆ™ä¹‹å†…
                         if s not in EXPORT_ALL_SIGNS:
                             self.xlsxClear(EXPORT_ERROR_NOSIGN, (EXPORT_DEFINE_ROW, c + 1))
 
-                    if EXPORT_SIGN_GTH in signs:  # ÊÇ·ñÎªkey
+                    if EXPORT_SIGN_GTH in signs:  # æ˜¯å¦ä¸ºkey
                         self.sheetKeys.append(c)
 
-                    if len(self.sheetKeys) > EXPORT_KEY_NUMS:  # keyÊÇ·ñ³¬¹ý¹æ¶¨µÄ¸öÊý
+                    if len(self.sheetKeys) > EXPORT_KEY_NUMS:  # keyæ˜¯å¦è¶…è¿‡è§„å®šçš„ä¸ªæ•°
                         self.xlsxClear(EXPORT_ERROR_NUMKEY, (EXPORT_DEFINE_ROW, c + 1))
 
-                    if name not in enName:  # name²»ÄÜÖØ¸´
+                    if name not in enName:  # nameä¸èƒ½é‡å¤
                         enName.append(name)
                     else:
                         self.xlsxClear(EXPORT_ERROR_REPEAT, \
                                        (self.xbook.getSheetNameByIndex(index).encode(FILE_CODE), EXPORT_DEFINE_ROW,
                                         c + 1))
 
-                    if not hasFunc(funcName):  # funcNameÊÇ·ñ´æÔÚ
+                    if not hasFunc(funcName):  # funcNameæ˜¯å¦å­˜åœ¨
                         self.xlsxClear(EXPORT_ERROR_NOFUNC, (xlsxtool.toGBK(funcName), c + 1))
 
                 else:
                     self.xlsxClear(EXPORT_ERROR_HEADER,
                                    (self.xbook.getSheetNameByIndex(index).encode(FILE_CODE), EXPORT_DEFINE_ROW, c + 1))
 
-                self.__onCheckSheetHeader(self.headerDict[index], c, (name, signs, funcName))  # ¶¨ÒåÒ»ÐÐ¾­³£Ê¹ÓÃ´æÆðÀ´ÁË
+                self.__onCheckSheetHeader(self.headerDict[index], c, (name, signs, funcName))  # å®šä¹‰ä¸€è¡Œç»å¸¸ä½¿ç”¨å­˜èµ·æ¥äº†
 
             self.__onCheckDefine()
 
@@ -233,10 +232,10 @@ class xlsx2py(object):
         DataDict[col] = headerInfo
 
     def __onCheckDefine(self):
-        if len(self.sheetKeys) != EXPORT_KEY_NUMS:  # keyÒ²²»ÄÜÉÙ
-            self.xlsxClear(EXPORT_ERROR_NOKEY, ("ÐèÒª%d¶øÖ»ÓÐ%d" % (EXPORT_KEY_NUMS, len(self.sheetKeys))))
+        if len(self.sheetKeys) != EXPORT_KEY_NUMS:  # keyä¹Ÿä¸èƒ½å°‘
+            self.xlsxClear(EXPORT_ERROR_NOKEY, ("éœ€è¦%dè€Œåªæœ‰%d" % (EXPORT_KEY_NUMS, len(self.sheetKeys))))
 
-        print("ÎÄ¼þÍ·¼ì²âÕýÈ·", time.ctime(time.time()))
+        print("æ–‡ä»¶å¤´æ£€æµ‹æ­£ç¡®", time.ctime(time.time()))
 
     def sheetIndex2Data(self):
         self.sheet2Data = {}
@@ -252,10 +251,10 @@ class xlsx2py(object):
 
     def __checkData(self):
         """
-        ÁÐÊý¾ÝÊÇ·ñ·ûºÏÃüÃû¹æ·¶, Éú³ÉËùÐè×Öµä
+        åˆ—æ•°æ®æ˜¯å¦ç¬¦åˆå‘½åè§„èŒƒ, ç”Ÿæˆæ‰€éœ€å­—å…¸
         """
         self.sheetIndex2Data()
-        self.dctDatas = g_dctDatas
+        self.dctDatas = self.g_dctDatas
         self.hasExportedSheet = []
 
         for dataName, indexList in self.sheet2Data.items():
@@ -288,7 +287,7 @@ class xlsx2py(object):
                         if '$' in sign and len(val[0]) > 0:
                             self.needReplace({'v': val[0], "pos": (row, col)})
                             v = self.mapDict[
-                                xlsxtool.GTOUC(xlsxtool.val2Str(val[0]))]  # mapDict:keyÊÇunicode.key¶¼Òª×ª³Éunicode
+                                xlsxtool.GTOUC(xlsxtool.val2Str(val[0]))]  # mapDict:keyæ˜¯unicode.keyéƒ½è¦è½¬æˆunicode
                         else:
                             v = val[0]
                         if EXPORT_SIGN_DOT in sign and v is None:
@@ -316,7 +315,7 @@ class xlsx2py(object):
                         #		pass
                         childDict[name] = v
 
-                    print("µ±Ç°:%i/%i" % (row, rows))
+                    print("å½“å‰:%i/%i" % (row, rows))
                     self.dctData[self.tempKeys[-1]] = copy.deepcopy(childDict)
 
                 self.writeHead()
@@ -327,7 +326,7 @@ class xlsx2py(object):
                 self.dctData = func(self.mapDict, self.dctDatas, self.dctData, dataName)
                 self.dctDatas[dataName] = self.dctData
 
-            g_dctDatas.update(self.dctDatas)
+            self.g_dctDatas.update(self.dctDatas)
             self.__onCheckSheet()
 
         self.__onCheckData()
@@ -341,19 +340,19 @@ class xlsx2py(object):
     def __onCheckData(self):
         self.exportSheet()
 
-    ##############·ûºÅ×ÖµäµÄÏà¹ØÉèÖÃEXPORT_SIGN###################
+    ##############ç¬¦å·å­—å…¸çš„ç›¸å…³è®¾ç½®EXPORT_SIGN###################
     def isNotEmpty(self, cellData):
         if cellData['v'] is None:
             self.xlsxClear(EXPORT_ERROR_NOTNULL, (cellData['pos'],))
 
     def needReplace(self, cellData):
-        """ºêÌæ´ú"""
+        """å®æ›¿ä»£"""
         v = cellData["v"].strip()
 
-        if isinstance(v, float):  # ·ÀÖ¹Êý×Ö±¨´í(1:string) mapDict ÊÇunicode×Ö·û´®
+        if isinstance(v, float):  # é˜²æ­¢æ•°å­—æŠ¥é”™(1:string) mapDict æ˜¯unicodeå­—ç¬¦ä¸²
             v = str(int(v))
 
-        if v not in self.mapDict:  # ¼ì²â¶ø²»Ìæ»»
+        if v not in self.mapDict:  # æ£€æµ‹è€Œä¸æ›¿æ¢
             self.xlsxClear(EXPORT_ERROR_NOTMAP, (cellData['pos'], v))
 
     def isKey(self, cellData):
@@ -370,25 +369,25 @@ class xlsx2py(object):
 
 
 
-        ###############export to  py²¿·Ö######################
+        ###############export to  pyéƒ¨åˆ†######################
 
     def exportSheet(self):
         """
-        µ¼³ö
+        å¯¼å‡º
         """
         self.__onExportSheet()
         return
 
     def __onExportSheet(self):
         """
-        Êý¾Ý×ª³ÉpyÎÄ¼þ
+        æ•°æ®è½¬æˆpyæ–‡ä»¶
         """
         self.writeXLSX2PY()
         return
 
     def openFile(self):
         """
-        ÎÄ¼þÄ¿Â¼´´½¨
+        æ–‡ä»¶ç›®å½•åˆ›å»º
         """
         dirPath = os.path.split(self.outfile)[0]
 
@@ -403,12 +402,12 @@ class xlsx2py(object):
         except:
             self.xlsxClear(EXPORT_ERROR_FILEOPEN, (self.outfile,))
 
-        self.__onOpenFile(fileHandler)  # Ä¿Â¼´´½¨³É¹¦,ÎÄ¼þ´ò¿ª
+        self.__onOpenFile(fileHandler)  # ç›®å½•åˆ›å»ºæˆåŠŸ,æ–‡ä»¶æ‰“å¼€
         return
 
     def __onOpenFile(self, fileHandler):
         """
-        pyÎÄ¼þ´ò¿ªÁË,¿ÉÒÔÐ´ÎÄ¼þÁË
+        pyæ–‡ä»¶æ‰“å¼€äº†,å¯ä»¥å†™æ–‡ä»¶äº†
         """
         self.fileName = self.outfile
         self.fileHandler = fileHandler
@@ -416,7 +415,7 @@ class xlsx2py(object):
 
     def xlsxWrite(self, stream):
         """
-        Ð´ÈëdataÎÄ¼þ
+        å†™å…¥dataæ–‡ä»¶
         """
         if not hasattr(self, "fileHandler"):
             self.xlsxClear(EXPORT_ERROR_FILEOPEN, ())
@@ -427,17 +426,17 @@ class xlsx2py(object):
 
     def writeXLSX2PY(self):
         """
-        ÎÄ¼þ Ç°¼¸ÐÐÎÄ×Ö
+        æ–‡ä»¶ å‰å‡ è¡Œæ–‡å­—
         """
         self.writeBody()
         return
 
     def writeHead(self):
-        print("¿ªÊ¼Ð´ÈëÎÄ¼þ:", time.ctime(time.time()))
+        print("å¼€å§‹å†™å…¥æ–‡ä»¶:", time.ctime(time.time()))
         try:
             SheetName = self.xbook.getSheetNameByIndex(self.curProIndex[-1])
         except:
-            print("»ñÈ¡±íµÄÃû×Ö³ö´í")
+            print("èŽ·å–è¡¨çš„åå­—å‡ºé”™")
 
         sheetName = SheetName[SheetName.find(EXPORT_PREFIX_CHAR) + 1:]
         if sheetName in self.mapDict:
@@ -457,19 +456,19 @@ class xlsx2py(object):
                 globalDefs = func(self.dctData)
                 if len(globalDefs) > 0:
                     globalDefs += "\n"
-                    if "globalDefs" in g_fdatas:
-                        g_fdatas["globalDefs"] += globalDefs
+                    if "globalDefs" in self.g_fdatas:
+                        self.g_fdatas["globalDefs"] += globalDefs
                     else:
-                        g_fdatas["globalDefs"] = globalDefs
+                        self.g_fdatas["globalDefs"] = globalDefs
 
     def writeBody(self):
         # for index  in self.curProIndex:
         #	xlsxError.info_input(EXPORT_INFO_ING, (self.xbook.getSheetNameByIndex(index).encode(FILE_CODE), ))
         self.xlsxWrite(EXPORT_DATA_HEAD)
-        if "globalDefs" in g_fdatas:
-            self.xlsxWrite(g_fdatas["globalDefs"])
+        if "globalDefs" in self.g_fdatas:
+            self.xlsxWrite(self.g_fdatas["globalDefs"])
 
-        for dataName, datas in g_dctDatas.items():
+        for dataName, datas in self.g_dctDatas.items():
             stream = dataName + "="
             # stream += xlsxtool.dict_to_text(datas) + "\n"
             stream += "%s\n" % (datas)
@@ -484,7 +483,7 @@ class xlsx2py(object):
 
     def writeFoot(self):
         """
-        ÎÄ¼þÎ²
+        æ–‡ä»¶å°¾
         """
         if len(self.hasExportedSheet) < len(self.__exportSheetIndex):
             return
@@ -493,10 +492,10 @@ class xlsx2py(object):
         if len(allDataDefs) > 0:
             func = getFunc(allDataDefs)
             allDataDefs = func(self.dctData)
-            if "allDataDefs" in g_fdatas:
-                g_fdatas["allDataDefs"] += allDataDefs
+            if "allDataDefs" in self.g_fdatas:
+                self.g_fdatas["allDataDefs"] += allDataDefs
             else:
-                g_fdatas["allDataDefs"] = allDataDefs
+                self.g_fdatas["allDataDefs"] = allDataDefs
 
         stream = "\ndata_map = {\n"
         for dataName, indexList in self.sheet2Data.items():
@@ -509,17 +508,17 @@ class xlsx2py(object):
                 stream += ",\n"
 
         if len(allDataDefs) > 0:
-            stream += "\t" + g_fdatas["allDataDefs"] + ",\n"
+            stream += "\t" + self.g_fdatas["allDataDefs"] + ",\n"
 
         stream += "}"
         self.xlsxWrite(stream)
         self.xlsxbyebye()
-        print("Ð´ÍêÁËtime:", time.ctime(time.time()))
+        print("å†™å®Œäº†time:", time.ctime(time.time()))
 
-    ##############ÆäËû##################
+    ##############å…¶ä»–##################
     def xlsxClose(self):
         """
-        ¹Ø±ÕÎÄµµ
+        å…³é—­æ–‡æ¡£
         """
         if hasattr(self, "fileHandler"):
             self.fileHandler.close()
@@ -529,7 +528,7 @@ class xlsx2py(object):
 
     def xlsxClear(self, errno=0, msg=''):
         """
-        ³ÌÐòÒì³£ÍË³öÇåÀí´ò¿ªµÄExcel
+        ç¨‹åºå¼‚å¸¸é€€å‡ºæ¸…ç†æ‰“å¼€çš„Excel
         """
         self.xlsxClose()
         if errno > 0:
@@ -539,7 +538,7 @@ class xlsx2py(object):
 
     def xlsxbyebye(self):
         """
-        Õý³£ÍË³ö
+        æ­£å¸¸é€€å‡º
         """
         self.xlsxClose()
         return
@@ -554,7 +553,7 @@ EXPORT_SIGN['!'] = xlsx2py.isKey
 
 def main():
     """
-    Ê¹ÓÃ·½·¨£º
+    ä½¿ç”¨æ–¹æ³•ï¼š
     python xlsx2py excelName.xls(x) data.py
     """
     try:
@@ -564,7 +563,7 @@ def main():
         return
 
     for infile in sys.argv[2:]:
-        print("¿ªÊ¼µ¼±í:[%s] max=%i" % (infile, len(sys.argv[2:])))
+        print("å¼€å§‹å¯¼è¡¨:[%s] max=%i" % (infile, len(sys.argv[2:])))
         if os.path.isfile(infile):
             a = xlsx2py(infile, outfile)
             xlsxtool.exportMenu(EXPORT_INFO_OK)
