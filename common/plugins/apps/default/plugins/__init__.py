@@ -10,7 +10,7 @@ def setup(plugins, name):
 
 
 def init_ret_code(plugins):
-    template_str = '# coding:utf-8\r\n\r\n\r\n\r\n\r\n%s\r\n'
+    template_str = '# coding:utf-8\r\n\r\n%s\r\n'
     client_dict = OrderedDict()
     server_dict = OrderedDict()
     i = 1
@@ -31,7 +31,7 @@ def init_ret_code(plugins):
 
     client_list = []
     for k, v in client_dict.items():
-        client_list.append('    %s: "%s"' % (k, v))
+        client_list.append('    "%s": "%s"' % (k, v))
     server_list = []
     for k, v in server_dict.items():
         server_list.append("%s = %s" % (k, v))
