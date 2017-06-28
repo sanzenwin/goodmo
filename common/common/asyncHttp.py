@@ -6,7 +6,7 @@ from tornado.ioloop import IOLoop
 from tornado.escape import json_encode
 
 
-class AsyncHttp(object):
+class AsyncHttp:
     def __init__(self):
         self.callback = None
 

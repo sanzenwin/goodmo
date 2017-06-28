@@ -16,7 +16,7 @@ if KBEngine.component == "bots":
     KBEngine.getResFullPath = getResFullPath
 
 
-class Node(object):
+class Node:
     class MultipleNode(list):
         def __getitem__(self, item):
             try:

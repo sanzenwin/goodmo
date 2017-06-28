@@ -4,7 +4,7 @@ import Math
 from kbe.protocol import Type
 
 
-class PythonType(object):
+class PythonType:
     @classmethod
     def dump(cls, v, client_flag):
         return json.dumps(v) if client_flag else v
@@ -14,7 +14,7 @@ class PythonType(object):
         return json.loads(v) if client_flag else v
 
 
-class ArrayType(object):
+class ArrayType:
     def __init__(self, element_type):
         self.element_type = element_type
 
@@ -89,7 +89,7 @@ class MetaOfDictType(type):
 
     base_list = []
 
-    class DictTypePickler(object):
+    class DictTypePickler:
         user_type_class = None
 
         def createObjFromDict(self, dct):

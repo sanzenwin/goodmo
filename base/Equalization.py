@@ -12,7 +12,7 @@ class Equalization(KBEngine.Base):
         addEntity=BaseMethod(Type.UNICODE, Type.PY_LIST, Type.MAILBOX),
     )
 
-    class EqualizationBase(object):
+    class EqualizationBase:
         def __init__(self):
             super().__init__()
             if not EqualizationCore.isCompleted():

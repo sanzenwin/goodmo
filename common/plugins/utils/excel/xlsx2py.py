@@ -38,7 +38,7 @@ def getFunc(funcName):
     return getattr(functions, funcName)
 
 
-class xlsx2py(object):
+class xlsx2py:
     """
     将excel数据导出为py文件 使用过程需要进行编码转换
     """

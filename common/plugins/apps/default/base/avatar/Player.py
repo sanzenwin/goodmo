@@ -4,7 +4,7 @@ from kbe.core import Equalization
 
 
 @Event.interface
-class Player(object):
+class Player:
     isValid = False
 
     def onClientDeath(self):

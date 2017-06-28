@@ -7,7 +7,7 @@ import datetime
 from importlib import import_module
 
 
-class ServerTime(object):
+class ServerTime:
     def __init__(self):
         self.cursor = 0.0
 
@@ -45,7 +45,7 @@ server_time = ServerTime()
 del ServerTime
 
 
-class Event(object):
+class Event:
     class Meta(type):
         def __new__(mcs, *args, **kwargs):
             target = super().__new__(mcs, *args, **kwargs)
@@ -150,7 +150,7 @@ def get_module_list_m(module_name):
     return get_module_list(path)
 
 
-class Data(object):
+class Data:
     def __init__(self, data):
         self.data = data
 
@@ -250,7 +250,7 @@ class YearData(DateDate):
         return date.year == now.year
 
 
-class PerformanceWatcher(object):
+class PerformanceWatcher:
     def __init__(self, debug=True):
         self.debug = debug
         self.count = 1

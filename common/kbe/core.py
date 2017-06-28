@@ -21,8 +21,8 @@ class MetaOfEqualization(type):
 
 
 class Equalization(object, metaclass=MetaOfEqualization):
-    class Proxy(object):
-        class InvalidProxy(object):
+    class Proxy:
+        class InvalidProxy:
             def __init__(self, entity_name, keys):
                 self.entity_name = entity_name
                 self.keys = keys
@@ -82,7 +82,7 @@ class Equalization(object, metaclass=MetaOfEqualization):
         return isinstance(KBEngine.globalData.get("Equalization"), dict)
 
 
-class KBEngineProxy(object):
+class KBEngineProxy:
     bindAll = False
 
     @classmethod
@@ -127,8 +127,8 @@ class KBEngineProxy(object):
                 setattr(m, nodeName, cls.optimize(proxy_class))
 
 
-class Redis(object):
-    class Proxy(object):
+class Redis:
+    class Proxy:
         ready = False
 
         def attach(self, key, r):
@@ -192,7 +192,7 @@ class Redis(object):
         return cls.Proxy.ready
 
 
-class Database(object):
+class Database:
     __taskID = 0
     __taskSet = set()
 

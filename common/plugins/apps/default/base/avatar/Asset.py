@@ -3,7 +3,7 @@ from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodE
 from common.utils import ExpiredData, TodayData, WeekData, MonthData, YearData
 
 
-class Asset(object):
+class Asset:
     name = Property(
         Type=Type.UNICODE,
         Flags=Property.Flags.BASE_AND_CLIENT,

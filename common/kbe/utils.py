@@ -1,4 +1,4 @@
-class TimerProxy(object):
+class TimerProxy:
     DEFAULT_TIMER_ID = -1
 
     def __init__(self):

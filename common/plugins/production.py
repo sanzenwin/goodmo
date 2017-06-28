@@ -15,7 +15,7 @@ from kbe.log import *
 from kbe.core import *
 
 
-class Plugins(object):
+class Plugins:
     HOME_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     BASE_DIR = os.path.join(HOME_DIR, "base")
     CELL_DIR = os.path.join(HOME_DIR, "base")

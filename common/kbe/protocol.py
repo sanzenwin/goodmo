@@ -1,4 +1,4 @@
-class X(object):
+class X:
     @classmethod
     def add_type(cls, c):
         for k, v in c.__dict__.items():
@@ -158,7 +158,7 @@ class AnyProperty(dict):
 
 class Property(dict):
     @X.add_type
-    class Flags(object):
+    class Flags:
         BASE = X()
         BASE_AND_CLIENT = X()
         CELL_PRIVATE = X()
@@ -169,12 +169,12 @@ class Property(dict):
         OTHER_CLIENTS = X()
 
     @X.add_type
-    class Index(object):
+    class Index:
         INDEX = X()
         UNIQUE = X()
 
     @X.add_type
-    class Persistent(object):
+    class Persistent:
         true = X()
         false = X()
 

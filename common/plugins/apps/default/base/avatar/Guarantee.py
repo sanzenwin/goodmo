@@ -5,7 +5,7 @@ from kbe.core import Equalization
 from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodExposed, Client, ClientMethod
 
 
-class Guarantee(object):
+class Guarantee:
     base = Base(
         run=BaseMethod(Type.CALL.array)
     )

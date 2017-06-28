@@ -1,7 +1,7 @@
 import sys
 
 
-class SettingsNode(object):
+class SettingsNode:
     nodeNames = []
 
     def __init__(self, **kwargs):

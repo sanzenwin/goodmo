@@ -1,7 +1,7 @@
 import heapq
 
 
-class Node(object):
+class Node:
     def __init__(self, key):
         self.key = key
         self.left = None
@@ -9,7 +9,7 @@ class Node(object):
         self.height = 0
 
 
-class AVLTree(object):
+class AVLTree:
     def __init__(self):
         self.root = None
 
@@ -147,7 +147,7 @@ class AVLTree(object):
         return node
 
 
-class MinHeap(object):
+class MinHeap:
     def __init__(self, k):
         self.k = k
         self.heap = []

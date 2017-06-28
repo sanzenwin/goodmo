@@ -15,14 +15,14 @@ for i in range(len(sys.path)):
     sys.path[i] = os.path.normpath(sys.path[i])
 
 
-class EntityProxy(object):
+class EntityProxy:
     pass
 
 
 KBEngine.Entity = EntityProxy
 
 
-class Object(object):
+class Object:
     types = (object,)
     is_entity = False
     app = ""
@@ -218,7 +218,7 @@ class EntityOfCell(ObjectOfCell):
         return Volatile()
 
 
-class Plugins(object):
+class Plugins:
     HOME_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     BOTS_DIR = os.path.join(HOME_DIR, "bots")
     BASE_DIR = os.path.join(HOME_DIR, "base")
@@ -524,7 +524,7 @@ class %(cls_name)s(%(cls_name)sBase):
 from %(plugin_name)s.%(app)s.%(cls_name)s import %(cls_name)s as %(cls_name)sBase
 
 
-class Client(object):
+class Client:
     %(method_list_str)s
 
 class %(cls_name)s(%(cls_name)sBase, Client):
@@ -535,7 +535,7 @@ from %(plugin_name)s.%(app)s.%(cls_name)s import %(cls_name)s as %(cls_name)sBas
 Player%(cls_name)s as Player%(cls_name)sBase
 
 
-class Client(object):
+class Client:
     %(method_list_str)s
 
 class %(cls_name)s(%(cls_name)sBase, Client):
