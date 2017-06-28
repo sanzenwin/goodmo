@@ -143,6 +143,7 @@ class Plugins(object):
 
         m_entities = entity()
         del_attr = dict()
+        set_none = dict()
         properties = dict()
         for m, v in m_entities.items():
             module = importlib.import_module(v)
@@ -156,6 +157,12 @@ class Plugins(object):
                             d = properties.setdefault(c, dict())
                             if k not in vv:
                                 d[k] = vv
+                        if isinstance(vv, (Base, Cell)):
+                            d = set_none.setdefault(cc, dict())
+                            for km, vm in vv.items():
+                                if km not in d:
+                                    d[km] = vm
+
         for c, s in del_attr.items():
             for a in s:
                 g = getattr(c, a)
@@ -163,6 +170,11 @@ class Plugins(object):
                     setattr(c, a, g["defaultValue"])
                 else:
                     delattr(c, a)
+
+        for c, d in set_none.items():
+            for k, v in d.items():
+                if v is None:
+                    setattr(c, k, lambda *args: None)
 
         for c, p in properties.items():
             setattr(c, "properties", p)

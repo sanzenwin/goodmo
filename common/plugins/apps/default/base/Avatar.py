@@ -2,7 +2,6 @@
 import KBEngine
 import settings
 from common.utils import Event
-from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.utils import TimerProxy
 from interfaces.Object import Object
 from kbe.protocol import Property, Client, ClientMethod, Type
@@ -27,7 +26,7 @@ class Avatar(KBEngine.Proxy, Object, TimerProxy, Event.Container):
             return False
         if hasattr(self, "_reqReady"):
             return True
-        if all((getattr(self, req, None) for req in self._reqReadyList)):
+        if all(getattr(self, req, None) for req in self._reqReadyList):
             setattr(self, "_reqReady", True)
             return True
         return False
@@ -36,7 +35,6 @@ class Avatar(KBEngine.Proxy, Object, TimerProxy, Event.Container):
         self.onLogin()
 
     def onEntitiesEnabled(self):
-        INFO_MSG("Avatar[%i] entities enable. mailbox:%s" % (self.id, self.client))
         if self.isReqReady():
             if self.isFirstLogin:
                 self.onLogin()
@@ -55,7 +53,6 @@ class Avatar(KBEngine.Proxy, Object, TimerProxy, Event.Container):
                 return
             if self.isReqReady():
                 self.onLogout()
-        DEBUG_MSG("Avatar[%i]::onClientDeath." % self.id)
         self.destroyTimerID = self.addTimerProxy(settings.Avatar.delayDestroySeconds, callback)
 
     def destroy(self, deleteFromDB=False, writeToDB=True):

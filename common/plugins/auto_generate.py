@@ -5,6 +5,7 @@ import importlib
 import codecs
 import shutil
 import KBEngine
+import kbe.log
 from collections import OrderedDict
 from common.utils import get_module_list, load_module_attr
 from kbe.protocol import Type, Property, Parent, Implements, Volatile, Properties, Client, Base, Cell, Entity, Entities
@@ -390,6 +391,7 @@ class %(cls_name)s(%(cls_name)sBase):
     @classmethod
     def init__sys_path(cls):
         sys.path = [cls.PLUGINS_OUTER_DIR, cls.PLUGINS_DIR] + sys.path
+        sys.path = [cls.PLUGINS_PROXY_COMMON_DIR] + sys.path
         settings = importlib.import_module("settings")
         for name in reversed(settings.install_apps):
             for path in sys.path:
@@ -565,16 +567,12 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
 
     @classmethod
     def init__apps(cls):
-        for name in cls.apps:
-            setup = load_module_attr("%s.plugins.setup" % name)
-            if setup:
-                setup(cls, name)
-
-    @classmethod
-    def init__proxy_module(cls):
         class Proxy:
             def __getattr__(self, item):
                 return 0
+
+        all_proxy_modules = []
+
         for name in cls.apps:
             proxy_modules = load_module_attr("%s.plugins.__proxy_modules__" % name, [])
             for modules in proxy_modules:
@@ -583,16 +581,24 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
                     m = ".".join(modules[:i])
                     if m not in sys.modules:
                         sys.modules[m] = Proxy()
+                        all_proxy_modules.append(m)
+
+        for name in cls.apps:
+            setup = load_module_attr("%s.plugins.setup" % name)
+            if setup:
+                setup(cls, name)
+
+        for m in all_proxy_modules:
+            sys.modules.pop(m)
 
     @classmethod
     def discover(cls):
         cls.clear_dir()
         cls.init__sys_path()
-        cls.init__proxy_module()
         cls.init__settings()
+        cls.init__apps()
         cls.init__user_type()
         cls.init__entity()
         cls.init__bots()
-        cls.init__apps()
         print("""==============\n""")
         print("""plugins completed!!""")
