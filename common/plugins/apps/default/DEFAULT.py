@@ -18,5 +18,9 @@ class TCall(DictType):
             ERROR_MSG('error call:%s, %s, %s' % (obj, self.method, self.args))
 
 
+class TEvent(DictType):
+    properties_type = dict(func=Type.UNICODE, param=Type.PYTHON.client)
+
+
 class DefaultType:
     Type.BOOL(Type.UINT8)

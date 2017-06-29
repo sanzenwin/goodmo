@@ -9,6 +9,7 @@ from kbe.protocol import Property, Client, ClientMethod, Type
 
 class Avatar(KBEngine.Proxy, Object, TimerProxy, Event.Container):
     client = Client(
+        onEvent=ClientMethod(Type.EVENT),
         onRetCode=ClientMethod(Type.RET_CODE),
         onLogOnAttempt=ClientMethod(Type.BOOL, Type.UNICODE)
     )
