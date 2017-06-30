@@ -43,6 +43,17 @@ class Asset:
     def modifyName(self, changed):
         self.name = changed
 
+    goldLocked = False
+
+    def lockGold(self):
+        if self.goldLocked:
+            return False
+        self.goldLocked = True
+        return True
+
     def modifyGold(self, changed):
+        self.goldLocked = False
+        if changed == 0:
+            return
         gold = self.gold + changed
         self.gold = max(0, gold)

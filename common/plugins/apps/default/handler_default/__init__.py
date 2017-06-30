@@ -30,11 +30,11 @@ class EventHandler:
         self.avatar = None
         self.avatar_dbid = 0
 
-    def process(self, avatar_dbid, avatar, event_context):
+    def process(self, avatar_dbid, avatar, inner, event_context):
         self.init_context(avatar_dbid, avatar)
         try:
-            action, args = event_context.func, event_context.param
-            action_method = getattr(self, 'event__' + action, None)
+            action, args = event_context.func, event_context.args
+            action_method = getattr(self, ('event_inner__' if inner else 'event__') + action, None)
             if not action_method:
                 print('%s::process:method not found: %s' % (self.__class__.__name__, event_context))
                 return
@@ -48,14 +48,14 @@ class AvatarEventHandler:
         self.avatar = proxy(avatar)
 
     def process(self, event_context):
-        action, args = event_context.func, event_context.param
-        action_method = getattr(self, 'params__' + action, None)
+        action, args = event_context.func, event_context.args
+        action_method = getattr(self, 'avatar__' + action, None)
         if not action_method:
             return event_context
-        param = action_method(self, *args)
-        if param is None:
+        args = action_method(self, *args)
+        if args is None:
             return None
-        event_context.param = param
+        event_context.args = args
         return event_context
 
 
@@ -70,16 +70,20 @@ class ManagerHandler:
         self.event_handler = self.event_handler_class(proxy(self))
 
     @staticmethod
-    def _pkg_event(event_context):
-        return TEvent(func=event_context[0], param=event_context[1:]).client
+    def pkg_event(func, *args):
+        return TEvent(func=func, args=args).client
 
     def send_event(self, *event_context):
         client = self.event_handler.avatar.client
         if client:
-            getattr(client, self.event_client)(self._pkg_event(event_context))
+            getattr(client, self.event_client)(self.pkg_event(*event_context))
+
+    def send_single_event(self, avatar, *event_context):
+        if avatar.client:
+            getattr(avatar.client, self.event_client)(self.pkg_event(*event_context))
 
     def send_multi_event(self, avatars, *event_context):
-        event = self._pkg_event(event_context)
+        event = self.pkg_event(*event_context)
         for avatar in avatars:
             if avatar.client:
                 getattr(avatar.client, self.event_client)(event)

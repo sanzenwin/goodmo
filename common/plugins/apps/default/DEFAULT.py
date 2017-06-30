@@ -19,7 +19,7 @@ class TCall(DictType):
 
 
 class TEvent(DictType):
-    properties_type = dict(func=Type.UNICODE, param=Type.PYTHON.client)
+    properties_type = dict(func=Type.UNICODE, args=Type.PYTHON.client)
 
 
 class DefaultType:

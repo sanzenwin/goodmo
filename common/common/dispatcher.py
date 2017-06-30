@@ -72,7 +72,7 @@ class Signal:
             weak
                 Whether to use weak references to the receiver. By default, the
                 module will attempt to use weak references to the receiver
-                objects. If this parameter is false, then strong references will
+                objects. If this argseter is false, then strong references will
                 be used.
 
             dispatch_uid

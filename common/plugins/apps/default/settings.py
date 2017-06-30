@@ -35,3 +35,5 @@ class Guarantee(SettingsEntity):
 
 class RetCode(SettingsNode):
     ACCOUNT_CREATE_AVATAR_TOP_LIMIT = Str("角色数目已达到上限，无法创建新的角色")
+
+    AVATAR_GOLD_LACK = Str("金币不足")
