@@ -73,7 +73,6 @@ class Equalization(object, metaclass=MetaOfEqualization):
         settings = importlib.import_module("settings")
         index = int(os.getenv("KBE_BOOTIDX_GROUP")) - 1
         paths = cls.getAllPath()
-        print(paths)
         for i in range(index, len(paths), settings.BaseApp.equalizationBaseappAmount):
             path = paths[i]
             KBEngine.createBaseLocally(path[0], dict(equalizationPath=path[1:]))

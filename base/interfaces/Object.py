@@ -18,6 +18,14 @@ class Object:
         self.__lifeCount -= 1
         if self.__lifeCount <= 0:
             self.destroy()
+        self.onRelease()
+
+    def onRelease(self):
+        pass
+
+    @property
+    def lifeCount(self):
+        return self.__lifeCount
 
     @property
     def object(self):

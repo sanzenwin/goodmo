@@ -23,7 +23,7 @@ class Avatar(KBEngine.Proxy, Object, TimerProxy, Event.Container):
         self.isFirstLogin = True
 
     def isReqReady(self):
-        if not self.isValid:
+        if self.isDestroyed:
             return False
         if hasattr(self, "_reqReady"):
             return True
