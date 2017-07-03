@@ -22,5 +22,24 @@ class TEvent(DictType):
     properties_type = dict(func=Type.UNICODE, args=Type.PYTHON.client)
 
 
+class TClientPython(DictType):
+    properties_type = dict(x=Type.PYTHON.client)
+
+    real_type = dict
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if not isinstance(self.x, self.real_type):
+            self.x = self.real_type()
+
+
+class TClientPythonDict(TClientPython):
+    real_type = dict
+
+
+class TClientPythonList(TClientPython):
+    real_type = list
+
+
 class DefaultType:
     Type.BOOL(Type.UINT8)
