@@ -43,3 +43,4 @@ class TClientPythonList(TClientPython):
 
 class DefaultType:
     Type.BOOL(Type.UINT8)
+    Type.TIME_STAMP(Type.UINT64)

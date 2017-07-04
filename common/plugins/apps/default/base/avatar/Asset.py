@@ -4,12 +4,6 @@ from common.utils import ExpiredData, TodayData, WeekData, MonthData, YearData
 
 
 class Asset:
-    gm = Property(
-        Type=Type.UINT8,
-        Flags=Property.Flags.BASE,
-        Persistent=Property.Persistent.true
-    )
-
     name = Property(
         Type=Type.UNICODE,
         Flags=Property.Flags.BASE_AND_CLIENT,

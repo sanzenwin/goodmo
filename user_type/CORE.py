@@ -319,3 +319,7 @@ class GenericDictType(DictType):
     @classmethod
     def real_type(cls, dct):
         return cls.generic_map[dct[cls.generic_key]]
+
+    def __init__(self, **kwargs):
+        kwargs[self.generic_key] = getattr(self, self.generic_key)
+        super().__init__(**kwargs)
