@@ -37,7 +37,8 @@ class ServerTime:
     def get_date(self, stamp):
         return self.genesis + datetime.timedelta(milliseconds=float(stamp))
 
-    def make_time(self, *args, **kwargs):
+    @staticmethod
+    def make_time(*args, **kwargs):
         return datetime.datetime(*args, **kwargs)
 
 
