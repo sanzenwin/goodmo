@@ -4,10 +4,11 @@ import settings
 from common.utils import Event
 from kbe.utils import TimerProxy
 from interfaces.Object import Object
+from default.interfaces.RunObject import RunObject
 from kbe.protocol import Property, Client, ClientMethod, Type
 
 
-class Avatar(KBEngine.Proxy, Object, TimerProxy, Event.Container):
+class Avatar(KBEngine.Proxy, Object, RunObject, TimerProxy, Event.Container):
     client = Client(
         onEvent=ClientMethod(Type.EVENT),
         onRetCode=ClientMethod(Type.RET_CODE),

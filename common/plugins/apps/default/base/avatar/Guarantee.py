@@ -6,10 +6,6 @@ from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodE
 
 
 class Guarantee:
-    base = Base(
-        run=BaseMethod(Type.CALL.array)
-    )
-
     guaranteeID = Property(
         Type=Type.DBID,
         Flags=Property.Flags.BASE_AND_CLIENT,
@@ -53,7 +49,3 @@ class Guarantee:
 
     def onLogin(self):
         Equalization.PlayerManager(self.guaranteeID).run(self.guaranteeID, [])
-
-    def run(self, callList):
-        for call in callList:
-            call(self)
