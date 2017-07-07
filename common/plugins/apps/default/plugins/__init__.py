@@ -5,7 +5,7 @@ from plugins.conf import Str
 __proxy_modules__ = "ret_code",
 
 
-def setup(plugins, name):
+def run(plugins, name):
     init_ret_code(plugins)
 
 

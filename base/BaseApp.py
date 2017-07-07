@@ -23,7 +23,7 @@ class BaseApp(KBEngine.Base, TimerProxy):
     @classmethod
     def onBaseAppReady(cls):
         cls.instance = KBEngine.createBaseLocally('BaseApp', dict(groupIndex=int(os.getenv("KBE_BOOTIDX_GROUP")),
-                                                   globalIndex=int(os.getenv("KBE_BOOTIDX_GLOBAL"))))
+                                                                  globalIndex=int(os.getenv("KBE_BOOTIDX_GLOBAL"))))
         baseapp_ready.send(sender=cls.instance)
 
     @classmethod

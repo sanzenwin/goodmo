@@ -367,15 +367,16 @@ class %(cls_name)s(%(cls_name)sBase):
 
     @classmethod
     def clear_dir(cls):
-        def clear(dir_name):
-            if os.path.isdir(dir_name):
-                shutil.rmtree(dir_name)
-            os.makedirs(dir_name)
+        cls.clear(cls.DEF_DIR)
+        cls.clear(cls.DATA_DIR)
+        cls.clear(cls.PLUGINS_PROXY_BASE_DIR)
+        cls.clear(cls.PLUGINS_PROXY_CELL_DIR)
 
-        clear(cls.DEF_DIR)
-        clear(cls.DATA_DIR)
-        clear(cls.PLUGINS_PROXY_BASE_DIR)
-        clear(cls.PLUGINS_PROXY_CELL_DIR)
+    @staticmethod
+    def clear(dir_name):
+        if os.path.isdir(dir_name):
+            shutil.rmtree(dir_name)
+        os.makedirs(dir_name)
 
     @classmethod
     def write(cls, s, *path):
@@ -418,7 +419,7 @@ class %(cls_name)s(%(cls_name)sBase):
                         if v not in base_list:
                             base_list.append(v)
             except ImportError:
-                print("import warring: %s.settings is not found" % name)
+                print("import warring: %s is not found" % name)
 
         settings = importlib.import_module("settings")
         for k, base_list in settings_dict.items():
@@ -566,10 +567,10 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
                       cls.PLUGINS_PROXY_BOTS_DIR, "%s.py" % entity_name)
 
     @classmethod
-    def init__apps(cls):
+    def init__apps_enter(cls):
         class Proxy:
             def __getattr__(self, item):
-                return 0
+                return None
 
         all_proxy_modules = []
 
@@ -577,8 +578,8 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
             proxy_modules = load_module_attr("%s.plugins.__proxy_modules__" % name, [])
             for modules in proxy_modules:
                 modules = modules.split(".")
-                for i in range(1, len(modules) + 1):
-                    m = ".".join(modules[:i])
+                for i in range(len(modules)):
+                    m = ".".join(modules[:i+1])
                     if m not in sys.modules:
                         sys.modules[m] = Proxy()
                         all_proxy_modules.append(m)
@@ -592,11 +593,19 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
             sys.modules.pop(m)
 
     @classmethod
+    def init__apps_leave(cls):
+        for name in cls.apps:
+            run = load_module_attr("%s.plugins.run" % name)
+            if run:
+                run(cls, name)
+
+    @classmethod
     def discover(cls):
         cls.clear_dir()
         cls.init__sys_path()
+        cls.init__apps_enter()
         cls.init__settings()
-        cls.init__apps()
+        cls.init__apps_leave()
         cls.init__user_type()
         cls.init__entity()
         cls.init__bots()

@@ -2,9 +2,16 @@ import sys
 
 
 class SettingsNode:
-    nodeNames = []
+    index = 0
+
+    @classmethod
+    def new_id(cls):
+        cls.index += 1
+        return cls.index
 
     def __init__(self, **kwargs):
+        self.index = self.new_id()
+        self.nodeNames = []
         self.dict = {}
         for k, v in kwargs.items():
             setattr(self, k, v)

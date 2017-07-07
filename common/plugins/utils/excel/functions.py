@@ -32,7 +32,7 @@ def funcInt(mapDict, dctData, chilidDict, data):
 
 def funcIntNull(mapDict, dctData, chilidDict, data):
     """
-    返回int数据
+    返回int or None数据
     """
     try:
         v = eval(data)
@@ -57,6 +57,16 @@ def funcFloat(mapDict, dctData, chilidDict, data):
     return float(data)
 
 
+def funcFloatNull(mapDict, dctData, chilidDict, data):
+    """
+    返回float数据
+    """
+    if data is None or (type(data) == str and len(data) == 0):
+        return None
+
+    return float(data)
+
+
 def funcStr(mapDict, dctData, chilidDict, data):
     """
     返回字符串数据
@@ -70,6 +80,21 @@ def funcStr(mapDict, dctData, chilidDict, data):
         data = str(data)
         data = data.encode('utf8')
         return str(data)
+
+
+def funcStrNull(mapDict, dctData, chilidDict, data):
+    """
+    返回字符串数据
+    """
+    if data is None:
+        return None
+
+    if type(data) == str:
+        return None if data == "" else data
+    else:
+        data = str(data)
+        data = str(data.encode('utf8'))
+        return None if data == "" else data
 
 
 def funcEval(mapDict, dctData, chilidDict, data):
