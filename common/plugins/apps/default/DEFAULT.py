@@ -25,20 +25,20 @@ class TEvent(DictType):
 class TClientPython(DictType):
     properties_type = dict(x=Type.PYTHON.client)
 
-    real_type = dict
+    client_python_type = dict
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if not isinstance(self.x, self.real_type):
-            self.x = self.real_type()
+        if not isinstance(self.x, self.client_python_type):
+            self.x = self.client_python_type()
 
 
 class TClientPythonDict(TClientPython):
-    real_type = dict
+    client_python_type = dict
 
 
 class TClientPythonList(TClientPython):
-    real_type = list
+    client_python_type = list
 
 
 class DefaultType:

@@ -123,7 +123,9 @@ class Plugins:
         base_avatar_cls_list = []
         for m, v in m_entity_avatars.items():
             module = importlib.import_module(v)
-            avatar_cls = getattr(module, m)
+            avatar_cls = getattr(module, m, None)
+            if avatar_cls is None:
+                continue
             if not issubclass(avatar_cls, tuple(base_avatar_cls_list)):
                 base_avatar_cls_list.append(avatar_cls)
 

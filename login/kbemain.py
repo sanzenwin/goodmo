@@ -35,13 +35,13 @@ def onLoginAppShutDown():
     INFO_MSG('onLoginAppShutDown()')
 
 
-def onReuqestLogin(loginName, password, clientType, datas):
+def onRequestLogin(loginName, password, clientType, datas):
     """
     KBEngine method.
     账号请求登陆时回调
     此处还可以对登陆进行排队，将排队信息存放于datas
     """
-    INFO_MSG('onReuqestLogin() datas=%s, clientType=%s' % (datas, clientType))
+    INFO_MSG('onRequestLogin() datas=%s, clientType=%s' % (datas, clientType))
 
     errorno = KBEngine.SERVER_SUCCESS
 

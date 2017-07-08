@@ -306,7 +306,10 @@ class %(cls_name)s(%(cls_name)sBase):
         base_avatar_cls_list = []
         for m, v in cls.m_entity_avatars.items():
             module = importlib.import_module(v)
-            avatar_cls = getattr(module, m)
+            avatar_cls = getattr(module, m, None)
+            if avatar_cls is None:
+                print("warring :: module[{0}] has no class named [{0}]".format(m))
+                continue
             if not issubclass(avatar_cls, tuple(base_avatar_cls_list)):
                 base_avatar_cls_list.append(avatar_cls)
 
