@@ -64,3 +64,19 @@ class EqualizationMixin:
 
 class Str(str):
     pass
+
+
+class Tuple(tuple):
+    pass
+
+
+class Dict(dict):
+    pass
+
+
+class List(list):
+    pass
+
+
+class Set(set):
+    pass

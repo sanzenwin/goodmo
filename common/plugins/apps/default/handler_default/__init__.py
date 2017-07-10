@@ -39,6 +39,9 @@ class EventHandler:
                 print('%s::process:method not found: %s' % (self.__class__.__name__, event_context))
                 return
             action_method(self, *args)
+        except TypeError:
+            print(
+                "%s::arguments errors: [%s], [%s]" % (self.__class__.__name__, event_context.func, event_context.args))
         finally:
             self.destroy_context()
 

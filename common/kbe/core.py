@@ -9,7 +9,6 @@ import KBEngine
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.xml import Xml, settings_kbengine
 from common.dispatcher import receiver
-from common.utils import load_module_attr
 from kbe.signals import database_completed
 from plugins.conf.signals import plugins_completed
 from kbe.signals import baseapp_ready

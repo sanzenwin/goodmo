@@ -570,7 +570,7 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
                       cls.PLUGINS_PROXY_BOTS_DIR, "%s.py" % entity_name)
 
     @classmethod
-    def init__apps_enter(cls):
+    def init__apps_a(cls):
         class Proxy:
             def __getattr__(self, item):
                 return None
@@ -588,29 +588,37 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
                         all_proxy_modules.append(m)
 
         for name in cls.apps:
-            setup = load_module_attr("%s.plugins.setup" % name)
-            if setup:
-                setup(cls, name)
+            entry = load_module_attr("%s.plugins.setup" % name)
+            if entry:
+                entry(cls, name)
 
         for m in all_proxy_modules:
             sys.modules.pop(m)
 
     @classmethod
-    def init__apps_leave(cls):
+    def init__apps_b(cls):
         for name in cls.apps:
             run = load_module_attr("%s.plugins.run" % name)
             if run:
                 run(cls, name)
 
     @classmethod
+    def init__apps_c(cls):
+        for name in cls.apps:
+            entry = load_module_attr("%s.plugins.over" % name)
+            if entry:
+                entry(cls, name)
+
+    @classmethod
     def discover(cls):
         cls.clear_dir()
         cls.init__sys_path()
-        cls.init__apps_enter()
+        cls.init__apps_a()
         cls.init__settings()
-        cls.init__apps_leave()
+        cls.init__apps_b()
         cls.init__user_type()
         cls.init__entity()
         cls.init__bots()
+        cls.init__apps_c()
         print("""==============\n""")
         print("""plugins completed!!""")
