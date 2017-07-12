@@ -19,7 +19,7 @@ class MetaOfEqualization(type):
         return getattr(cls, item)
 
 
-class Equalization(object, metaclass=MetaOfEqualization):
+class Equalization(metaclass=MetaOfEqualization):
     class Proxy:
         class InvalidProxy:
             def __init__(self, entity_name, keys):
@@ -31,8 +31,11 @@ class Equalization(object, metaclass=MetaOfEqualization):
                 self.call = item
                 return self.proxy
 
+            def __bool__(self):
+                return False
+
             def proxy(self, *args, **kwargs):
-                ERROR_MSG("Equalization error call: %s, %s, %s" % (self.entity_name, self.keys, self.call))
+                print("Equalization error call: %s, %s, %s" % (self.entity_name, self.keys, self.call))
 
         def __init__(self, entity):
             super().__init__()
@@ -79,6 +82,23 @@ class Equalization(object, metaclass=MetaOfEqualization):
     @classmethod
     def isCompleted(cls):
         return isinstance(KBEngine.globalData.get("Equalization"), dict)
+
+
+class MetaOfSingleton(type):
+    class InvalidProxy:
+        def proxy(self, *args, **kwargs):
+            print("Equalization error call: %s, %s, %s" % (self.entity_name, self.keys, self.call))
+
+    def __getattr__(cls, item):
+        return getattr(cls, item)
+
+
+class Singleton(metaclass=MetaOfEqualization):
+    @classmethod
+    def mark(cls, obj):
+        name = obj.__class__.__name__
+        assert name not in KBEngine.globalData
+        KBEngine.globalData[name] = obj
 
 
 class KBEngineProxy:
