@@ -85,20 +85,52 @@ class Equalization(metaclass=MetaOfEqualization):
 
 
 class MetaOfSingleton(type):
-    class InvalidProxy:
-        def proxy(self, *args, **kwargs):
-            print("Equalization error call: %s, %s, %s" % (self.entity_name, self.keys, self.call))
+    class Proxy:
+        class Call:
+            def __init__(self, entity, method):
+                self.entity = entity
+                self.method = method
 
-    def __getattr__(cls, item):
+            def __call__(self, *args, **kwargs):
+                print("Singleton error call: %s, %s" % (self.entity, self.method))
+
+        def __init__(self, entity):
+            super().__init__()
+            self.entity = entity
+
+        def __getattr__(self, method):
+            return self.Call(self.entity, method)
+
+        def __bool__(self):
+            return False
+
+    def __getattr__(cls, base):
+        return KBEngine.globalData["Singleton"].get(base, cls.Proxy(base))
+
+    def __getitem__(cls, item):
         return getattr(cls, item)
 
 
-class Singleton(metaclass=MetaOfEqualization):
+class Singleton(metaclass=MetaOfSingleton):
     @classmethod
-    def mark(cls, obj):
+    def add(cls, obj):
         name = obj.__class__.__name__
-        assert name not in KBEngine.globalData
-        KBEngine.globalData[name] = obj
+        assert name not in KBEngine.globalData["Singleton"]
+        KBEngine.globalData["Singleton"][name] = obj
+
+    @classmethod
+    def remove(cls, obj):
+        del KBEngine.globalData["Singleton"][obj.__class__.__name__]
+
+    @classmethod
+    def discover(cls):
+        index = int(os.getenv("KBE_BOOTIDX_GROUP")) - 1
+        if index == 0:
+            KBEngine.globalData["Singleton"] = dict()
+
+    @classmethod
+    def isCompleted(cls):
+        return isinstance(KBEngine.globalData.get("Singleton"), dict)
 
 
 class KBEngineProxy:
@@ -238,11 +270,12 @@ class Database:
 def discover(signal, sender):
     if sender.app in ("base", ):
         Equalization.discover()
+        Singleton.discover()
     if sender.app in ("base", "cell"):
         KBEngineProxy.discover()
     Redis.discover()
 
 
 @receiver(baseapp_ready)
-def registerCompleted(signal, sender):
-    sender.addCompletedObject(Equalization, Redis, Database)
+def registerToBeCompleted(signal, sender):
+    sender.addCompletedObject(Equalization, Singleton, Redis, Database)

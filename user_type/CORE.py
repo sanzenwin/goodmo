@@ -34,15 +34,21 @@ class ArrayType:
         return [self.element_type.load(d, client_flag) for d in v]
 
 
-def client(obj):
+def python_client(obj):
     return PythonType.dump(obj, True)
 
 
-_client_list_handle = ArrayType(PythonType)
+def python_client_list(lst):
+    return ArrayType(PythonType).dump(lst, True)
 
 
-def client_list(lst):
-    return _client_list_handle.dump(lst, True)
+def python_server(obj, real_type=None):
+    if not isinstance(obj, str):
+        return obj
+    v = PythonType.load(obj, True)
+    if real_type is not None and not isinstance(v, real_type):
+        return real_type()
+    return v
 
 
 class MetaOfDictType(type):

@@ -22,25 +22,6 @@ class TEvent(DictType):
     properties_type = dict(func=Type.UNICODE, args=Type.PYTHON.client)
 
 
-class TClientPython(DictType):
-    properties_type = dict(x=Type.PYTHON.client)
-
-    client_python_type = dict
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        if not isinstance(self.x, self.client_python_type):
-            self.x = self.client_python_type()
-
-
-class TClientPythonDict(TClientPython):
-    client_python_type = dict
-
-
-class TClientPythonList(TClientPython):
-    client_python_type = list
-
-
 class DefaultType:
     Type.BOOL(Type.UINT8)
     Type.TIME_STAMP(Type.UINT64)
