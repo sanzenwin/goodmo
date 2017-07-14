@@ -226,6 +226,12 @@ class DictType(object, metaclass=MetaOfDictType):
     def __deepcopy__(self, memo):
         return self.clone()
 
+    def __eq__(self, other):
+        for k, v in self.dict_properties.items():
+            if getattr(self, k) != getattr(other, k):
+                return False
+        return True
+
     def clone(self):
         obj = self.__class__()
         obj.createFromRecursionDict(self.asRecursionDict())

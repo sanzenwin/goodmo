@@ -6,6 +6,7 @@ import codecs
 import shutil
 import KBEngine
 import kbe.log
+from types import ModuleType
 from collections import OrderedDict
 from common.utils import get_module_list, load_module_attr
 from kbe.protocol import Type, Property, Parent, Implements, Volatile, Properties, Client, Base, Cell, Entity, Entities
@@ -424,6 +425,15 @@ class %(cls_name)s(%(cls_name)sBase):
             except ImportError:
                 print("import warring: %s is not found" % name)
 
+        class settings(ModuleType):
+            def __init__(self):
+                super().__init__(self.__class__.__name__)
+
+            def __getitem__(self, item):
+                return getattr(self, item, None)
+
+        sys.modules[settings.__name__] = settings()
+
         settings = importlib.import_module("settings")
         for k, base_list in settings_dict.items():
             c = type(k, tuple(base_list), {})()
@@ -570,7 +580,7 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
                       cls.PLUGINS_PROXY_BOTS_DIR, "%s.py" % entity_name)
 
     @classmethod
-    def init__apps_a(cls):
+    def init__apps_setup(cls):
         class Proxy:
             def __getattr__(self, item):
                 return None
@@ -596,14 +606,14 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
             sys.modules.pop(m)
 
     @classmethod
-    def init__apps_b(cls):
+    def init__apps_run(cls):
         for name in cls.apps:
             run = load_module_attr("%s.plugins.run" % name)
             if run:
                 run(cls, name)
 
     @classmethod
-    def init__apps_c(cls):
+    def init__apps_over(cls):
         for name in cls.apps:
             entry = load_module_attr("%s.plugins.over" % name)
             if entry:
@@ -613,12 +623,12 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
     def discover(cls):
         cls.clear_dir()
         cls.init__sys_path()
-        cls.init__apps_a()
+        cls.init__apps_setup()
         cls.init__settings()
-        cls.init__apps_b()
+        cls.init__apps_run()
         cls.init__user_type()
         cls.init__entity()
         cls.init__bots()
-        cls.init__apps_c()
+        cls.init__apps_over()
         print("""==============\n""")
         print("""plugins completed!!""")

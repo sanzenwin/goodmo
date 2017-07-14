@@ -73,7 +73,8 @@ class Equalization(metaclass=MetaOfEqualization):
     @classmethod
     def createBaseLocally(cls):
         settings = importlib.import_module("settings")
-        index = int(os.getenv("KBE_BOOTIDX_GROUP")) - 1
+        BaseApp = importlib.import_module("BaseApp")
+        index = BaseApp.BaseApp.instance.groupIndex - 1
         paths = cls.getAllPath()
         for i in range(index, len(paths), settings.BaseApp.equalizationBaseappAmount):
             path = paths[i]
@@ -114,6 +115,7 @@ class MetaOfSingleton(type):
 class Singleton(metaclass=MetaOfSingleton):
     @classmethod
     def add(cls, obj):
+        cls.checkInit()
         name = obj.__class__.__name__
         assert name not in KBEngine.globalData["Singleton"]
         KBEngine.globalData["Singleton"][name] = obj
@@ -123,10 +125,13 @@ class Singleton(metaclass=MetaOfSingleton):
         del KBEngine.globalData["Singleton"][obj.__class__.__name__]
 
     @classmethod
-    def discover(cls):
-        index = int(os.getenv("KBE_BOOTIDX_GROUP")) - 1
-        if index == 0:
+    def checkInit(cls):
+        if "Singleton" not in KBEngine.globalData:
             KBEngine.globalData["Singleton"] = dict()
+
+    @classmethod
+    def discover(cls):
+        cls.checkInit()
 
     @classmethod
     def isCompleted(cls):
@@ -270,12 +275,13 @@ class Database:
 def discover(signal, sender):
     if sender.app in ("base", ):
         Equalization.discover()
-        Singleton.discover()
     if sender.app in ("base", "cell"):
         KBEngineProxy.discover()
     Redis.discover()
 
 
 @receiver(baseapp_ready)
-def registerToBeCompleted(signal, sender):
+def baseappReady(signal, sender):
+    if sender.groupIndex == 1:
+        Singleton.discover()
     sender.addCompletedObject(Equalization, Singleton, Redis, Database)

@@ -43,6 +43,7 @@ class Equalization(KBEngine.Base):
                 if not issubclass(entityClass, KBEngine.Base):
                     continue
                 dbInterfaceName = getattr(v, "database", None) or "default"
+                setattr(v, "database", dbInterfaceName)
                 setattr(module, name, type(entityClass.__name__, (cls.DatabaseBase, entityClass),
                                            dict(dbInterfaceName=dbInterfaceName)))
             except ImportError:
