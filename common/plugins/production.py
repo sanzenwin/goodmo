@@ -4,7 +4,6 @@ import re
 import importlib
 import KBEngine
 from collections import OrderedDict
-from types import ModuleType
 from common.utils import get_module_list
 from kbe.protocol import Type, Property, AnyProperty, Volatile, Base, Cell, Client
 from plugins.conf import SettingsNode, EqualizationMixin
@@ -82,15 +81,6 @@ class Plugins:
                             base_list.append(v)
             except ImportError:
                 pass
-
-        class settings(ModuleType):
-            def __init__(self):
-                super().__init__(self.__class__.__name__)
-
-            def __getitem__(self, item):
-                return getattr(self, item, None)
-
-        sys.modules[settings.__name__] = settings()
 
         settings = importlib.import_module("settings")
         for k, base_list in settings_dict.items():

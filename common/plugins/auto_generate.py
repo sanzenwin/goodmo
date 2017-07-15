@@ -6,7 +6,6 @@ import codecs
 import shutil
 import KBEngine
 import kbe.log
-from types import ModuleType
 from collections import OrderedDict
 from common.utils import get_module_list, load_module_attr
 from kbe.protocol import Type, Property, Parent, Implements, Volatile, Properties, Client, Base, Cell, Entity, Entities
@@ -15,12 +14,7 @@ from plugins.conf import SettingsNode, EqualizationMixin
 for i in range(len(sys.path)):
     sys.path[i] = os.path.normpath(sys.path[i])
 
-
-class EntityProxy:
-    pass
-
-
-KBEngine.Entity = EntityProxy
+KBEngine.Entity = type("Entity", (object, ), {})
 
 
 class Object:
@@ -34,13 +28,19 @@ class Object:
     def check_type(cls, c):
         if c in cls.types:
             return None
+        if not cls.has_kbe(c):
+            return None
         if issubclass(c, cls.types):
             return cls
+        return cls.__base__
+
+    @staticmethod
+    def has_kbe(c):
         for m in c.mro():
             for v in m.__dict__.values():
                 if isinstance(v, (Property, Volatile, Base, Cell, Client)):
-                    return cls.__base__
-        return None
+                    return True
+        return False
 
     def __init__(self, entity, entity_name=None):
         self.entity_name = entity.__name__ if entity_name is None else entity_name
@@ -265,6 +265,8 @@ class %(cls_name)s(%(cls_name)sBase):
         maps = cls.entities[entity.__class__]
         maps = maps.setdefault(entity.entity_name, {})
         if entity.entity.__name__ in maps:
+            if str(entity.entity) != str(maps[entity.entity.__name__].entity):
+                print("warring :: %s is covered by %s" % (entity.entity, maps[entity.entity.__name__].entity))
             return False
         maps[entity.entity.__name__] = entity
         return True
@@ -424,15 +426,6 @@ class %(cls_name)s(%(cls_name)sBase):
                             base_list.append(v)
             except ImportError:
                 print("import warring: %s is not found" % name)
-
-        class settings(ModuleType):
-            def __init__(self):
-                super().__init__(self.__class__.__name__)
-
-            def __getitem__(self, item):
-                return getattr(self, item, None)
-
-        sys.modules[settings.__name__] = settings()
 
         settings = importlib.import_module("settings")
         for k, base_list in settings_dict.items():

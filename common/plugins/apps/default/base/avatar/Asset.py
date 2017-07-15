@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodExposed, Client, ClientMethod
 from common.utils import ExpiredData, TodayData, WeekData, MonthData, YearData
+from kbe.utils import LockAsset
 
 
-class Asset:
+class Asset(LockAsset("gold")):
     name = Property(
         Type=Type.UNICODE,
         Flags=Property.Flags.BASE_AND_CLIENT,
-        Index=Property.Index.UNIQUE,
+        # Index=Property.Index.UNIQUE,
         DatabaseLength=20,
         Persistent=Property.Persistent.true
     )
@@ -36,18 +37,3 @@ class Asset:
 
     def modifyName(self, changed):
         self.name = changed
-
-    goldLocked = False
-
-    def lockGold(self):
-        if self.goldLocked:
-            return False
-        self.goldLocked = True
-        return True
-
-    def modifyGold(self, changed):
-        self.goldLocked = False
-        if changed == 0:
-            return
-        gold = self.gold + changed
-        self.gold = max(0, gold)
