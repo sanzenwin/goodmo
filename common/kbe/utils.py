@@ -1,3 +1,6 @@
+import ret_code
+
+
 class TimerProxy:
     DEFAULT_TIMER_ID = -1
 
@@ -36,6 +39,15 @@ def LockAsset(*nameList):
                 return
             v = getattr(self, name) + changed
             setattr(self, name, max(0, v))
+
+        def asset(self, name):
+            return getattr(self, name)
+
+        def assetLockedCode(self, name):
+            return getattr(ret_code, name.upper() + "_LOCKED")
+
+        def assetLackCode(self, name):
+            return getattr(ret_code, name.upper() + "_LACK")
 
     def get_lockedPropertyName(name):
         return "__" + name + "Locked"

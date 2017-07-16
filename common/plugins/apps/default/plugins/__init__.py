@@ -1,3 +1,5 @@
+import os
+import shutil
 import settings
 from collections import OrderedDict
 from plugins.conf import Str
@@ -40,3 +42,13 @@ def init_ret_code(plugins):
     s = template_str % "\r\n".join(server_list)
     plugins.write(s, plugins.PLUGINS_PROXY_COMMON_DIR, "ret_code.py")
     plugins.write("{\r\n%s\r\n}" % ",\r\n".join(client_list), plugins.PLUGINS_PROXY_COMMON_DIR, "ret_code.json")
+
+
+def completed(plugins, name):
+    client_data = os.path.join(plugins.DATA_DIR, "client_data")
+    plugins.clear(client_data)
+    for dirpath, dirnames, filenames in os.walk(plugins.HOME_DIR):
+        for name in filenames:
+            path = os.path.normpath(os.path.join(dirpath, name))
+            if os.path.isfile(path) and path.endswith(".json"):
+                shutil.move(path, os.path.join(client_data, name))

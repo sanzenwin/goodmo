@@ -28,14 +28,14 @@ class Object:
     def check_type(cls, c):
         if c in cls.types:
             return None
-        if not cls.has_kbe(c):
+        if not cls.has_kbe_element(c):
             return None
         if issubclass(c, cls.types):
             return cls
         return cls.__base__
 
     @staticmethod
-    def has_kbe(c):
+    def has_kbe_element(c):
         for m in c.mro():
             for v in m.__dict__.values():
                 if isinstance(v, (Property, Volatile, Base, Cell, Client)):
@@ -590,25 +590,23 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
                         sys.modules[m] = Proxy()
                         all_proxy_modules.append(m)
 
-        for name in cls.apps:
-            entry = load_module_attr("%s.plugins.setup" % name)
-            if entry:
-                entry(cls, name)
+        cls.run_plugins("setup")
 
         for m in all_proxy_modules:
             sys.modules.pop(m)
 
     @classmethod
     def init__apps_run(cls):
-        for name in cls.apps:
-            run = load_module_attr("%s.plugins.run" % name)
-            if run:
-                run(cls, name)
+        cls.run_plugins("run")
 
     @classmethod
-    def init__apps_over(cls):
+    def init__apps_completed(cls):
+        cls.run_plugins("completed")
+
+    @classmethod
+    def run_plugins(cls, method):
         for name in cls.apps:
-            entry = load_module_attr("%s.plugins.over" % name)
+            entry = load_module_attr("%s.plugins.%s" % (name, method))
             if entry:
                 entry(cls, name)
 
@@ -622,6 +620,6 @@ class Player%(cls_name)s(Player%(cls_name)sBase, %(cls_name)s):
         cls.init__user_type()
         cls.init__entity()
         cls.init__bots()
-        cls.init__apps_over()
+        cls.init__apps_completed()
         print("""==============\n""")
         print("""plugins completed!!""")
