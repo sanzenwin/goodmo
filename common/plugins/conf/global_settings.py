@@ -9,3 +9,4 @@ class Global(SettingsEntity):
 
 class BaseApp(SettingsEntity):
     equalizationBaseappAmount = 1
+    readyForLoginWarringSeconds = 20

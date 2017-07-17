@@ -4,24 +4,31 @@ import KBEngine
 import settings
 from common.asyncHttp import AsyncHttp
 from common.asyncio import asyncio_loop
+from common.utils import server_time
 from kbe.utils import TimerProxy
 from kbe.core import Equalization, Database
 from kbe.signals import baseapp_ready
 from kbe.xml import settings_kbengine
+from kbe.log import ERROR_MSG
 
 
 class BaseApp(KBEngine.Base, TimerProxy):
     gameTimeInterval = 0.5 / settings_kbengine.gameUpdateHertz.value
+    readyStamp = None
 
     instance = None
     completedSet = set()
 
     @classmethod
     def onReadyForLogin(cls):
-        return 1.0 if cls.instance and all([x.isCompleted() for x in cls.completedSet]) else 0.0
+        ready = cls.instance and all([x.isCompleted() for x in cls.completedSet])
+        if not ready and server_time.passed(cls.readyStamp) > settings.BaseApp.readyForLoginWarringSeconds:
+            ERROR_MSG("waring :: base app is waiting for ready took %s seconds" % server_time.passed(cls.readyStamp))
+        return 1.0 if ready else 0.0
 
     @classmethod
     def onBaseAppReady(cls):
+        cls.readyStamp = server_time.stamp()
         cls.instance = KBEngine.createBaseLocally('BaseApp', dict(groupIndex=int(os.getenv("KBE_BOOTIDX_GROUP")),
                                                                   globalIndex=int(os.getenv("KBE_BOOTIDX_GLOBAL"))))
         baseapp_ready.send(sender=cls.instance)

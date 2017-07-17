@@ -30,6 +30,9 @@ class ServerTime:
         delta = to - self.genesis
         return int(delta.total_seconds() * 1000)
 
+    def passed(self, stamp):
+        return (self.stamp() - stamp) / 1000.0
+
     @staticmethod
     def now():
         return datetime.datetime.now()

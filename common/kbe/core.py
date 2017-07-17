@@ -74,9 +74,12 @@ class Equalization(metaclass=MetaOfEqualization):
     def createBaseLocally(cls):
         settings = importlib.import_module("settings")
         BaseApp = importlib.import_module("BaseApp")
-        index = BaseApp.BaseApp.instance.groupIndex - 1
+        index = BaseApp.BaseApp.instance.groupIndex
         paths = cls.getAllPath()
-        for i in range(index, len(paths), settings.BaseApp.equalizationBaseappAmount):
+        if index > settings.BaseApp.equalizationBaseappAmount:
+            ERROR_MSG("BaseApp[%d] has not parted in equalization!" % index)
+            return
+        for i in range(index - 1, len(paths), settings.BaseApp.equalizationBaseappAmount):
             path = paths[i]
             KBEngine.createBaseLocally(path[0], dict(equalizationPath=path[1:]))
 
