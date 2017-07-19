@@ -61,4 +61,4 @@ def completed(plugins, name):
         path_list = name.split(".")[:-1]
         for i, path in enumerate(path_list):
             d = d.setdefault(path, {} if i != len(path_list) - 1 else name)
-    plugins.write(json.dumps(data, indent=1), os.path.join(client_data, "all.txt"))
+    plugins.write("var resData = %s;" % json.dumps(data, indent=1), os.path.join(client_data, "data.js"))
