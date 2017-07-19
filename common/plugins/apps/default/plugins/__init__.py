@@ -1,4 +1,5 @@
 import os
+import json
 import shutil
 import settings
 from collections import OrderedDict
@@ -45,10 +46,19 @@ def init_ret_code(plugins):
 
 
 def completed(plugins, name):
-    client_data = os.path.join(plugins.DATA_DIR, "client_data")
+    client_data = os.path.join(plugins.DATA_DIR, "client_excel_data")
     plugins.clear(client_data)
+    list_name = set()
     for dirpath, dirnames, filenames in os.walk(plugins.HOME_DIR):
         for name in filenames:
             path = os.path.normpath(os.path.join(dirpath, name))
             if os.path.isfile(path) and path.endswith(".json"):
                 shutil.move(path, os.path.join(client_data, name))
+                list_name.add(name)
+    data = {}
+    for name in list_name:
+        d = data
+        path_list = name.split(".")[:-1]
+        for i, path in enumerate(path_list):
+            d = d.setdefault(path, {} if i != len(path_list) - 1 else name)
+    plugins.write(json.dumps(data, indent=1), os.path.join(client_data, "all.txt"))
