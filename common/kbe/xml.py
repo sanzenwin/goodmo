@@ -123,7 +123,10 @@ class Node:
                 n.value = n2.value
                 n.attrs.update(n2.attrs)
                 for nodeName in n2.nodeNames:
-                    over(n[nodeName], n2[nodeName])
+                    if n[nodeName] is None:
+                        n.addNode(n2[nodeName].copy())
+                    else:
+                        over(n[nodeName], n2[nodeName])
 
         over(self, node)
         return self
