@@ -132,4 +132,4 @@ def onRequestCharge(ordersID, entityDBID, datas):
     # KBEngine.registerReadFileDescriptor()和KBEngine.registerWriteFileDescriptor()结合
     # tornado异步访问。也可以结合socket模拟http的方式与平台交互。
     # KBEngine.chargeResponse(ordersID, datas, KBEngine.SERVER_SUCCESS)
-    Plugins.onRequestCharge(ordersID, entityDBID, datas)
+    plugins.Plugins.onRequestCharge(ordersID, entityDBID, datas)
