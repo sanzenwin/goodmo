@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import plugins
-from kbe.log import DEBUG_MSG
+import robot_main
 
 
 def onInit(isReload):
@@ -10,7 +10,6 @@ def onInit(isReload):
     @param isReload: 是否是被重写加载脚本后触发的
     @type isReload: bool
     """
-    DEBUG_MSG('onInit::isReload:%s' % isReload)
 
 
 def onStart():
@@ -18,6 +17,8 @@ def onStart():
     KBEngine method.
     在onInitialize调用之后， 准备开始游戏时引擎调用这个接口.
     """
+    robot_main.start()
+
 
 def onFinish():
     """
@@ -25,4 +26,3 @@ def onFinish():
     客户端将要关闭时， 引擎调用这个接口
     可以在此做一些游戏资源清理工作
     """
-    pass

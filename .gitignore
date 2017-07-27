@@ -92,8 +92,5 @@ ENV/
 .ropeproject
 /entities.xml
 /entity_defs/*
-/common/plugins/proxy/base/*
-/common/plugins/proxy/cell/*
-/common/plugins/proxy/bots/*
-/common/plugins/proxy/common/*
+/common/plugins/proxy/*
 /data/*
