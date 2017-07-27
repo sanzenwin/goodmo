@@ -115,17 +115,22 @@ Event.Container = Container
 del Container
 
 
-def load_module_attr(path, default=None):
-    mod_name, attr_name = path.rsplit('.', 1)
-
+def get_module(mod_name):
     try:
         mod = import_module(mod_name)
     except ImportError as e:
         m = re.search("No module named '(\S*)'", e.args[0])
         if m and m.group(1) in mod_name:
-            return default
-        raise ImportError(*e.args)
+            return None
+        raise ImportError("%s from '%s'" % (e.args[0], mod_name))
+    return mod
 
+
+def load_module_attr(path, default=None):
+    mod_name, attr_name = path.rsplit('.', 1)
+    mod = get_module(mod_name)
+    if mod is None:
+        return default
     return getattr(mod, attr_name, default)
 
 
@@ -268,7 +273,8 @@ class PerformanceWatcher:
     def log_result(self):
         if not self.debug:
             return
-        print("\nlog_result: %sms\n" % ((time.monotonic() - self.last_time) / ((self.count - self.last_count) or 1) * 1e3))
+        print("\nlog_result: %sms\n" % (
+            (time.monotonic() - self.last_time) / ((self.count - self.last_count) or 1) * 1e3))
         self.last_count = self.count
         self.last_time = time.monotonic()
 

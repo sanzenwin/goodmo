@@ -10,13 +10,6 @@ def onInit(isReload):
     @param isReload: 是否是被重写加载脚本后触发的
     @type isReload: bool
     """
-
-
-def onStart():
-    """
-    KBEngine method.
-    在onInitialize调用之后， 准备开始游戏时引擎调用这个接口.
-    """
     robot_main.start()
 
 
