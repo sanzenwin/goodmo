@@ -1,3 +1,4 @@
+import traceback
 from weakref import proxy
 from DEFAULT import TEvent
 
@@ -39,9 +40,9 @@ class EventHandler:
                 print('%s::process:method not found: %s' % (self.__class__.__name__, event_context))
                 return
             action_method(self, *args)
-        except TypeError:
+        except TypeError as e:
             print(
-                "%s::arguments errors: [%s], [%s]" % (self.__class__.__name__, event_context.func, event_context.args))
+                "%s::arguments errors: [%s], [%s]" % (self.__class__.__name__, event_context, traceback.print_exc()))
         finally:
             self.destroy_context()
 
