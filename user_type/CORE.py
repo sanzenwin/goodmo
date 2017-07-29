@@ -280,6 +280,9 @@ class DictType(object, metaclass=MetaOfDictType):
             client_handle = self.client_fields.get(k, None)
             if client_handle:
                 v = client_handle.load(v, self.client_flag)
+            setter = getattr(self, "set__%s" % k, None)
+            if setter is not None:
+                v = setter(v)
             setattr(self, k, v)
         return self
 
@@ -306,6 +309,9 @@ class DictType(object, metaclass=MetaOfDictType):
             recursion_handle = self.recursion_fields.get(k, None)
             if recursion_handle:
                 v = recursion_handle.load(v, self.client_flag)
+            setter = getattr(self, "set__%s" % k, None)
+            if setter is not None:
+                v = setter(v)
             setattr(self, k, v)
         return self
 
