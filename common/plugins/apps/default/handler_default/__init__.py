@@ -40,7 +40,7 @@ class EventHandler:
                 print('%s::process:method not found: %s' % (self.__class__.__name__, event_context))
                 return
             action_method(self, *args)
-        except TypeError as e:
+        except TypeError:
             print(
                 "%s::arguments errors: [%s], [%s]" % (self.__class__.__name__, event_context, traceback.print_exc()))
         finally:
@@ -70,8 +70,8 @@ class ManagerHandler:
     def __init__(self, entity, event_client):
         self.entity = proxy(entity)
         self.event_client = event_client
-        self.bill_handler = self.bill_handler_class(proxy(self))
-        self.event_handler = self.event_handler_class(proxy(self))
+        self.bill_handler = self.bill_handler_class(self)
+        self.event_handler = self.event_handler_class(self)
 
     @staticmethod
     def pkg_event(func, *args):
