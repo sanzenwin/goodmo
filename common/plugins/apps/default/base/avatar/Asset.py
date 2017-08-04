@@ -19,7 +19,7 @@ class Asset(LockAsset("gold")):
         Persistent=Property.Persistent.true
     )
 
-    avatarCode = Property(
+    avatarUrl = Property(
         Type=Type.UNICODE,
         Flags=Property.Flags.BASE_AND_CLIENT,
         Persistent=Property.Persistent.true

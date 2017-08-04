@@ -81,6 +81,7 @@ class Equalization(metaclass=MetaOfEqualization):
             return
         for i in range(index - 1, len(paths), settings.BaseApp.equalizationBaseappAmount):
             path = paths[i]
+            # print(path)
             KBEngine.createBaseLocally(path[0], dict(equalizationPath=path[1:]))
 
     @classmethod
