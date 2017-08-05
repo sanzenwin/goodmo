@@ -377,12 +377,16 @@ class %(cls_name)s(%(cls_name)sBase):
         cls.clear(cls.DATA_DIR)
         cls.clear(cls.PLUGINS_PROXY_BASE_DIR)
         cls.clear(cls.PLUGINS_PROXY_CELL_DIR)
+        cls.clear(cls.PLUGINS_PROXY_COMMON_DIR, True)
+        cls.clear(cls.PLUGINS_PROXY_BOTS_DIR)
 
-    @staticmethod
-    def clear(dir_name):
+    @classmethod
+    def clear(cls, dir_name, need_keep=False):
         if os.path.isdir(dir_name):
             shutil.rmtree(dir_name)
         os.makedirs(dir_name)
+        if need_keep:
+            cls.write("", dir_name, ".gitkeep")
 
     @classmethod
     def write(cls, s, *path):

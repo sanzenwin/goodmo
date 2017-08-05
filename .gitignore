@@ -97,3 +97,4 @@ ENV/
 /common/plugins/proxy/bots/*
 /common/plugins/proxy/cell/*
 /common/plugins/proxy/common/*
+!/common/plugins/proxy/common/.gitkeep
