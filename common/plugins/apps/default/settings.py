@@ -38,3 +38,6 @@ class RetCode(SettingsNode):
 
     GOLD_LACK = Str("金币不足")
     GOLD_LOCKED = Str("金币已经锁定，其他操作未完成")
+
+    ASSET_LACK = Str("资源不足")
+    ASSET_LOCKED = Str("资源已经锁定，其他操作未完成")

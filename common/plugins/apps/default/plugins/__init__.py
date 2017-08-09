@@ -45,7 +45,7 @@ def init_ret_code(plugins):
     plugins.write("{\r\n%s\r\n}" % ",\r\n".join(client_list), plugins.PLUGINS_PROXY_COMMON_DIR, "ret_code.json")
 
 
-def completed(plugins, name):
+def completed(plugins, _):
     client_data = os.path.join(plugins.DATA_DIR, "client_excel_data")
     plugins.clear(client_data)
     list_name = set()
@@ -53,6 +53,9 @@ def completed(plugins, name):
         for name in filenames:
             path = os.path.normpath(os.path.join(dirpath, name))
             if os.path.isfile(path) and path.endswith(".json"):
+                if plugins.EXCEL_DATA_DIR in path:
+                    app_name = path.split(os.sep)[-2]
+                    name = "%s.%s" % (app_name, name)
                 shutil.move(path, os.path.join(client_data, name))
                 list_name.add(name)
     data = {}

@@ -221,4 +221,5 @@ class Plugins:
             cls.init__entity()
         if cls.app == "interface":
             cls.init__charge()
+        Type.init_dict_types()
         plugins_completed.send(sender=cls)

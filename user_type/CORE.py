@@ -1,7 +1,9 @@
 import json
 import importlib
 import Math
+import plugins
 from kbe.protocol import Type
+from common.utils import get_module_list_m, get_module_all
 
 
 class PythonType:
@@ -254,7 +256,6 @@ class DictType(object, metaclass=MetaOfDictType):
             DictType._setClient(self, True)
         return self
 
-    @property
     def server(self):
         if self.client_flag:
             DictType._setClient(self, False)
@@ -317,18 +318,19 @@ class DictType(object, metaclass=MetaOfDictType):
 
     @classmethod
     def dump(cls, v, client_flag):
-        v = v.client if client_flag else v.server
+        v = v.client if client_flag else v.server()
         return v.asRecursionDict()
 
     @classmethod
     def load(cls, v, client_flag):
-        o = cls().client if client_flag else cls().server
+        o = cls().client if client_flag else cls().server()
         return o.createFromRecursionDict(v)
 
 
 class GenericDictType(DictType):
     generic_key = None
     generic_map = None
+    generic_module = None
 
     @classmethod
     def generic_init(cls):
@@ -337,6 +339,24 @@ class GenericDictType(DictType):
     @classmethod
     def real_type(cls, dct):
         return cls.generic_map[dct[cls.generic_key]]
+
+    @classmethod
+    def init_type(cls):
+        cls.import_module()
+
+    @classmethod
+    def generate_all(cls):
+        d = {}
+        for name in plugins.Plugins.apps:
+            md = get_module_all("%s.%s" % (name, cls.generic_module))
+            if cls.__name__ not in md:
+                d.update(md)
+        return d
+
+    @classmethod
+    def import_module(cls):
+        if cls.generic_module:
+            importlib.import_module(cls.generic_module)
 
     def __init__(self, **kwargs):
         kwargs[self.generic_key] = getattr(self, self.generic_key)

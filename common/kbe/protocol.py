@@ -129,6 +129,13 @@ class Type(object, metaclass=MetaOfType):
             dict_type_cls.apply_by_properties_type()
 
     @classmethod
+    def init_dict_types(cls):
+        for dict_type_cls in cls.dict_types:
+            init = getattr(dict_type_cls, "init_type", None)
+            if init:
+                init()
+
+    @classmethod
     def alias_str(cls):
         s = ""
         for name in sorted(cls.alias):

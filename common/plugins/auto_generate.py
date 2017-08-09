@@ -14,7 +14,7 @@ from plugins.conf import SettingsNode, EqualizationMixin
 for i in range(len(sys.path)):
     sys.path[i] = os.path.normpath(sys.path[i])
 
-KBEngine.Entity = type("Entity", (object, ), {})
+KBEngine.Entity = type("Entity", (object,), {})
 
 
 class Object:
@@ -400,6 +400,19 @@ class %(cls_name)s(%(cls_name)sBase):
             f.close()
 
     @classmethod
+    def read(cls, *path):
+        filename = os.path.join(*path)
+        with codecs.open(filename, 'r', 'utf-8') as f:
+            return f.read()
+
+    @classmethod
+    def get_app_path(cls, name):
+        path = os.path.join(cls.PLUGINS_OUTER_DIR, name)
+        if os.path.exists(path):
+            return path
+        return os.path.join(cls.PLUGINS_DIR, name)
+
+    @classmethod
     def init__sys_path(cls):
         sys.path = [cls.PLUGINS_OUTER_DIR, cls.PLUGINS_DIR] + sys.path
         sys.path = [cls.PLUGINS_PROXY_COMMON_DIR] + sys.path
@@ -541,7 +554,7 @@ class %(cls_name)s(%(cls_name)sBase):
             for modules in proxy_modules:
                 modules = modules.split(".")
                 for i in range(len(modules)):
-                    m = ".".join(modules[:i+1])
+                    m = ".".join(modules[:i + 1])
                     if m not in sys.modules:
                         sys.modules[m] = Proxy()
                         all_proxy_modules.append(m)

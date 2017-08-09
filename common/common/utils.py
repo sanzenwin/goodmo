@@ -154,9 +154,21 @@ def get_module_list(*path):
 
 
 def get_module_list_m(module_name):
-    module = import_module(module_name)
-    path = os.path.dirname(module.__file__)
+    m = import_module(module_name)
+    path = os.path.dirname(m.__file__)
     return get_module_list(path)
+
+
+def get_module_all(module_name):
+    m = get_module(module_name)
+    if not m:
+        return dict()
+    d = m.__dict__
+    try:
+        x = m.__all__
+    except AttributeError:
+        x = [name for name in d if not name.startswith('_')]
+    return {name: d[name] for name in x}
 
 
 class Data:

@@ -31,7 +31,7 @@ def LockAsset(*nameList):
             setattr(self, get_lockedPropertyName(name), True)
 
         def isAssetLocked(self, name):
-            return getattr(self, get_lockedPropertyName(name))
+            return getattr(self, get_lockedPropertyName(name), True)
 
         def modifyAsset(self, name, changed, unlock=True):
             if unlock:
@@ -42,13 +42,13 @@ def LockAsset(*nameList):
             setattr(self, name, max(0, v))
 
         def asset(self, name):
-            return getattr(self, name)
+            return getattr(self, name, 0)
 
         def assetLockedCode(self, name):
-            return getattr(ret_code, name.upper() + "_LOCKED")
+            return getattr(ret_code, name.upper() + "_LOCKED", 'ASSET_LOCKED')
 
         def assetLackCode(self, name):
-            return getattr(ret_code, name.upper() + "_LACK")
+            return getattr(ret_code, name.upper() + "_LACK", 'ASSET_LACK')
 
     def get_lockedPropertyName(name):
         return "__" + name + "Locked"
