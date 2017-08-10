@@ -5,12 +5,9 @@ import KBEngine
 import plugins
 import settings
 from kbe.log import INFO_MSG, ERROR_MSG
-from kbe.xml import settings_kbengine
+from kbe.xml import Xml, settings_kbengine
 from common.asyncHttp import AsyncHttp
 from common.asyncio import asyncio_loop
-
-gameTimeInterval = 0.5 / settings_kbengine.gameUpdateHertz.value
-
 
 """
 interfaces进程主要处理KBEngine服务端与第三方平台的接入接出工作。
@@ -46,6 +43,8 @@ def onInterfaceAppReady():
     """
     INFO_MSG('onInterfaceAppReady: bootstrapGroupIndex=%s, bootstrapGlobalIndex=%s' % \
              (os.getenv("KBE_BOOTIDX_GROUP"), os.getenv("KBE_BOOTIDX_GLOBAL")))
+
+    gameTimeInterval = settings.Global.gameTimeInterval
 
     if settings.Global.enableAsyncHttp:
         KBEngine.addTimer(gameTimeInterval, gameTimeInterval, onAsyncHttpTick)
@@ -106,7 +105,8 @@ def onRequestAccountLogin(loginName, password, datas):
         KBEngine.accountLoginResponse(loginName, realAccountName, bytes(json.dumps(serverData), "utf-8"), code)
 
     return KBEngine.accountLoginResponse(loginName, json.loads(datas.decode('utf-8')).get("username", realAccountName),
-                                         bytes(json.dumps(dict(username=loginName, password=loginName, typeList=[])), "utf-8"),
+                                         bytes(json.dumps(dict(username=loginName, password=loginName, typeList=[])),
+                                               "utf-8"),
                                          KBEngine.SERVER_SUCCESS)
     AsyncHttp().post(settings.Account.url.authUser, callback, json.loads(datas.decode('utf-8')))
 

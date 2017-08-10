@@ -5,8 +5,10 @@ import uuid
 import KBEngine
 import plugins
 import settings
-from kbe.xml import settings_kbengine
 from kbe.log import INFO_MSG, ERROR_MSG
+from kbe.xml import Xml, settings_kbengine
+from common.asyncHttp import AsyncHttp
+from common.asyncio import asyncio_loop
 
 
 """
@@ -25,6 +27,22 @@ def onLoginAppReady():
     """
     INFO_MSG('onLoginAppReady: bootstrapGroupIndex=%s, bootstrapGlobalIndex=%s' % \
              (os.getenv("KBE_BOOTIDX_GROUP"), os.getenv("KBE_BOOTIDX_GLOBAL")))
+
+    gameTimeInterval = settings.Global.gameTimeInterval
+
+    if settings.Global.enableAsyncHttp:
+        KBEngine.addTimer(gameTimeInterval, gameTimeInterval, onAsyncHttpTick)
+
+    if settings.Global.enableAsyncio:
+        KBEngine.addTimer(gameTimeInterval, gameTimeInterval, onAsyncioTick)
+
+
+def onAsyncHttpTick(timerID):
+    AsyncHttp.run_frame()
+
+
+def onAsyncioTick(timerID):
+    asyncio_loop.run_frame()
 
 
 def onLoginAppShutDown():
