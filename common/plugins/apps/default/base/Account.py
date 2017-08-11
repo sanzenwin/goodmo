@@ -102,6 +102,9 @@ class Account(KBEngine.Proxy):
 
     def reqRemoveAvatar(self, dbid):
         DEBUG_MSG("Account[%i].reqRemoveAvatar: %s" % (self.id, dbid))
+        if not settings.Account.removeAvatarEnabled:
+            self.client.onRetCode(ret_code.ACCOUNT_REMOVE_AVATAR_FAILED)
+            return
         oldNum = len(self.avatars)
         self.avatars = [avatar for avatar in self.avatars if dbid == avatar.dbid]
         self.client.onRemoveAvatar(0 if oldNum == len(self.avatars) else dbid)

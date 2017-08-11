@@ -16,6 +16,7 @@ class PlayerManager(SettingsEntity, EqualizationMixin):
 
 class Account(SettingsEntity):
     avatarTotalLimit = 1
+    removeAvatarEnabled = False
     type = ("tourist", "email", "phone", "weixin", "qq", "weibo",)
     url = SettingsNode(
         authUser=r"http://127.0.0.1:8000/game/auth_user/"
@@ -35,6 +36,7 @@ class Guarantee(SettingsEntity):
 
 class RetCode(SettingsNode):
     ACCOUNT_CREATE_AVATAR_TOP_LIMIT = Str("角色数目已达到上限，无法创建新的角色")
+    ACCOUNT_REMOVE_AVATAR_FAILED = Str("未开放删除角色功能")
 
     GOLD_LACK = Str("金币不足")
     GOLD_LOCKED = Str("金币已经锁定，其他操作未完成")
