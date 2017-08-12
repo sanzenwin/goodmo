@@ -62,6 +62,10 @@ class AvatarEventHandler:
         event_context.args = args
         return event_context
 
+    @staticmethod
+    def pkg_event(func, *args):
+        return TEvent(func=func, args=args).client
+
 
 class ManagerHandler:
     bill_handler_class = BillHandler
