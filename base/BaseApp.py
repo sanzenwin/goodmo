@@ -8,12 +8,10 @@ from common.utils import server_time
 from kbe.utils import TimerProxy
 from kbe.core import Equalization, Database
 from kbe.signals import baseapp_ready
-from kbe.xml import settings_kbengine
 from kbe.log import ERROR_MSG
 
 
 class BaseApp(KBEngine.Base, TimerProxy):
-    gameTimeInterval = 0.5 / settings_kbengine.gameUpdateHertz.value
     readyStamp = None
 
     instance = None
@@ -55,7 +53,8 @@ class BaseApp(KBEngine.Base, TimerProxy):
             Equalization.createBaseLocally()
 
     def tickLoop(self):
+        gameTimeInterval = settings.Global.gameTimeInterval
         if settings.Global.enableAsyncHttp:
-            self.addTimerProxy(self.gameTimeInterval, AsyncHttp.run_frame, self.gameTimeInterval)
+            self.addTimerProxy(gameTimeInterval, AsyncHttp.run_frame, gameTimeInterval)
         if settings.Global.enableAsyncio:
-            self.addTimerProxy(self.gameTimeInterval, asyncio_loop.run_frame, self.gameTimeInterval)
+            self.addTimerProxy(gameTimeInterval, asyncio_loop.run_frame, gameTimeInterval)

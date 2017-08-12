@@ -42,12 +42,6 @@ class Account(KBEngine.Proxy):
         Persistent=Property.Persistent.true
     )
 
-    def onEntitiesEnabled(self):
-        DEBUG_MSG(
-            "Account[%i]::onEntitiesEnabled:entities enable. mailbox:%s, clientType(%i), clientDatas=(%s), hasAvatar=%s, accountName=%s" % \
-            (self.id, self.client, self.getClientType(), self.getClientDatas(), self.activeAvatar,
-             self.__ACCOUNT_NAME__))
-
     def onLogOnAttempt(self, ip, port, password):
         ERROR_MSG("Account[%i]::onLogOnAttempt: ip=%s, port=%i, selfclient=%s" % (self.id, ip, port, self.client))
         if self.isDestroyed:
@@ -98,10 +92,8 @@ class Account(KBEngine.Proxy):
         avatar = KBEngine.createBaseLocally('Avatar', newbieData)
         if avatar:
             avatar.writeToDB(self.__onAvatarSaved)
-        DEBUG_MSG("Account[%i].reqCreateAvatar" % (self.id))
 
     def reqRemoveAvatar(self, dbid):
-        DEBUG_MSG("Account[%i].reqRemoveAvatar: %s" % (self.id, dbid))
         if not settings.Account.removeAvatarEnabled:
             self.client.onRetCode(ret_code.ACCOUNT_REMOVE_AVATAR_FAILED)
             return
@@ -110,7 +102,6 @@ class Account(KBEngine.Proxy):
         self.client.onRemoveAvatar(0 if oldNum == len(self.avatars) else dbid)
 
     def reqSelectAvatar(self, dbid):
-        DEBUG_MSG("Account[%i].reqSelectAvatar:%i. self.activeAvatar=%s" % (self.id, dbid, self.activeAvatar))
         # 注意:使用giveClientTo的entity必须是当前baseapp上的entity
         if self.activeAvatar is None:
             for avatar in self.avatars:

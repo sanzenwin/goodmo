@@ -9,7 +9,7 @@ import KBEngine
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.xml import Xml, settings_kbengine
 from common.dispatcher import receiver
-from kbe.signals import database_completed
+from kbe.signals import database_completed, redis_completed
 from plugins.conf.signals import plugins_completed
 from kbe.signals import baseapp_ready
 
@@ -233,6 +233,7 @@ class Redis:
             r = cls.loads(p)
             redis_map[p] = redis.StrictRedis(host=r["host"], port=r["port"], db=r["db"], password=r.get("password"))
         cls.attach(redis_map, objects)
+        redis_completed.send(sender=cls)
 
     @classmethod
     def generateAsyncRedis(cls, redis_set, objects):
@@ -244,6 +245,7 @@ class Redis:
                 redis_map[p] = yield from aioredis.create_redis((r["host"], r["port"]), db=r["db"],
                                                                 password=r.get("password"))
             cls.attach(redis_map, objects)
+            redis_completed.send(sender=cls)
 
         asyncio.async(init_connections())
 

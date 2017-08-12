@@ -126,7 +126,7 @@ def get_module(mod_name):
     return mod
 
 
-def load_module_attr(path, default=None):
+def get_module_attr(path, default=None):
     mod_name, attr_name = path.rsplit('.', 1)
     mod = get_module(mod_name)
     if mod is None:

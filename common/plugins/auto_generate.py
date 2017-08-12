@@ -7,7 +7,7 @@ import shutil
 import KBEngine
 import kbe.log
 from collections import OrderedDict
-from common.utils import get_module_list, load_module_attr
+from common.utils import get_module_list, get_module_attr
 from kbe.protocol import Type, Property, Parent, Implements, Volatile, Properties, Client, Base, Cell, Entity, Entities
 from plugins.conf import SettingsNode, EqualizationMixin
 
@@ -550,7 +550,7 @@ class %(cls_name)s(%(cls_name)sBase):
         all_proxy_modules = []
 
         for name in cls.apps:
-            proxy_modules = load_module_attr("%s.plugins.__proxy_modules__" % name, [])
+            proxy_modules = get_module_attr("%s.plugins.__proxy_modules__" % name, [])
             for modules in proxy_modules:
                 modules = modules.split(".")
                 for i in range(len(modules)):
@@ -575,7 +575,7 @@ class %(cls_name)s(%(cls_name)sBase):
     @classmethod
     def run_plugins(cls, method):
         for name in cls.apps:
-            entry = load_module_attr("%s.plugins.%s" % (name, method))
+            entry = get_module_attr("%s.plugins.%s" % (name, method))
             if entry:
                 entry(cls, name)
 

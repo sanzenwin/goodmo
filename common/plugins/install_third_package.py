@@ -1,5 +1,5 @@
 import os
-from common.utils import load_module_attr
+from common.utils import get_module_attr
 from .auto_generate import Plugins as PluginsBase
 
 
@@ -12,7 +12,7 @@ class Plugins(PluginsBase):
     def init__third_package(cls):
         install = []
         for name in cls.apps:
-            install.extend(list(load_module_attr("%s.settings.__third_package__" % name) or []))
+            install.extend(list(get_module_attr("%s.settings.__third_package__" % name) or []))
         os.system("pip3 install -t %s %s" % (cls.THIRD_PACKAGE_DIR, " ".join(set(install))))
 
     @classmethod

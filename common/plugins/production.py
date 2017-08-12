@@ -4,7 +4,7 @@ import re
 import importlib
 import KBEngine
 from collections import OrderedDict
-from common.utils import get_module_list
+from common.utils import get_module_list, get_module_attr, get_module
 from kbe.protocol import Type, Property, AnyProperty, Volatile, Base, Cell, Client
 from plugins.conf import SettingsNode, EqualizationMixin
 from plugins.conf.signals import plugins_completed
@@ -210,6 +210,54 @@ class Plugins:
     def onRequestCharge(cls, ordersID, entityDBID, datas):
         for interface_handle in cls.interface_handle_list:
             interface_handle(ordersID, entityDBID, datas)
+
+    @classmethod
+    def init_bots(cls):
+        assert cls.app == "bots"
+
+        class Tid(int):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.tid = 0
+
+            def __int__(self):
+                return self.tid
+
+        def addTimer(start, interval, callback):
+            tidObj = Tid()
+
+            def callback2():
+                callback(tidObj)
+                if interval > 0:
+                    tidObj.tid = KBEngine.callback(interval, callback2)
+
+            tidObj.tid = KBEngine.callback(start, callback2)
+            return tidObj
+
+        def delTimer(tidObj):
+            KBEngine.cancelCallback(tidObj.tid)
+
+        KBEngine.addTimer = addTimer
+        KBEngine.delTimer = delTimer
+
+    @classmethod
+    def open_async(cls):
+        assert cls.app not in ("base", "cell")
+        settings = get_module("settings")
+        AsyncHttp = get_module_attr("common.asyncHttp.AsyncHttp")
+        asyncio_loop = get_module_attr("common.asyncio.asyncio_loop")
+
+        def onAsyncHttpTick(timerID):
+            AsyncHttp.run_frame()
+
+        def onAsyncioTick(timerID):
+            asyncio_loop.run_frame()
+
+        gameTimeInterval = settings.Global.gameTimeInterval
+        if settings.Global.enableAsyncHttp:
+            KBEngine.addTimer(gameTimeInterval, gameTimeInterval, onAsyncHttpTick)
+        if settings.Global.enableAsyncio:
+            KBEngine.addTimer(gameTimeInterval, gameTimeInterval, onAsyncioTick)
 
     @classmethod
     def discover(cls):
