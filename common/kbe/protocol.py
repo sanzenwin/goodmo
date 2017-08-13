@@ -327,6 +327,15 @@ class Cell(MailBox):
 
 
 class Client(MailBox):
+    UNKNOWN_CLIENT_COMPONENT_TYPE = 0,
+    CLIENT_TYPE_MOBILE = 1,  # 手机类
+    CLIENT_TYPE_WIN = 2,  # pc， 一般都是exe客户端
+    CLIENT_TYPE_LINUX = 3  # Linux Application program
+    CLIENT_TYPE_MAC = 4  # Mac Application program
+    CLIENT_TYPE_BROWSER = 5,  # web应用， html5，flash
+    CLIENT_TYPE_BOTS = 6,  # bots
+    CLIENT_TYPE_MINI = 7,  # 微型客户端
+
     template_whole_str = """    <ClientMethods>%s
     </ClientMethods>"""
 

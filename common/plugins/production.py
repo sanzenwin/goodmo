@@ -4,7 +4,7 @@ import re
 import importlib
 import KBEngine
 from collections import OrderedDict
-from common.utils import get_module_list, get_module_attr, get_module
+from common.utils import get_module_list, get_module_attr, get_module, get_module_all
 from kbe.protocol import Type, Property, AnyProperty, Volatile, Base, Cell, Client
 from plugins.conf import SettingsNode, EqualizationMixin
 from plugins.conf.signals import plugins_completed
@@ -50,8 +50,7 @@ class Plugins:
     @classmethod
     def init__sys_path(cls):
         sys.path = [cls.PLUGINS_OUTER_DIR, cls.PLUGINS_DIR] + sys.path
-        if cls.app in ("base", "cell", "bots"):
-            sys.path = [cls.PLUGINS_PROXY_COMMON_DIR, cls.PLUGINS_PROXY_DIR] + sys.path
+        sys.path = [cls.PLUGINS_PROXY_COMMON_DIR, cls.PLUGINS_PROXY_DIR] + sys.path
         settings = importlib.import_module("settings")
         for name in reversed(settings.install_apps):
             for path in sys.path:
@@ -260,6 +259,15 @@ class Plugins:
             KBEngine.addTimer(gameTimeInterval, gameTimeInterval, onAsyncioTick)
 
     @classmethod
+    def load_all_module(cls, module_name):
+        d = {}
+        for name in cls.apps:
+            md = get_module_all("%s.%s" % (name, module_name))
+            if "__ignore__" not in md:
+                d.update(md)
+        return d
+
+    @classmethod
     def discover(cls):
         cls.init__sys_path()
         cls.init__settings()
@@ -269,5 +277,6 @@ class Plugins:
             cls.init__entity()
         if cls.app == "interface":
             cls.init__charge()
+        cls.load_all_module("plugins.completed")
         Type.init_dict_types()
         plugins_completed.send(sender=cls)

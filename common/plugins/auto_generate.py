@@ -7,7 +7,7 @@ import shutil
 import KBEngine
 import kbe.log
 from collections import OrderedDict
-from common.utils import get_module_list, get_module_attr
+from common.utils import get_module_list, get_module_attr, get_module_all
 from kbe.protocol import Type, Property, Parent, Implements, Volatile, Properties, Client, Base, Cell, Entity, Entities
 from plugins.conf import SettingsNode, EqualizationMixin
 
@@ -578,6 +578,15 @@ class %(cls_name)s(%(cls_name)sBase):
             entry = get_module_attr("%s.plugins.%s" % (name, method))
             if entry:
                 entry(cls, name)
+
+    @classmethod
+    def load_all_module(cls, module_name):
+        d = {}
+        for name in cls.apps:
+            md = get_module_all("%s.%s" % (name, module_name))
+            if "__ignore__" not in md:
+                d.update(md)
+        return d
 
     @classmethod
     def discover(cls):

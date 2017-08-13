@@ -283,7 +283,8 @@ def discover(signal, sender):
         Equalization.discover()
     if sender.app in ("base", "cell"):
         KBEngineProxy.discover()
-    Redis.discover()
+    if sender.app != "bots":
+        Redis.discover()
 
 
 @receiver(baseapp_ready)

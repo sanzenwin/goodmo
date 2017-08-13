@@ -41,7 +41,7 @@ def onRequestLogin(loginName, password, clientType, datas):
     账号请求登陆时回调
     此处还可以对登陆进行排队，将排队信息存放于datas
     """
-    INFO_MSG('onRequestLogin() datas=%s, clientType=%s' % (datas, clientType))
+    ERROR_MSG('onRequestLogin() datas=%s, clientType=%s' % (datas, clientType))
 
     errorno = KBEngine.SERVER_SUCCESS
     if loginName.startswith(settings_kbengine.bots.account_infos.account_name_prefix.value):

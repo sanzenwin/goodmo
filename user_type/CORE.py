@@ -345,13 +345,8 @@ class GenericDictType(DictType):
         cls.import_module()
 
     @classmethod
-    def generate_all(cls):
-        d = {}
-        for name in plugins.Plugins.apps:
-            md = get_module_all("%s.%s" % (name, cls.generic_module))
-            if cls.__name__ not in md:
-                d.update(md)
-        return d
+    def load_all(cls):
+        return plugins.Plugins.load_all_module(cls.generic_module)
 
     @classmethod
     def import_module(cls):
