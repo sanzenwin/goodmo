@@ -67,7 +67,8 @@ def onRequestAccountLogin(loginName, password, datas):
     @type  datas: bytes
     """
     data = Bytes(datas)
-    if Client.password == password:
+    clientType = data["ct"]
+    if clientType == Client.CLIENT_TYPE_BOTS:
         return KBEngine.accountLoginResponse(loginName, loginName, datas, KBEngine.SERVER_SUCCESS)
 
     realAccountName = loginName

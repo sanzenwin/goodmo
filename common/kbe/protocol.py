@@ -336,8 +336,6 @@ class Client(MailBox):
     CLIENT_TYPE_BOTS = 6  # bots
     CLIENT_TYPE_MINI = 7  # 微型客户端
 
-    password = "bot"
-
     template_whole_str = """    <ClientMethods>%s
     </ClientMethods>"""
 

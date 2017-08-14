@@ -42,8 +42,9 @@ def onRequestLogin(loginName, password, clientType, datas):
     """
     errorno = KBEngine.SERVER_SUCCESS
     data = Bytes(datas)
+    data["ct"] = clientType
     if clientType == Client.CLIENT_TYPE_BOTS:
-        return errorno, loginName, Client.password, clientType, data.dumps()
+        return errorno, loginName, password, clientType, data.dumps()
 
     if not check_auth_data(data):
         errorno = KBEngine.SERVER_ERR_OP_FAILED
