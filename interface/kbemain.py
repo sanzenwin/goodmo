@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-import json
 import KBEngine
 import plugins
 import settings
-from kbe.log import INFO_MSG, ERROR_MSG
-from kbe.xml import Xml, settings_kbengine
+from common.utils import Bytes
 from common.asyncHttp import AsyncHttp
+from kbe.log import INFO_MSG, ERROR_MSG
+from kbe.protocol import Client
 
 """
 interfaces进程主要处理KBEngine服务端与第三方平台的接入接出工作。
@@ -66,9 +66,8 @@ def onRequestAccountLogin(loginName, password, datas):
     @param datas: 客户端请求时所附带的数据，可将数据转发第三方平台
     @type  datas: bytes
     """
-    INFO_MSG('onRequestAccountLogin: registerName=%s' % (datas))
-
-    if loginName.startswith(settings_kbengine.bots.account_infos.account_name_prefix.value):
+    data = Bytes(datas)
+    if Client.password == password:
         return KBEngine.accountLoginResponse(loginName, loginName, datas, KBEngine.SERVER_SUCCESS)
 
     realAccountName = loginName
@@ -86,13 +85,13 @@ def onRequestAccountLogin(loginName, password, datas):
             serverData = user_data
         else:
             code = KBEngine.SERVER_ERR_OP_FAILED
-        KBEngine.accountLoginResponse(loginName, realAccountName, bytes(json.dumps(serverData), "utf-8"), code)
+        KBEngine.accountLoginResponse(loginName, realAccountName, Bytes(**serverData).dumps(), code)
 
-    return KBEngine.accountLoginResponse(loginName, json.loads(datas.decode('utf-8')).get("username", realAccountName),
-                                         bytes(json.dumps(dict(username=loginName, password=loginName, typeList=[])),
-                                               "utf-8"),
-                                         KBEngine.SERVER_SUCCESS)
-    AsyncHttp().post(settings.Account.url.authUser, callback, json.loads(datas.decode('utf-8')))
+    if not settings.Account.needWebAuth:
+        return KBEngine.accountLoginResponse(loginName, data.get("username", realAccountName),
+                                             Bytes(username=loginName, password=loginName, typeList=[]).dumps(),
+                                             KBEngine.SERVER_SUCCESS)
+    AsyncHttp().post(settings.Account.url.authUser, callback, data)
 
 
 def onRequestCharge(ordersID, entityDBID, datas):

@@ -4,6 +4,7 @@ import re
 import types
 import time
 import datetime
+import json
 from importlib import import_module
 
 
@@ -327,3 +328,23 @@ def classproperty(func):
     if not isinstance(func, (classmethod, staticmethod)):
         func = classmethod(func)
     return ClassPropertyDescriptor(func)
+
+
+class Bytes(dict):
+    class Dict(dict):
+        def loads(self, s):
+            try:
+                data = json.loads(s.decode('utf-8'))
+            except ValueError:
+                data = {}
+            data = data if isinstance(data, dict) else {}
+            self.update(data)
+
+        def dumps(self):
+            return bytes(json.dumps(self), "utf-8")
+
+    def __new__(cls, s=None, **kwargs):
+        c = cls.Dict(**kwargs)
+        if s:
+            c.loads(s)
+        return c

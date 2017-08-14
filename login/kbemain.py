@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-import json
 import uuid
 import KBEngine
 import plugins
 import settings
+from common.utils import Bytes
 from kbe.log import INFO_MSG, ERROR_MSG
-from kbe.xml import Xml, settings_kbengine
+from kbe.protocol import Client
 
 """
 loginapp进程主要处理KBEngine服务端登陆、创建账号等工作。
@@ -24,7 +24,6 @@ def onLoginAppReady():
     """
     INFO_MSG('onLoginAppReady: bootstrapGroupIndex=%s, bootstrapGlobalIndex=%s' % \
              (os.getenv("KBE_BOOTIDX_GROUP"), os.getenv("KBE_BOOTIDX_GLOBAL")))
-    plugins.Plugins.open_async()
 
 
 def onLoginAppShutDown():
@@ -41,20 +40,19 @@ def onRequestLogin(loginName, password, clientType, datas):
     账号请求登陆时回调
     此处还可以对登陆进行排队，将排队信息存放于datas
     """
-    ERROR_MSG('onRequestLogin() datas=%s, clientType=%s' % (datas, clientType))
-
     errorno = KBEngine.SERVER_SUCCESS
-    if loginName.startswith(settings_kbengine.bots.account_infos.account_name_prefix.value):
-        return (errorno, loginName, password, clientType, datas)
+    data = Bytes(datas)
+    if clientType == Client.CLIENT_TYPE_BOTS:
+        return errorno, loginName, Client.password, clientType, data.dumps()
 
-    if not check_auth_datas(datas):
+    if not check_auth_data(data):
         errorno = KBEngine.SERVER_ERR_OP_FAILED
     elif loginName != "x":
         errorno = KBEngine.SERVER_ERR_OP_FAILED
     if password != "":
         errorno = KBEngine.SERVER_ERR_OP_FAILED
 
-    return (errorno, uuid.uuid4().hex, password, clientType, datas)
+    return errorno, uuid.uuid4().hex, password, clientType, data.dumps()
 
 
 def onLoginCallbackFromDB(loginName, accountName, errorno, datas):
@@ -91,13 +89,8 @@ def onCreateAccountCallbackFromDB(accountName, errorno, datas):
     INFO_MSG('onCreateAccountCallbackFromDB() accountName=%s, errorno=%s' % (accountName, errorno))
 
 
-def check_auth_datas(datas):
-    try:
-        data = json.loads(datas.decode('utf-8'))
-    except ValueError:
-        return False
-    if isinstance(data, dict):
-        bind = data.get("bind", {})
-        if isinstance(bind, dict) and bind.get("type") in settings.Account.type:
-            return True
+def check_auth_data(data):
+    bind = data.get("bind", {})
+    if isinstance(bind, dict) and bind.get("type") in settings.Account.type:
+        return True
     return False
