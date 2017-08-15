@@ -10,6 +10,8 @@ def onInit(isReload):
     @param isReload: 是否是被重写加载脚本后触发的
     @type isReload: bool
     """
+    plugins.Plugins.init_bots()
+    plugins.Plugins.open_async()
     robot_main.start()
 
 

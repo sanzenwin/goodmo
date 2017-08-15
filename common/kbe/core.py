@@ -161,7 +161,7 @@ class KBEngineProxy:
         methods = dict(baseapp="BaseMethods", cellapp="CellMethods")[KBEngine.component]
         if defs[methods]:
             for nodeName in defs[methods].nodeNames:
-                if defs[methods][nodeName]["Exposed"]or cls.bindAll:
+                if defs[methods][nodeName]["Exposed"] or cls.bindAll:
                     bind(nodeName)
         return target
 
@@ -279,11 +279,11 @@ class Database:
 
 @receiver(plugins_completed)
 def discover(signal, sender):
-    if sender.app in ("base", ):
+    if sender.app in ("base",):
         Equalization.discover()
     if sender.app in ("base", "cell"):
         KBEngineProxy.discover()
-    if sender.app != "bots":
+    if sender.app not in ("login",):
         Redis.discover()
 
 

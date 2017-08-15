@@ -253,6 +253,8 @@ class Plugins:
             asyncio_loop.run_frame()
 
         gameTimeInterval = settings.Global.gameTimeInterval
+        if cls.app == "bots":
+            gameTimeInterval *= 2
         if settings.Global.enableAsyncHttp:
             KBEngine.addTimer(gameTimeInterval, gameTimeInterval, onAsyncHttpTick)
         if settings.Global.enableAsyncio:

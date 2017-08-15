@@ -45,14 +45,12 @@ def onRequestLogin(loginName, password, clientType, datas):
     data["ct"] = clientType
     if clientType == Client.CLIENT_TYPE_BOTS:
         return errorno, loginName, password, clientType, data.dumps()
-
     if not check_auth_data(data):
         errorno = KBEngine.SERVER_ERR_OP_FAILED
     elif loginName != "x":
         errorno = KBEngine.SERVER_ERR_OP_FAILED
     if password != "":
         errorno = KBEngine.SERVER_ERR_OP_FAILED
-
     return errorno, uuid.uuid4().hex, password, clientType, data.dumps()
 
 
