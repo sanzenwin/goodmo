@@ -12,7 +12,7 @@ class Plugins(PluginsBase):
     def init__third_package(cls):
         install = []
         for name in cls.apps:
-            install.extend(list(get_module_attr("%s.settings.__third_package__" % name) or []))
+            install.extend(list(get_module_attr("%s.__third_package__" % name) or []))
         os.system("pip3 install -t %s %s" % (cls.THIRD_PACKAGE_DIR, " ".join(set(install))))
 
     @classmethod
