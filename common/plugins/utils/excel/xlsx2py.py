@@ -50,7 +50,9 @@ class xlsx2py:
         sys.excepthook = xlsxError.except_hook  # traceback处理,希望输出中文
         self.infile = os.path.abspath(infile)  # 暂存excel文件名
         self.outfile = os.path.abspath(outfile)  # data文件名
-        return
+        out_path = os.path.split(self.outfile)[0]
+        if not os.path.exists(out_path):
+            os.makedirs(out_path)
 
     def __initXlsx(self):
         self.xbook = ExcelTool(self.infile)
