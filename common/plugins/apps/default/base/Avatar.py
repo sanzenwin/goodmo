@@ -12,7 +12,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
     client = Client(
         onEvent=ClientMethod(Type.EVENT),
         onRetCode=ClientMethod(Type.RET_CODE),
-        onLogOnAttempt=ClientMethod(Type.BOOL, Type.UNICODE)
+        # onLogOnAttempt=ClientMethod(Type.BOOL, Type.UNICODE)
     )
 
     databaseID = Property(Req=True)

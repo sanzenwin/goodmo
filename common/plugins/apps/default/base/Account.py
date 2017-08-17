@@ -49,8 +49,8 @@ class Account(KBEngine.Proxy):
         # 如果一个在线的账号被一个客户端登陆并且onLogOnAttempt返回允许
         # 那么会踢掉之前的客户端连接
         if self.activeAvatar and self.activeAvatar.client:
-            isSelf = self.activeAvatar.clientAddr == (ip, port)
-            self.activeAvatar.client.onLogOnAttempt(isSelf, "" if isSelf else ip)
+            # isSelf = self.activeAvatar.clientAddr == (ip, port)
+            # self.activeAvatar.client.onLogOnAttempt(isSelf, "" if isSelf else ip)
             self.activeAvatar.giveClientTo(self)
         return KBEngine.LOG_ON_ACCEPT
 
