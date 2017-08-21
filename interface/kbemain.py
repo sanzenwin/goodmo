@@ -67,14 +67,17 @@ def onRequestAccountLogin(loginName, password, datas):
     @type  datas: bytes
     """
     data = Bytes(datas)
-    clientType = data["ct"]
+    clientType = data.pop("ct")
     if clientType == Client.CLIENT_TYPE_BOTS:
         return KBEngine.accountLoginResponse(loginName, loginName, datas, KBEngine.SERVER_SUCCESS)
-
-    realAccountName = loginName
+    if not settings.Account.needWebAuth:
+        return KBEngine.accountLoginResponse(loginName, data.get("username", loginName),
+                                             Bytes(username=loginName, password=loginName, typeList=[]).dumps(),
+                                             KBEngine.SERVER_SUCCESS)
 
     def callback(response):
         serverData = {}
+        realAccountName = loginName
         if response.code == 200:
             user_data = AsyncHttp.parse_json(response.body)
             pk = user_data.pop("pk", None)
@@ -88,10 +91,6 @@ def onRequestAccountLogin(loginName, password, datas):
             code = KBEngine.SERVER_ERR_OP_FAILED
         KBEngine.accountLoginResponse(loginName, realAccountName, Bytes(**serverData).dumps(), code)
 
-    if not settings.Account.needWebAuth:
-        return KBEngine.accountLoginResponse(loginName, data.get("username", realAccountName),
-                                             Bytes(username=loginName, password=loginName, typeList=[]).dumps(),
-                                             KBEngine.SERVER_SUCCESS)
     AsyncHttp().post(settings.Account.url.authUser, callback, data)
 
 

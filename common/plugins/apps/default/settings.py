@@ -18,7 +18,7 @@ class Account(SettingsEntity):
     type = ("tourist", "email", "phone", "weixin", "qq", "weibo",)
     needWebAuth = True
     url = SettingsNode(
-        authUser=r"http://127.0.0.1:8000/game/auth_user/"
+        authUser=r"http://127.0.0.1:8000/account/auth_user/"
     )
 
 
