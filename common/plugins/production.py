@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+import types
 import importlib
 import KBEngine
 from collections import OrderedDict
@@ -41,7 +42,7 @@ class Plugins:
     PLUGINS_PROXY_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", app)
     PLUGINS_PROXY_COMMON_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "common")
 
-    interface_handle_list = []
+    interface_handle_map = {}
 
     @classmethod
     def get_module_list(cls, *path):
@@ -196,19 +197,18 @@ class Plugins:
     @classmethod
     def init__charge(cls):
         for name in cls.apps:
-            module_name = "%s.interface" % name
-            try:
-                module = importlib.import_module(module_name)
-            except ImportError:
-                continue
-            func = getattr(module, "onRequestCharge")
-            if func:
-                cls.interface_handle_list.append(func)
+            m = get_module("%s.interface" % name)
+            if m:
+                for k in dir(m):
+                    f = getattr(m, k)
+                    if isinstance(f, types.FunctionType):
+                        cls.interface_handle_map["%s.%s" % (name, k)] = f
 
     @classmethod
-    def onRequestCharge(cls, ordersID, entityDBID, datas):
-        for interface_handle in cls.interface_handle_list:
-            interface_handle(ordersID, entityDBID, datas)
+    def onRequestCharge(cls, ordersID, entityDBID, data):
+        handle = cls.interface_handle_map.get(data.pop("ref", None))
+        if handle:
+            handle(ordersID, entityDBID, data)
 
     @classmethod
     def init_bots(cls):

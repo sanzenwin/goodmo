@@ -18,7 +18,11 @@ class Account(SettingsEntity):
     type = ("tourist", "email", "phone", "weixin", "qq", "weibo",)
     needWebAuth = True
     url = SettingsNode(
-        authUser=r"http://127.0.0.1:8000/account/auth_user/"
+        authUser=r"http://127.0.0.1:8000/account/auth_user/",
+        editUser=r"http://127.0.0.1:8000/account/edit_user/",
+        verify=r"http://127.0.0.1:8000/account/verify/",
+        emailCode=r"http://127.0.0.1:8000/account/email_code/",
+        phoneCode=r"http://127.0.0.1:8000/account/phone_code/",
     )
 
 
@@ -42,3 +46,5 @@ class RetCode(SettingsNode):
 
     ASSET_LACK = Str("资源不足")
     ASSET_LOCKED = Str("资源已经锁定，其他操作未完成")
+
+    ARGS_ERROR = Str("参数错误")

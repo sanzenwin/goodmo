@@ -1,2 +1,2 @@
-def onRequestCharge(ordersID, entityDBID, datas):
+def default(ordersID, entityDBID, data):
     pass
