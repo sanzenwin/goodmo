@@ -201,12 +201,12 @@ class Plugins:
             if m:
                 for k in dir(m):
                     f = getattr(m, k)
-                    if isinstance(f, types.FunctionType):
-                        cls.interface_handle_map["%s.%s" % (name, k)] = f
+                    if isinstance(f, types.FunctionType) and k not in cls.interface_handle_map:
+                        cls.interface_handle_map[k] = f
 
     @classmethod
     def onRequestCharge(cls, ordersID, entityDBID, data):
-        handle = cls.interface_handle_map.get(data.pop("ref", None))
+        handle = cls.interface_handle_map.get(data.pop("interface", None))
         if handle:
             handle(ordersID, entityDBID, data)
 
