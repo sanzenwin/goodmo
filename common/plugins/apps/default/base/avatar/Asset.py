@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import settings
 from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodExposed, Client, ClientMethod
 from common.utils import ExpiredData, TodayData, WeekData, MonthData, YearData
 from kbe.utils import LockAsset
@@ -9,7 +10,7 @@ class Asset(LockAsset("gold")):
         Type=Type.UNICODE,
         Flags=Property.Flags.BASE_AND_CLIENT,
         # Index=Property.Index.UNIQUE,
-        DatabaseLength=20,
+        DatabaseLength=settings.Avatar.nameLimit,
         Persistent=Property.Persistent.true
     )
 

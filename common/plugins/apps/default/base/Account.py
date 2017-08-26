@@ -5,7 +5,7 @@ import ret_code
 from copy import deepcopy
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodExposed, Client, ClientMethod
-from plugins.conf.signals import change_newbie_data
+from default.signals import avatar_new, avatar_login
 from DEFAULT import TAvatarInfo
 
 
@@ -51,6 +51,7 @@ class Account(KBEngine.Proxy):
         if self.activeAvatar and self.activeAvatar.client:
             # isSelf = self.activeAvatar.clientAddr == (ip, port)
             # self.activeAvatar.client.onLogOnAttempt(isSelf, "" if isSelf else ip)
+            avatar_login.send(sender=self.activeAvatar)
             self.activeAvatar.giveClientTo(self)
         return KBEngine.LOG_ON_ACCEPT
 
@@ -89,7 +90,7 @@ class Account(KBEngine.Proxy):
         newbieData = deepcopy(settings.Avatar.newbieData.dict)
         newbieData["name"] = prefix + str(len(self.avatars) + 1) + str(
             self.databaseID + settings.Avatar.nameIndexRadix)
-        change_newbie_data.send(sender=self, data=newbieData)
+        avatar_new.send(sender=self, data=newbieData)
         avatar = KBEngine.createBaseLocally('Avatar', newbieData)
         if avatar:
             avatar.writeToDB(self.__onAvatarSaved)
@@ -132,6 +133,7 @@ class Account(KBEngine.Proxy):
             return
         avatar.accountEntity = self
         self.activeAvatar = avatar
+        avatar_login.send(sender=avatar)
         self.giveClientTo(avatar)
 
     def __onAvatarSaved(self, success, avatar):

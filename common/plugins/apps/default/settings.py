@@ -30,6 +30,7 @@ class Avatar(SettingsEntity):
     namePrefix = "玩家"
     nameIndexRadix = 15682357
     delayDestroySeconds = 5 * 60
+    nameLimit = 20
     newbieData = SettingsNode(gold=0)
 
 
