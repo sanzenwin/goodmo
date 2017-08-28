@@ -1,4 +1,4 @@
 from common.dispatcher import Signal
 
-avatar_new = Signal(providing_args=['data'])
-avatar_login = Signal()
+avatar_new = Signal(providing_args=['data', 'newbieData'])
+avatar_login = Signal(providing_args=['data'])
