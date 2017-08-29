@@ -348,3 +348,14 @@ class Bytes(dict):
         if s:
             c.loads(s)
         return c
+
+
+class Export:
+    @staticmethod
+    def method(f):
+        f.__export__ = True
+        return f
+
+    @staticmethod
+    def is_method(f):
+        return getattr(f, "__export__", False)

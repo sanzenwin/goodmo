@@ -20,9 +20,11 @@ class Account(SettingsEntity):
     url = SettingsNode(
         authUser=r"http://127.0.0.1:8000/account/auth_user/",
         editUser=r"http://127.0.0.1:8000/account/edit_user/",
+        operateUser=r"http://127.0.0.1:8000/account/operate_user/",
         verify=r"http://127.0.0.1:8000/account/verify/",
         emailCode=r"http://127.0.0.1:8000/account/email_code/",
         phoneCode=r"http://127.0.0.1:8000/account/phone_code/",
+        syncData=r"http://127.0.0.1:8000/account/sync_data/",
     )
 
 

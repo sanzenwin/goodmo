@@ -63,3 +63,11 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
             self.accountEntity.destroy()
             self.accountEntity = None
         super().destroy(deleteFromDB, writeToDB)
+
+    @property
+    def pk(self):
+        return self.accountEntity.__ACCOUNT_NAME__
+
+    @property
+    def ip(self):
+        return self.accountEntity.clientAddr[0]
