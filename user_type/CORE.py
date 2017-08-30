@@ -167,7 +167,8 @@ class MetaOfDictType(type):
         return dict_type_cls
 
     def apply_by_properties_type(cls):
-        cls.properties = {k: (getattr(cls, k, None) or cls.get_t_value(v)) for k, v in cls.properties_type.items()}
+        cls.properties = {k: (cls.get_t_value(v) if getattr(cls, k, None) is None else getattr(cls, k)) for k, v in
+                          cls.properties_type.items()}
         cls.client_fields = {k: cls.client_map[v.str()] for k, v in cls.properties_type.items() if
                              v.client_flag and v.str() not in Type.dicts}
         cls.recursion_fields = {k: cls.get_r_value(v) for k, v in cls.properties_type.items() if

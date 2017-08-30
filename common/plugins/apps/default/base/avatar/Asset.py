@@ -6,6 +6,7 @@ from common.utils import Bytes, ExpiredData, TodayData, WeekData, MonthData, Yea
 from common.dispatcher import receiver
 from kbe.utils import LockAsset
 from default.signals import avatar_login, consume_data
+from CORE import python_client
 
 
 class Asset(LockAsset("gold")):
@@ -15,7 +16,7 @@ class Asset(LockAsset("gold")):
 
     client = Client(
         onSyncData=ClientMethod(),
-        onOperate=ClientMethod(Type.UNICODE, Type.UNICODE),
+        onOperate=ClientMethod(Type.UNICODE, Type.UNICODE, Type.PYTHON),
     )
 
     name = Property(
@@ -66,13 +67,13 @@ class Asset(LockAsset("gold")):
             if uid != orderID:
                 return
             if self.client:
-                self.client.onOperate(operate, t, Bytes(datas))
+                self.client.onOperate(operate, t, python_client(Bytes(datas)))
             self.release()
 
         self.addRef()
         uid = str(KBEngine.genUUID64())
         KBEngine.charge(uid, self.databaseID,
-                        Bytes(interface="operate", pk=self.pk, operate=operate, type=t, data=d).dumps(), callback)
+                        Bytes(interface="operate", operate=operate, type=t, data=d).dumps(), callback)
 
     def consumeData(self, dataList):
         for data in dataList:

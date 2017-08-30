@@ -134,6 +134,7 @@ class Type(object, metaclass=MetaOfType):
             init = getattr(dict_type_cls, "init_type", None)
             if init:
                 init()
+        cls.finish_dict_type()
 
     @classmethod
     def alias_str(cls):

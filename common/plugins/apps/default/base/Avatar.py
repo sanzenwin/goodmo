@@ -70,4 +70,4 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
 
     @property
     def ip(self):
-        return self.accountEntity.clientAddr[0]
+        return ".".join(reversed(list(map(str, self.clientAddr[0].to_bytes(4, 'big')))))

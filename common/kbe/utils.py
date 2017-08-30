@@ -45,10 +45,10 @@ def LockAsset(*nameList):
             return getattr(self, name, 0)
 
         def assetLockedCode(self, name):
-            return getattr(ret_code, name.upper() + "_LOCKED", 'ASSET_LOCKED')
+            return getattr(ret_code, name.upper() + "_LOCKED", ret_code.ASSET_LOCKED)
 
         def assetLackCode(self, name):
-            return getattr(ret_code, name.upper() + "_LACK", 'ASSET_LACK')
+            return getattr(ret_code, name.upper() + "_LACK", ret_code.ASSET_LACK)
 
     def get_lockedPropertyName(name):
         return "__" + name + "Locked"
