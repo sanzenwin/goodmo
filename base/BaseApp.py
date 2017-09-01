@@ -41,13 +41,14 @@ class BaseApp(KBEngine.Base, TimerProxy):
         if self.groupIndex == 1:
             KBEngine.createBaseLocally('Equalization', dict())
             Database.discover()
-        self.checkEqualizationTimerID = self.addTimerProxy(0.1, self.checkEqualization, 0.1)
+        if self.groupIndex <= settings.BaseApp.equalizationBaseappAmount:
+            self.checkEqualizationTimerID = self.addTimerProxy(0.1, self.checkEqualization, 0.1)
 
     def addCompletedObject(self, *args):
         self.completedSet.update(args)
 
     def checkEqualization(self):
-        if KBEngine.globalData.get("Equalization"):
+        if KBEngine.globalData.get("Equalization", None):
             self.delTimerProxy(self.checkEqualizationTimerID)
             self.checkEqualizationTimerID = None
             Equalization.createBaseLocally()

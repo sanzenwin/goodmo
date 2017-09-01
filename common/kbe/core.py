@@ -86,7 +86,7 @@ class Equalization(metaclass=MetaOfEqualization):
 
     @classmethod
     def isCompleted(cls):
-        return isinstance(KBEngine.globalData.get("Equalization"), dict)
+        return isinstance(KBEngine.globalData.get("Equalization", None), dict)
 
 
 class MetaOfSingleton(type):
@@ -139,7 +139,7 @@ class Singleton(metaclass=MetaOfSingleton):
 
     @classmethod
     def isCompleted(cls):
-        return isinstance(KBEngine.globalData.get("Singleton"), dict)
+        return isinstance(KBEngine.globalData.get("Singleton", None), dict)
 
 
 class KBEngineProxy:
@@ -291,4 +291,8 @@ def discover(signal, sender):
 def baseappReady(signal, sender):
     if sender.groupIndex == 1:
         Singleton.discover()
-    sender.addCompletedObject(Equalization, Singleton, Redis, Database)
+    cList = [Singleton, Redis, Database]
+    settings = importlib.import_module("settings")
+    if sender.groupIndex <= settings.BaseApp.equalizationBaseappAmount:
+        cList.append(Equalization)
+    sender.addCompletedObject(*cList)
