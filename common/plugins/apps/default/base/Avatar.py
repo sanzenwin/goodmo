@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import KBEngine
 import settings
-from common.utils import Event
+from common.utils import server_time, Event
 from kbe.utils import TimerProxy
 from interfaces.Ref import Ref
 from default.interfaces.RunObject import RunObject
@@ -12,7 +12,8 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
     client = Client(
         onEvent=ClientMethod(Type.EVENT),
         onRetCode=ClientMethod(Type.RET_CODE),
-        # onLogOnAttempt=ClientMethod(Type.BOOL, Type.UNICODE)
+        onServerTime=ClientMethod(Type.TIME_STAMP),
+        # onLogOnAttempt=ClientMethod(Type.BOOL, Type.UNICODE),
     )
 
     databaseID = Property(Req=True)
@@ -22,6 +23,9 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         self.accountEntity = None
         self.destroyTimerID = None
         self.isFirstLogin = True
+
+    def reqServerTime(self):
+        return
 
     def isReqReady(self):
         if self.isDestroyed:
@@ -44,7 +48,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
             else:
                 self.onQuickLogin()
             self.onCommonLogin()
-
+        self.client.onServerTime(server_time.stamp())
         if self.destroyTimerID is not None:
             self.delTimerProxy(self.destroyTimerID)
 
