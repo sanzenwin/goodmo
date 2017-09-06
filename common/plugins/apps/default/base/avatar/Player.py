@@ -5,7 +5,7 @@ from kbe.core import Equalization
 
 @Event.interface
 class Player:
-    logOff = True
+    needRemove = True
 
     def onClientDeath(self):
         pass
@@ -14,9 +14,9 @@ class Player:
         pass
 
     def onCommonLogin(self):
-        if self.logOff:
+        self.needRemove = False
+        if self.lifeCount == 0:
             Equalization.PlayerManager(self.guaranteeID).addPlayer(self.guaranteeID, self.object)
-            self.logOff = False
 
     def onQuickLogin(self):
         pass
@@ -25,10 +25,10 @@ class Player:
         pass
 
     def onLogout(self):
-        self.logOff = True
-        if self.lifeCount <= 1:
+        self.needRemove = True
+        if self.lifeCount == 1:
             Equalization.PlayerManager(self.guaranteeID).removePlayer(self.guaranteeID)
 
     def onRelease(self):
-        if self.logOff and self.lifeCount == 1:
+        if self.needRemove and self.lifeCount == 1:
             Equalization.PlayerManager(self.guaranteeID).removePlayer(self.guaranteeID)
