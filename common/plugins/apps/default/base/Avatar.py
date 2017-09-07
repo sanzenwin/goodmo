@@ -38,16 +38,16 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         return False
 
     def onReqReady(self):
-        self.onLogin()
+        if self.isFirstLogin:
+            self.onLogin()
+            self.isFirstLogin = False
+        else:
+            self.onQuickLogin()
+        self.onCommonLogin()
 
     def onEntitiesEnabled(self):
         if self.isReqReady():
-            if self.isFirstLogin:
-                self.onLogin()
-                self.isFirstLogin = False
-            else:
-                self.onQuickLogin()
-            self.onCommonLogin()
+            self.onReqReady()
         self.client.onServerTime(server_time.stamp())
         if self.destroyTimerID is not None:
             self.delTimerProxy(self.destroyTimerID)
