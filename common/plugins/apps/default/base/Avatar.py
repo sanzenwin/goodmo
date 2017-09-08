@@ -46,9 +46,9 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         self.onCommonLogin()
 
     def onEntitiesEnabled(self):
+        self.client.onServerTime(server_time.stamp())
         if self.isReqReady():
             self.onReqReady()
-        self.client.onServerTime(server_time.stamp())
         if self.destroyTimerID is not None:
             self.delTimerProxy(self.destroyTimerID)
 
