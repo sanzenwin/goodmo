@@ -56,7 +56,7 @@ class AvatarEventHandler:
         action_method = getattr(self, 'avatar__' + action, None)
         if not action_method:
             return event_context
-        args = action_method(self, *args)
+        args = action_method(*args)
         if args is None:
             return None
         event_context.args = args
