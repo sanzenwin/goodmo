@@ -25,3 +25,5 @@ class TEvent(DictType):
 class DefaultType:
     Type.BOOL(Type.UINT8)
     Type.TIME_STAMP(Type.UINT64)
+    Type.GOLD(Type.UINT32)
+    Type.GOLD64(Type.UINT64)

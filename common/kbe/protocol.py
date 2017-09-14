@@ -178,6 +178,7 @@ class Property(dict):
 
     @X.add_type
     class Index:
+        DEFAULT = X()
         INDEX = X()
         UNIQUE = X()
 
@@ -204,11 +205,16 @@ class Property(dict):
             self.Flags.OWN_CLIENT,
             self.Flags.OTHER_CLIENTS)
 
+    def check_k_v(self, k, v):
+        if k == "Index" and v == self.Index.DEFAULT:
+            return False
+        return True
+
     def str(self):
         s = ""
         for key in self.standard_list:
             value = self.get(key, self.empty)
-            if value is not self.empty:
+            if value is not self.empty and self.check_k_v(key, value):
                 s += '\n' + self.template_kv_str % dict(
                     key=key,
                     value=value
