@@ -39,7 +39,7 @@ class EventHandler:
             if not action_method:
                 print('%s::process:method not found: %s' % (self.__class__.__name__, event_context))
                 return
-            action_method(self, *args)
+            action_method(*args)
         except TypeError:
             print(
                 "%s::arguments errors: [%s], [%s]" % (self.__class__.__name__, event_context, traceback.print_exc()))
