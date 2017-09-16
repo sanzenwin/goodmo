@@ -13,15 +13,24 @@ from kbe.log import ERROR_MSG
 
 class BaseApp(KBEngine.Base, TimerProxy):
     readyStamp = None
+    notReadyTimeStamp = 0
 
     instance = None
     completedSet = set()
 
     @classmethod
     def onReadyForLogin(cls):
-        ready = cls.instance and all([x.isCompleted() for x in cls.completedSet])
-        if not ready and server_time.passed(cls.readyStamp) > settings.BaseApp.readyForLoginWarringSeconds:
-            ERROR_MSG("waring :: base app is waiting for ready took %s seconds" % server_time.passed(cls.readyStamp))
+        waiting = [x for x in cls.completedSet if not x.isCompleted()]
+        ready = cls.instance and not waiting
+        if ready:
+            cls.notReadyTimeStamp = 0
+        else:
+            if server_time.passed(cls.readyStamp) > settings.BaseApp.readyForLoginWarringSeconds:
+                if server_time.stamp() - cls.notReadyTimeStamp > settings.BaseApp.readyForLoginIntervalSeconds * 1000:
+                    cls.notReadyTimeStamp = server_time.stamp()
+                    ERROR_MSG(
+                        "waring :: base app is waiting for ready took %s seconds, waiting for: %s" %
+                        (server_time.passed(cls.readyStamp), waiting))
         return 1.0 if ready else 0.0
 
     @classmethod
