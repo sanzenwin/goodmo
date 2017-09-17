@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
+import KBEngine
 import plugins
-from BaseApp import BaseApp
 from kbe.log import DEBUG_MSG, INFO_MSG, WARNING_MSG, ERROR_MSG
 
 
@@ -15,7 +15,7 @@ def onBaseAppReady(isBootstrap):
     INFO_MSG('onBaseAppReady: isBootstrap=%s, appID=%s, bootstrapGroupIndex=%s, bootstrapGlobalIndex=%s' % \
              (isBootstrap, os.getenv("KBE_COMPONENTID"), os.getenv("KBE_BOOTIDX_GROUP"),
               os.getenv("KBE_BOOTIDX_GLOBAL")))
-    BaseApp.onBaseAppReady()
+    KBEngine.BaseApp.onBaseAppReady()
 
 
 def onReadyForLogin(isBootstrap):
@@ -26,7 +26,7 @@ def onReadyForLogin(isBootstrap):
     @param isBootstrap: 是否为第一个启动的baseapp
     @type isBootstrap: BOOL
     """
-    return BaseApp.onReadyForLogin()
+    return KBEngine.BaseApp.onReadyForLogin()
 
 
 def onBaseAppShutDown(state):
@@ -38,7 +38,7 @@ def onBaseAppShutDown(state):
                   2 : 所有entity被写入数据库之后
     @type state: int
     """
-    INFO_MSG('onBaseAppShutDown: state=%i' % state)
+    KBEngine.BaseApp.onBaseAppShutDown(state)
 
 
 def onInit(isReload):
@@ -49,7 +49,7 @@ def onInit(isReload):
     @type isReload: bool
     """
     INFO_MSG('onInit::isReload:%s' % isReload)
-    BaseApp.onInit(isReload)
+    KBEngine.BaseApp.onInit(isReload)
 
 
 def onFini():
@@ -57,7 +57,7 @@ def onFini():
     KBEngine method.
     引擎正式关闭
     """
-    INFO_MSG('onFini()')
+    KBEngine.BaseApp.onFini()
 
 
 def onCellAppDeath(addr):
@@ -65,7 +65,7 @@ def onCellAppDeath(addr):
     KBEngine method.
     某个cellapp死亡
     """
-    WARNING_MSG('onCellAppDeath: %s' % (str(addr)))
+    KBEngine.BaseApp.onCellAppDeath(addr)
 
 
 def onGlobalData(key, value):
@@ -73,7 +73,7 @@ def onGlobalData(key, value):
     KBEngine method.
     globalData有改变
     """
-    DEBUG_MSG('onGlobalData: %s' % key)
+    KBEngine.BaseApp.onGlobalData(key, value)
 
 
 def onGlobalDataDel(key):
@@ -81,7 +81,7 @@ def onGlobalDataDel(key):
     KBEngine method.
     globalData有删除
     """
-    DEBUG_MSG('onDelGlobalData: %s' % key)
+    KBEngine.BaseApp.onGlobalDataDel(key)
 
 
 def onGlobalBases(key, value):
@@ -89,7 +89,7 @@ def onGlobalBases(key, value):
     KBEngine method.
     globalBases有改变
     """
-    DEBUG_MSG('onGlobalBases: %s' % key)
+    KBEngine.BaseApp.onGlobalBases(key, value)
 
 
 def onGlobalBasesDel(key):
@@ -97,7 +97,7 @@ def onGlobalBasesDel(key):
     KBEngine method.
     globalBases有删除
     """
-    DEBUG_MSG('onGlobalBasesDel: %s' % key)
+    KBEngine.BaseApp.onGlobalBasesDel(key)
 
 
 def onLoseChargeCB(ordersID, dbid, success, datas):
@@ -106,5 +106,4 @@ def onLoseChargeCB(ordersID, dbid, success, datas):
     有一个不明订单被处理， 可能是超时导致记录被billing
     清除， 而又收到第三方充值的处理回调
     """
-    DEBUG_MSG('onLoseChargeCB: ordersID=%s, dbid=%i, success=%i, datas=%s' % \
-              (ordersID, dbid, success, datas))
+    KBEngine.BaseApp.onLoseChargeCB(ordersID, dbid, success, datas)

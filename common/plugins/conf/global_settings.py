@@ -1,5 +1,5 @@
 # coding:utf-8
-from . import SettingsEntity
+from . import SettingsEntity, SettingsNode
 from kbe.xml import settings_kbengine
 
 
@@ -10,6 +10,7 @@ class Global(SettingsEntity):
 
 
 class BaseApp(SettingsEntity):
-    equalizationBaseappAmount = 1
     readyForLoginWarringSeconds = 20
     readyForLoginIntervalSeconds = 2
+    equalizationBaseappAmount = 1
+    baseappIndependence = SettingsNode()

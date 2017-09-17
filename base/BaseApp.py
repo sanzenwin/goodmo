@@ -6,8 +6,7 @@ from common.asyncHttp import AsyncHttp
 from common.asyncio import asyncio_loop
 from common.utils import server_time
 from kbe.utils import TimerProxy
-from kbe.core import Equalization, Database
-from kbe.signals import baseapp_ready
+from kbe.signals import baseapp_ready, global_data_change, global_data_del
 from kbe.log import ERROR_MSG
 
 
@@ -17,6 +16,18 @@ class BaseApp(KBEngine.Base, TimerProxy):
 
     instance = None
     completedSet = set()
+
+    @classmethod
+    def checkType(cls, obj):
+        return isinstance(obj, KBEngine.Base) or obj.__class__.__name__ == "EntityMailbox"
+
+    @classmethod
+    def onBaseAppReady(cls):
+        cls.readyStamp = server_time.stamp()
+        cls.instance = KBEngine.createBaseLocally('BaseApp', dict(groupIndex=int(os.getenv("KBE_BOOTIDX_GROUP")),
+                                                                  globalIndex=int(os.getenv("KBE_BOOTIDX_GLOBAL"))))
+        cls.instance.init()
+        baseapp_ready.send(sender=cls.instance)
 
     @classmethod
     def onReadyForLogin(cls):
@@ -34,33 +45,46 @@ class BaseApp(KBEngine.Base, TimerProxy):
         return 1.0 if ready else 0.0
 
     @classmethod
-    def onBaseAppReady(cls):
-        cls.readyStamp = server_time.stamp()
-        cls.instance = KBEngine.createBaseLocally('BaseApp', dict(groupIndex=int(os.getenv("KBE_BOOTIDX_GROUP")),
-                                                                  globalIndex=int(os.getenv("KBE_BOOTIDX_GLOBAL"))))
-        baseapp_ready.send(sender=cls.instance)
-
-    @classmethod
     def onInit(cls, isReload):
         pass
 
-    def __init__(self):
-        super().__init__()
+    @classmethod
+    def onBaseAppShutDown(cls, state):
+        pass
+
+    @classmethod
+    def onFini(cls):
+        pass
+
+    @classmethod
+    def onCellAppDeath(cls, addr):
+        pass
+
+    @classmethod
+    def onGlobalData(cls, key, value):
+        global_data_change.send(sender=cls.instance, key=key, value=value)
+
+    @classmethod
+    def onGlobalDataDel(cls, key):
+        global_data_del.send(sender=cls.instance, key=key)
+
+    @classmethod
+    def onGlobalBases(cls, key, value):
+        pass
+
+    @classmethod
+    def onGlobalBasesDel(cls, key):
+        pass
+
+    @classmethod
+    def onLoseChargeCB(cls, ordersID, dbid, success, datas):
+        pass
+
+    def init(self):
         self.tickLoop()
-        if self.groupIndex == 1:
-            KBEngine.createBaseLocally('Equalization', dict())
-            Database.discover()
-        if self.groupIndex <= settings.BaseApp.equalizationBaseappAmount:
-            self.checkEqualizationTimerID = self.addTimerProxy(0.1, self.checkEqualization, 0.1)
 
     def addCompletedObject(self, *args):
         self.completedSet.update(args)
-
-    def checkEqualization(self):
-        if KBEngine.globalData.get("Equalization", None):
-            self.delTimerProxy(self.checkEqualizationTimerID)
-            self.checkEqualizationTimerID = None
-            Equalization.createBaseLocally()
 
     def tickLoop(self):
         gameTimeInterval = settings.Global.gameTimeInterval
@@ -68,3 +92,6 @@ class BaseApp(KBEngine.Base, TimerProxy):
             self.addTimerProxy(gameTimeInterval, AsyncHttp.run_frame, gameTimeInterval)
         if settings.Global.enableAsyncio:
             self.addTimerProxy(gameTimeInterval, asyncio_loop.run_frame, gameTimeInterval)
+
+
+KBEngine.BaseApp = BaseApp

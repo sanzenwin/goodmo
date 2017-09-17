@@ -6,6 +6,7 @@ import pickle
 import redis
 import aioredis
 import KBEngine
+import functools
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.xml import Xml, settings_kbengine
 from common.dispatcher import receiver
@@ -49,7 +50,9 @@ class Equalization(metaclass=MetaOfEqualization):
         def path(self, *keys):
             return self.entity.equalization(*keys)
 
-    entities = {}
+    memEntities = {}
+    autoLoadedEntities = {}
+    autoLoadedIDMap = {}
 
     @classmethod
     def discover(cls):
@@ -58,14 +61,16 @@ class Equalization(metaclass=MetaOfEqualization):
         for k, v in settings.__dict__.items():
             if hasattr(v, "equalization") and v.equalization:
                 setattr(cls, k, cls.Proxy(v))
-                cls.entities[k] = v
+                cls.memEntities[k] = v
+            if hasattr(v, "autoLoaded") and v.autoLoaded:
+                cls.autoLoadedEntities[k] = v
         equalization.Equalization.discover()
 
     @classmethod
     def getAllPath(cls):
         allPath = []
-        for name in sorted(cls.entities):
-            entity = cls.entities[name]
+        for name in sorted(cls.memEntities):
+            entity = cls.memEntities[name]
             for path in entity.equalization_list():
                 allPath.append([entity.__class__.__name__] + list(entity.equalization(*path)))
         return allPath
@@ -73,8 +78,7 @@ class Equalization(metaclass=MetaOfEqualization):
     @classmethod
     def createBaseLocally(cls):
         settings = importlib.import_module("settings")
-        BaseApp = importlib.import_module("BaseApp")
-        index = BaseApp.BaseApp.instance.groupIndex
+        index = KBEngine.BaseApp.instance.groupIndex
         paths = cls.getAllPath()
         if index > settings.BaseApp.equalizationBaseappAmount:
             ERROR_MSG("BaseApp[%d] has not parted in equalization!" % index)
@@ -85,8 +89,37 @@ class Equalization(metaclass=MetaOfEqualization):
             KBEngine.createBaseLocally(path[0], dict(equalizationPath=path[1:]))
 
     @classmethod
+    def loadEntities(cls, success):
+        def callback(name, result, lines, insertid, error):
+            if error:
+                ERROR_MSG("loadEntities: error! args: %s, %s, %s, %s, %s" % (name, result, lines, insertid, error))
+            else:
+                cls.autoLoadedIDMap[name] = [int(x[0]) for x in result]
+                if len(cls.autoLoadedIDMap) == len(cls.autoLoadedEntities):
+                    success()
+
+        for name, v in cls.autoLoadedEntities.items():
+            sql_select = "select id from tbl_%s;" % name
+            KBEngine.executeRawDatabaseCommand(sql_select, functools.partial(callback, name), -1, v.database)
+        if not cls.autoLoadedEntities:
+            success()
+
+    @classmethod
+    def getBaseIndexList(cls, n):
+        settings = importlib.import_module("settings")
+        cursor = settings.BaseApp.equalizationBaseappAmount + 1
+        for name in sorted(settings.BaseApp.baseappIndependence.keys()):
+            count = settings.BaseApp.baseappIndependence[name]
+            if name == n:
+                return list(range(cursor, cursor + count))
+            else:
+                cursor += count
+        return list()
+
+    @classmethod
     def isCompleted(cls):
-        return isinstance(KBEngine.globalData.get("Equalization", None), dict)
+        return isinstance(KBEngine.globalData.get("Equalization", None), dict) and KBEngine.globalData.get(
+            "EqualizationEntity", None)
 
 
 class MetaOfSingleton(type):
@@ -291,6 +324,7 @@ def discover(signal, sender):
 def baseappReady(signal, sender):
     if sender.groupIndex == 1:
         Singleton.discover()
+        Database.discover()
     cList = [Singleton, Redis, Database]
     settings = importlib.import_module("settings")
     if sender.groupIndex <= settings.BaseApp.equalizationBaseappAmount:
