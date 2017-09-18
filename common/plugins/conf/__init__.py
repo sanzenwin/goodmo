@@ -12,6 +12,7 @@ class SettingsNode:
     def __init__(self, **kwargs):
         self.index = self.new_id()
         self.nodeNames = []
+        self.multi = {}
         self.dict = {}
         for k, v in kwargs.items():
             setattr(self, k, v)
@@ -23,13 +24,23 @@ class SettingsNode:
     def __getattr__(self, item):
         return None
 
+    def merge(self, lst):
+        for x in reversed(lst):
+            self.dict.update(x.dict)
+        return self
+
     def collect_nodes(self):
-        nodeNames = set()
+        s = set()
+        d = dict()
         for c in self.__class__.mro():
             for k, v in c.__dict__.items():
                 if isinstance(v, SettingsNode):
-                    nodeNames.add(k)
-        self.nodeNames = sorted(nodeNames)
+                    s.add(k)
+                    lst = d.setdefault(k, [])
+                    lst.append(v)
+        self.nodeNames = sorted(s)
+        for k, v in d.items():
+            self.multi[k] = SettingsNode().merge(v)
 
 
 class SettingsEntity(SettingsNode):

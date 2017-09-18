@@ -105,16 +105,18 @@ class Equalization(metaclass=MetaOfEqualization):
             success()
 
     @classmethod
-    def getBaseIndexList(cls, n):
+    def getBaseIndexInfo(cls, n):
         settings = importlib.import_module("settings")
         cursor = settings.BaseApp.equalizationBaseappAmount + 1
-        for name in sorted(settings.BaseApp.baseappIndependence.keys()):
-            count = settings.BaseApp.baseappIndependence[name]
+        independence = settings.BaseApp.multi["baseappIndependence"].dict
+        for name in sorted(independence):
+            v = independence[name]
+            count = v if isinstance(v, int) else len(v)
             if name == n:
-                return list(range(cursor, cursor + count))
+                return list(range(cursor, cursor + count)), v
             else:
                 cursor += count
-        return list()
+        return list(), None
 
     @classmethod
     def isCompleted(cls):
