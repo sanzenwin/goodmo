@@ -6,6 +6,7 @@ from kbe.utils import TimerProxy
 from interfaces.Ref import Ref
 from default.interfaces.RunObject import RunObject
 from kbe.protocol import Property, Client, ClientMethod, Type
+from default.signals import avatar_created
 
 
 class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
@@ -24,8 +25,10 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         self.destroyTimerID = None
         self.isFirstLogin = True
 
-    def reqServerTime(self):
-        return
+    def onCreatedAndCompleted(self):
+        if self.isReqReady():
+            self.onReqReady()
+            avatar_created.send(sender=self)
 
     def isReqReady(self):
         if self.isDestroyed:

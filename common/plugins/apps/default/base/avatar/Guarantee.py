@@ -20,8 +20,7 @@ class Guarantee:
 
     @Event.method
     def onGuaranteeCreated(self):
-        if self.isReqReady():
-            self.onReqReady()
+        self.onCreatedAndCompleted()
 
     def createGuarantee(self):
         def callback(success, guarantee):
