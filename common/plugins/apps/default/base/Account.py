@@ -3,10 +3,9 @@ import KBEngine
 import settings
 import ret_code
 from copy import deepcopy
-from common.utils import Bytes
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodExposed, Client, ClientMethod
-from default.signals import avatar_new, avatar_login
+from default.signals import avatar_new
 from DEFAULT import TAvatarInfo
 
 
@@ -44,7 +43,7 @@ class Account(KBEngine.Proxy):
     )
 
     def onLogOnAttempt(self, ip, port, password):
-        ERROR_MSG("Account[%i]::onLogOnAttempt: ip=%s, port=%i, selfclient=%s" % (self.id, ip, port, self.client))
+        DEBUG_MSG("Account[%i]::onLogOnAttempt: ip=%s, port=%i, client=%s" % (self.id, ip, port, self.client))
         if self.isDestroyed:
             return KBEngine.LOG_ON_WAIT_FOR_DESTROY
         # 如果一个在线的账号被一个客户端登陆并且onLogOnAttempt返回允许
@@ -52,12 +51,10 @@ class Account(KBEngine.Proxy):
         if self.activeAvatar and self.activeAvatar.client:
             # isSelf = self.activeAvatar.clientAddr == (ip, port)
             # self.activeAvatar.client.onLogOnAttempt(isSelf, "" if isSelf else ip)
-            avatar_login.send(sender=self.activeAvatar, data=Bytes(self.getClientDatas()[0]))
             self.activeAvatar.giveClientTo(self)
         return KBEngine.LOG_ON_ACCEPT
 
     def onClientDeath(self):
-        INFO_MSG("Account[%i].onClientDeath:" % self.id)
         if self.activeAvatar:
             self.activeAvatar.destroy()
         else:
@@ -91,7 +88,7 @@ class Account(KBEngine.Proxy):
         newbieData = deepcopy(settings.Avatar.newbieData.dict)
         newbieData["name"] = prefix + str(len(self.avatars) + 1) + str(
             self.databaseID + settings.Avatar.nameIndexRadix)
-        avatar_new.send(sender=self, data=Bytes(self.getClientDatas()[0]), newbieData=newbieData)
+        avatar_new.send(sender=self, newbieData=newbieData)
         avatar = KBEngine.createBaseLocally('Avatar', newbieData)
         if avatar:
             avatar.writeToDB(self.__onAvatarSaved)
@@ -134,7 +131,6 @@ class Account(KBEngine.Proxy):
             return
         avatar.accountEntity = self
         self.activeAvatar = avatar
-        avatar_login.send(sender=avatar, data=Bytes(self.getClientDatas()[0]))
         self.giveClientTo(avatar)
 
     def __onAvatarSaved(self, success, avatar):

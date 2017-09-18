@@ -6,7 +6,7 @@ from kbe.utils import TimerProxy
 from interfaces.Ref import Ref
 from default.interfaces.RunObject import RunObject
 from kbe.protocol import Property, Client, ClientMethod, Type
-from default.signals import avatar_created
+from default.signals import avatar_created, avatar_common_login, avatar_quick_login, avatar_login
 
 
 class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
@@ -42,10 +42,13 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
 
     def onReqReady(self):
         if self.isFirstLogin:
+            avatar_login.send(sender=self)
             self.onLogin()
             self.isFirstLogin = False
         else:
+            avatar_quick_login.send(sender=self)
             self.onQuickLogin()
+        avatar_common_login.send(sender=self)
         self.onCommonLogin()
 
     def onEntitiesEnabled(self):
