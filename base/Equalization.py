@@ -2,8 +2,10 @@
 import importlib
 import KBEngine
 import settings
+import plugins
 from functools import partial
 from common.dispatcher import receiver
+from kbe.utils import DatabaseBaseMixin
 from kbe.core import Equalization as Equalization_
 from kbe.protocol import Type, Base, BaseMethod
 from kbe.signals import baseapp_ready, global_data_change, global_data_del
@@ -24,12 +26,13 @@ class Equalization(KBEngine.Base):
                 KBEngine.globalData["EqualizationEntity"].addEntity(self.__class__.__name__, self.equalizationPath,
                                                                     self)
 
-    class DatabaseBase(KBEngine.Base):
+    class DatabaseBase(KBEngine.Base, DatabaseBaseMixin):
         def writeToDB(self, callback=None, shouldAutoLoad=False):
             super().writeToDB(callback, shouldAutoLoad, self.dbInterfaceName)
 
-        def executeRawDatabaseCommand(self, command, callback=None, threadID=-1):
-            KBEngine.executeRawDatabaseCommand(command, callback, threadID, self.dbInterfaceName)
+        @classmethod
+        def executeRawDatabaseCommand(cls, command, callback=None, threadID=-1):
+            KBEngine.executeRawDatabaseCommand(command, callback, threadID, cls.dbInterfaceName)
 
     @classmethod
     def markAll(cls):
@@ -40,20 +43,33 @@ class Equalization(KBEngine.Base):
 
     @classmethod
     def databaseAll(cls):
-        for name, v in settings.__dict__.items():
-            if not isinstance(v, SettingsEntity):
+        for name in plugins.Plugins.entities:
+            v = getattr(settings, name, None)
+            mm = importlib.import_module(name)
+            c = getattr(mm, name)
+            if not issubclass(c, KBEngine.Base):
                 continue
-            try:
-                module = importlib.import_module(name)
-                entityClass = getattr(module, name)
-                if not issubclass(entityClass, KBEngine.Base):
-                    continue
-                dbInterfaceName = getattr(v, "database", None) or "default"
-                setattr(v, "database", dbInterfaceName)
-                setattr(module, name, type(entityClass.__name__, (cls.DatabaseBase, entityClass),
-                                           dict(dbInterfaceName=dbInterfaceName)))
-            except ImportError:
-                pass
+            n = (getattr(v, "database", None) if v else None) or "default"
+            if v:
+                setattr(v, "database", n)
+            setattr(mm, name, type(c.__name__, (cls.DatabaseBase, c), dict(dbInterfaceName=n)))
+
+    # @classmethod
+    # def databaseAll(cls):
+    #     for name, v in settings.__dict__.items():
+    #         if not isinstance(v, SettingsEntity):
+    #             continue
+    #         try:
+    #             module = importlib.import_module(name)
+    #             entityClass = getattr(module, name)
+    #             if not issubclass(entityClass, KBEngine.Base):
+    #                 continue
+    #             dbInterfaceName = getattr(v, "database", None) or "default"
+    #             setattr(v, "database", dbInterfaceName)
+    #             setattr(module, name, type(entityClass.__name__, (cls.DatabaseBase, entityClass),
+    #                                        dict(dbInterfaceName=dbInterfaceName)))
+    #         except ImportError:
+    #             pass
 
     @classmethod
     def discover(cls):
@@ -90,9 +106,9 @@ class Equalization(KBEngine.Base):
         for name, idList in Equalization_.autoLoadedIDMap.items():
             if len(self.autoLoadedIDMap.get(name, [])) != len(idList):
                 return
-        self.onkAutoLoadedCompleted()
+        self.onAutoLoadedCompleted()
 
-    def onkAutoLoadedCompleted(self):
+    def onAutoLoadedCompleted(self):
         del KBEngine.globalData["EqualizationEntity"]
         self.destroy()
 

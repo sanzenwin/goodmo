@@ -121,7 +121,7 @@ class Equalization(metaclass=MetaOfEqualization):
     @classmethod
     def isCompleted(cls):
         return isinstance(KBEngine.globalData.get("Equalization", None), dict) and KBEngine.globalData.get(
-            "EqualizationEntity", None)
+            "EqualizationEntity", None) is None
 
 
 class MetaOfSingleton(type):

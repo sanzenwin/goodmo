@@ -1,4 +1,6 @@
 import ret_code
+import KBEngine
+from pymysql.converters import escape_str
 
 
 class TimerProxy:
@@ -91,3 +93,49 @@ def LockAsset(*nameList):
 
     assert len(nameList) == len(set(nameList)), "The name of assets should be unique"
     return type("set__" + "_".join(nameList), (Asset,) + tuple(generator(name) for name in nameList), {})
+
+
+class DatabaseBaseMixin:
+    tableStr = "tbl_%s"
+    assignmentStr = "sm_%s = %s"
+    sqlUpdateStr = "update %s set %s where %s;"
+    sqlInsertStr = "insert into %s (%s) values(%s);"
+
+    @classmethod
+    def __table(cls):
+        return cls.tableStr % cls.__name__
+
+    @classmethod
+    def __assignment(cls, m):
+        assignment = []
+        for k, v in m.items():
+            v = escape_str(v) if isinstance(v, str) else v
+            assignment.append(cls.assignmentStr % (k, v))
+        return assignment
+
+    @classmethod
+    def __updateSql(cls, m, n):
+        table = cls.__table()
+        assignment = " , ".join(cls.__assignment(m))
+        condition = " and ".join(cls.__assignment(n))
+        return cls.sqlUpdateStr % (table, assignment, condition)
+
+    @classmethod
+    def __insertSql(cls, m):
+        kk = []
+        vv = []
+        for k, v in m.items():
+            v = escape_str(v) if isinstance(v, str) else v
+            kk.append(k)
+            vv.append(v)
+        table = cls.__table()
+        return cls.sqlInsertStr % (table, " , ".join(kk), " , ".join(vv))
+
+    @classmethod
+    def executeUpdate(cls, assignment, condition, callback=None, threadID=-1):
+        KBEngine.executeRawDatabaseCommand(cls.__updateSql(assignment, condition), callback, threadID,
+                                           cls.dbInterfaceName)
+
+    @classmethod
+    def executeInsert(cls, insert, callback=None, threadID=-1):
+        KBEngine.executeRawDatabaseCommand(cls.__insertSql(insert), callback, threadID, cls.dbInterfaceName)

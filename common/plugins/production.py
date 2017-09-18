@@ -44,6 +44,8 @@ class Plugins:
 
     interface_handle_map = {}
 
+    entities = {}
+
     @classmethod
     def get_module_list(cls, *path):
         return get_module_list(*path)
@@ -122,8 +124,8 @@ class Plugins:
 
         base_avatar_cls_list = []
         for m, v in m_entity_avatars.items():
-            module = importlib.import_module(v)
-            avatar_cls = getattr(module, m, None)
+            mm = importlib.import_module(v)
+            avatar_cls = getattr(mm, m, None)
             if avatar_cls is None:
                 continue
             if not issubclass(avatar_cls, tuple(base_avatar_cls_list)):
@@ -143,13 +145,13 @@ class Plugins:
             except ImportError:
                 pass
 
-        m_entities = entity()
+        cls.entities = entity()
         del_attr = dict()
         set_none = dict()
         properties = dict()
-        for m, v in m_entities.items():
-            module = importlib.import_module(v)
-            c = getattr(module, m)
+        for m, v in cls.entities.items():
+            mm = importlib.import_module(v)
+            c = getattr(mm, m)
             for cc in c.mro():
                 for k, vv in cc.__dict__.items():
                     if isinstance(vv, (Property, AnyProperty, Volatile, Base, Cell, Client)):
