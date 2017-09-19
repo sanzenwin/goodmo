@@ -101,6 +101,7 @@ class DatabaseBaseMixin:
     tableStr = "tbl_%s"
     fieldStr = "sm_%s"
     assignmentStr = fieldStr + " = %s"
+    assignmentOriginStr = "%s = %s"
     sqlUpdateStr = "update %s set %s where %s;"
     sqlInsertStr = "insert into %s (%s) values(%s);"
 
@@ -110,14 +111,15 @@ class DatabaseBaseMixin:
 
     @classmethod
     def __field(cls, m):
-        return cls.fieldStr % m
+        return m if m == "id" else (cls.fieldStr % m)
 
     @classmethod
     def __assignment(cls, m):
         assignment = []
         for k, v in m.items():
             v = escape_str(v) if isinstance(v, str) else v
-            assignment.append(cls.assignmentStr % (k, v))
+            a = cls.assignmentOriginStr if k == "id" else cls.assignmentStr
+            assignment.append(a % (k, v))
         return assignment
 
     @classmethod
