@@ -1,6 +1,7 @@
 from common.dispatcher import Signal
 
-avatar_new = Signal(providing_args=['newbieData'])
+avatar_new_prev = Signal(providing_args=['newbieData'])
+avatar_new_post = Signal()
 avatar_created = Signal()
 avatar_common_login = Signal()
 avatar_quick_login = Signal()
