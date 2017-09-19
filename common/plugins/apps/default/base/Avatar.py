@@ -28,7 +28,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
     def onCreatedAndCompleted(self):
         if self.isReqReady():
             self.onReqReady()
-            avatar_created.send(sender=self)
+            avatar_created.send(self)
 
     def isReqReady(self):
         if self.isDestroyed:
@@ -42,13 +42,13 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
 
     def onReqReady(self):
         if self.isFirstLogin:
-            avatar_login.send(sender=self)
+            avatar_login.send(self)
             self.onLogin()
             self.isFirstLogin = False
         else:
-            avatar_quick_login.send(sender=self)
+            avatar_quick_login.send(self)
             self.onQuickLogin()
-        avatar_common_login.send(sender=self)
+        avatar_common_login.send(self)
         self.onCommonLogin()
 
     def onEntitiesEnabled(self):

@@ -77,7 +77,7 @@ class Asset(LockAsset("gold")):
 
     def consumeData(self, dataList):
         for data in dataList:
-            consume_data.send(sender=self, data=data)
+            consume_data.send(self, data=data)
             handler = getattr(self, "%s%sConsumeData" % (data["pay_type"], data["attach"]["type"]))
             handler(data["attach"])
 

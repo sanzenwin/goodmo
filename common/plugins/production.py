@@ -289,4 +289,4 @@ class Plugins:
             cls.init__charge()
         cls.load_all_module("plugins.setup")
         Type.init_dict_types()
-        plugins_completed.send(sender=cls)
+        plugins_completed.send(cls)

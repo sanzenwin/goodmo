@@ -27,7 +27,7 @@ class BaseApp(KBEngine.Base, TimerProxy):
         cls.instance = KBEngine.createBaseLocally('BaseApp', dict(groupIndex=int(os.getenv("KBE_BOOTIDX_GROUP")),
                                                                   globalIndex=int(os.getenv("KBE_BOOTIDX_GLOBAL"))))
         cls.instance.init()
-        baseapp_ready.send(sender=cls.instance)
+        baseapp_ready.send(cls.instance)
 
     @classmethod
     def onReadyForLogin(cls):
@@ -62,11 +62,11 @@ class BaseApp(KBEngine.Base, TimerProxy):
 
     @classmethod
     def onGlobalData(cls, key, value):
-        global_data_change.send(sender=cls.instance, key=key, value=value)
+        global_data_change.send(cls.instance, key=key, value=value)
 
     @classmethod
     def onGlobalDataDel(cls, key):
-        global_data_del.send(sender=cls.instance, key=key)
+        global_data_del.send(cls.instance, key=key)
 
     @classmethod
     def onGlobalBases(cls, key, value):

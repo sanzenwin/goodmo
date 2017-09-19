@@ -88,7 +88,7 @@ class Account(KBEngine.Proxy):
         newbieData = deepcopy(settings.Avatar.newbieData.dict)
         newbieData["name"] = prefix + str(len(self.avatars) + 1) + str(
             self.databaseID + settings.Avatar.nameIndexRadix)
-        avatar_new_prev.send(sender=self, newbieData=newbieData)
+        avatar_new_prev.send(self, newbieData=newbieData)
         avatar = KBEngine.createBaseLocally('Avatar', newbieData)
         if avatar:
             avatar.writeToDB(self.__onAvatarSaved)
@@ -148,7 +148,7 @@ class Account(KBEngine.Proxy):
             avatarinfo.name = avatar.name
             self.avatars.append(avatarinfo)
             self.writeToDB()
-            avatar_new_post.send(sender=avatar)
+            avatar_new_post.send(avatar)
             avatar.destroy()
             if self.client:
                 self.client.onCreateAvatarResult(avatarinfo)
