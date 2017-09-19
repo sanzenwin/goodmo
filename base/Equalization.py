@@ -98,8 +98,10 @@ class Equalization(KBEngine.Base):
         KBEngine.BaseApp.onGlobalData("Equalization", self.entities)
 
     def addAutoLoaded(self, name, dbid):
-        m = self.autoLoadedIDMap.setdefault(name, [])
-        m.append(dbid)
+        if name:
+            m = self.autoLoadedIDMap.setdefault(name, [])
+            if dbid:
+                m.append(dbid)
         self.checkAutoLoadedCompleted()
 
     def checkAutoLoadedCompleted(self):
@@ -137,6 +139,10 @@ def equalization_change(signal, sender, key, value):
         for name, idList in Equalization_.autoLoadedIDMap.items():
             for i in range(index - 1, len(idList), settings.BaseApp.equalizationBaseappAmount):
                 KBEngine.createBaseFromDBID(name, idList[i], partial(callback, name))
+            if not idList:
+                KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
+        if not Equalization_.autoLoadedIDMap:
+            KBEngine.globalData["EqualizationEntity"].addAutoLoaded("", 0)
 
     index = sender.groupIndex
     if index <= settings.BaseApp.equalizationBaseappAmount:
