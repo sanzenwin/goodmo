@@ -132,10 +132,10 @@ class DatabaseBaseMixin:
         return cls.sqlInsertStr % (table, " , ".join(kk), " , ".join(vv))
 
     @classmethod
-    def executeUpdate(cls, assignment, condition, callback=None, threadID=-1):
+    def executeDatabaseUpdate(cls, assignment, condition, callback=None, threadID=-1):
         KBEngine.executeRawDatabaseCommand(cls.__updateSql(assignment, condition), callback, threadID,
                                            cls.dbInterfaceName)
 
     @classmethod
-    def executeInsert(cls, insert, callback=None, threadID=-1):
+    def executeDatabaseInsert(cls, insert, callback=None, threadID=-1):
         KBEngine.executeRawDatabaseCommand(cls.__insertSql(insert), callback, threadID, cls.dbInterfaceName)
