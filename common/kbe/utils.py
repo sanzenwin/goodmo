@@ -40,8 +40,9 @@ def LockAsset(*nameList):
                 setattr(self, get_lockedPropertyName(name), False)
             if changed == 0:
                 return
-            v = getattr(self, name) + changed
-            setattr(self, name, max(0, v))
+            v = max(0, getattr(self, name) + changed)
+            setattr(self, name, v)
+            self.onModifyAttr(name, v)
 
         def asset(self, name):
             return getattr(self, name, 0)
@@ -81,8 +82,9 @@ def LockAsset(*nameList):
                 setattr(self, lockedPropertyName, False)
             if changed == 0:
                 return
-            v = getattr(self, name) + changed
-            setattr(self, name, max(0, v))
+            v = max(0, getattr(self, name) + changed)
+            setattr(self, name, v)
+            self.onModifyAttr(name, v)
 
         return type("lock_" + name, (object,), {
             lockedPropertyName: False,
@@ -138,9 +140,11 @@ class DatabaseBaseMixin:
 
     @classmethod
     def executeDatabaseUpdate(cls, assignment, condition, callback=None, threadID=-1):
-        KBEngine.executeRawDatabaseCommand(cls.__updateSql(assignment, condition), callback, threadID,
-                                           cls.dbInterfaceName)
+        if assignment and condition:
+            KBEngine.executeRawDatabaseCommand(cls.__updateSql(assignment, condition), callback, threadID,
+                                               cls.dbInterfaceName)
 
     @classmethod
     def executeDatabaseInsert(cls, insert, callback=None, threadID=-1):
-        KBEngine.executeRawDatabaseCommand(cls.__insertSql(insert), callback, threadID, cls.dbInterfaceName)
+        if insert:
+            KBEngine.executeRawDatabaseCommand(cls.__insertSql(insert), callback, threadID, cls.dbInterfaceName)
