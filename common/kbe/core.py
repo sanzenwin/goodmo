@@ -62,7 +62,7 @@ class Equalization(metaclass=MetaOfEqualization):
             if hasattr(v, "equalization") and v.equalization:
                 setattr(cls, k, cls.Proxy(v))
                 cls.memEntities[k] = v
-            if hasattr(v, "autoLoaded") and v.autoLoaded:
+            if hasattr(v, "autoLoaded") and v.autoLoaded or hasattr(v, "autoLoadedOrCreate") and v.autoLoadedOrCreate:
                 cls.autoLoadedEntities[k] = v
         equalization.Equalization.discover()
 
@@ -145,7 +145,7 @@ class MetaOfSingleton(type):
             return False
 
     def __getattr__(cls, base):
-        return KBEngine.globalData["Singleton"].get(base, cls.Proxy(base))
+        return KBEngine.globalData.get(cls.getKey(base), cls.Proxy(base))
 
     def __getitem__(cls, item):
         return getattr(cls, item)
@@ -153,28 +153,18 @@ class MetaOfSingleton(type):
 
 class Singleton(metaclass=MetaOfSingleton):
     @classmethod
+    def getKey(cls, name):
+        return "%s_%s" % (cls.__name__, name)
+
+    @classmethod
     def add(cls, obj):
-        cls.checkInit()
         name = obj.__class__.__name__
-        assert name not in KBEngine.globalData["Singleton"]
-        KBEngine.globalData["Singleton"][name] = obj
+        assert cls.getKey(name) not in KBEngine.globalData
+        KBEngine.globalData[cls.getKey(name)] = obj
 
     @classmethod
     def remove(cls, obj):
-        del KBEngine.globalData["Singleton"][obj.__class__.__name__]
-
-    @classmethod
-    def checkInit(cls):
-        if "Singleton" not in KBEngine.globalData:
-            KBEngine.globalData["Singleton"] = dict()
-
-    @classmethod
-    def discover(cls):
-        cls.checkInit()
-
-    @classmethod
-    def isCompleted(cls):
-        return isinstance(KBEngine.globalData.get("Singleton", None), dict)
+        del KBEngine.globalData[cls.getKey(obj.__class__.__name__)]
 
 
 class KBEngineProxy:
@@ -325,10 +315,9 @@ def discover(signal, sender):
 @receiver(baseapp_ready)
 def baseappReady(signal, sender):
     if sender.groupIndex == 1:
-        Singleton.discover()
         Database.discover()
-    cList = [Singleton, Redis, Database]
+    lst = [Redis, Database]
     settings = importlib.import_module("settings")
     if sender.groupIndex <= settings.BaseApp.equalizationBaseappAmount:
-        cList.append(Equalization)
-    sender.addCompletedObject(*cList)
+        lst.append(Equalization)
+    sender.addCompletedObject(*lst)

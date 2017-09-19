@@ -125,7 +125,7 @@ class DatabaseBaseMixin:
         kk = []
         vv = []
         for k, v in m.items():
-            v = escape_str(v) if isinstance(v, str) else v
+            v = escape_str(v) if isinstance(v, str) else str(v)
             kk.append(k)
             vv.append(v)
         table = cls.__table()

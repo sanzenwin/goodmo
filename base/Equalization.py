@@ -28,7 +28,7 @@ class Equalization(KBEngine.Base):
 
     class DatabaseBase(KBEngine.Base, DatabaseBaseMixin):
         def writeToDB(self, callback=None, shouldAutoLoad=False):
-            super().writeToDB(callback, shouldAutoLoad, self.dbInterfaceName)
+            super().writeToDB(callback, False, self.dbInterfaceName)
 
         @classmethod
         def executeRawDatabaseCommand(cls, command, callback=None, threadID=-1):
@@ -136,11 +136,20 @@ def equalization_change(signal, sender, key, value):
                 return
             KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, dbid)
 
+        def onCreateBaseCallback(name, entity):
+            if not entity:
+                ERROR_MSG("equalization::onCreateBaseCallback: obj created failed!")
+                return
+            KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
+
         for name, idList in Equalization_.autoLoadedIDMap.items():
             for i in range(index - 1, len(idList), settings.BaseApp.equalizationBaseappAmount):
                 KBEngine.createBaseFromDBID(name, idList[i], partial(callback, name))
             if not idList:
-                KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
+                if settings.get(name).autoLoadedOrCreate and index == 1:
+                    KBEngine.createBaseAnywhere(name, dict(), partial(onCreateBaseCallback, name))
+                else:
+                    KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
         if not Equalization_.autoLoadedIDMap:
             KBEngine.globalData["EqualizationEntity"].addAutoLoaded("", 0)
 

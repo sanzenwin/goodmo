@@ -91,6 +91,7 @@ class Plugins:
             if isinstance(c, EqualizationMixin):
                 c.init_equalization_format()
             setattr(settings, k, c)
+        settings.get = lambda x: getattr(settings, x, None)
 
     @classmethod
     def init__entity(cls):
