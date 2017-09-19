@@ -37,22 +37,26 @@ class Equalization(KBEngine.Base):
     @classmethod
     def markAll(cls):
         for name in Equalization_.memEntities:
-            module = importlib.import_module(name)
-            entityClass = getattr(module, name)
-            setattr(module, name, type(entityClass.__name__, (entityClass, cls.EqualizationBase), {}))
+            m = importlib.import_module(name)
+            ec = getattr(m, name)
+            c = type(ec.__name__, (ec, cls.EqualizationBase), {})
+            setattr(m, name, c)
+            plugins.Plugins.entities[name] = c
 
     @classmethod
     def databaseAll(cls):
-        for name in plugins.Plugins.entities:
+        for name in list(plugins.Plugins.entities):
             v = getattr(settings, name, None)
             mm = importlib.import_module(name)
-            c = getattr(mm, name)
-            if not issubclass(c, KBEngine.Base):
+            ec = getattr(mm, name)
+            if not issubclass(ec, KBEngine.Base):
                 continue
             n = (getattr(v, "database", None) if v else None) or "default"
             if v:
                 setattr(v, "database", n)
-            setattr(mm, name, type(c.__name__, (cls.DatabaseBase, c), dict(dbInterfaceName=n)))
+            c = type(ec.__name__, (cls.DatabaseBase, ec), dict(dbInterfaceName=n))
+            setattr(mm, name, c)
+            plugins.Plugins.entities[name] = c
 
     # @classmethod
     # def databaseAll(cls):

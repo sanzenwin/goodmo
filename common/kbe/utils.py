@@ -97,13 +97,18 @@ def LockAsset(*nameList):
 
 class DatabaseBaseMixin:
     tableStr = "tbl_%s"
-    assignmentStr = "sm_%s = %s"
+    fieldStr = "sm_%s"
+    assignmentStr = fieldStr + " = %s"
     sqlUpdateStr = "update %s set %s where %s;"
     sqlInsertStr = "insert into %s (%s) values(%s);"
 
     @classmethod
     def __table(cls):
         return cls.tableStr % cls.__name__
+
+    @classmethod
+    def __field(cls, m):
+        return cls.fieldStr % m
 
     @classmethod
     def __assignment(cls, m):
@@ -126,7 +131,7 @@ class DatabaseBaseMixin:
         vv = []
         for k, v in m.items():
             v = escape_str(v) if isinstance(v, str) else str(v)
-            kk.append(k)
+            kk.append(cls.__field(k))
             vv.append(v)
         table = cls.__table()
         return cls.sqlInsertStr % (table, " , ".join(kk), " , ".join(vv))

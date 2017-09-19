@@ -146,13 +146,14 @@ class Plugins:
             except ImportError:
                 pass
 
-        cls.entities = entity()
+        entities = entity()
         del_attr = dict()
         set_none = dict()
         properties = dict()
-        for m, v in cls.entities.items():
+        for m, v in entities.items():
             mm = importlib.import_module(v)
             c = getattr(mm, m)
+            cls.entities[m] = c
             for cc in c.mro():
                 for k, vv in cc.__dict__.items():
                     if isinstance(vv, (Property, AnyProperty, Volatile, Base, Cell, Client)):
@@ -271,6 +272,10 @@ class Plugins:
             if "__ignore__" not in md:
                 d.update(md)
         return d
+
+    @classmethod
+    def runtime(cls, entity):
+        return cls.entities[entity.__name__]
 
     @classmethod
     def discover(cls):
