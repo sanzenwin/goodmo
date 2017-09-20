@@ -110,12 +110,13 @@ class Equalization(KBEngine.Base):
 
     def checkAutoLoadedCompleted(self):
         for name, idList in Equalization_.autoLoadedIDMap.items():
-            if len(self.autoLoadedIDMap.get(name, [])) != len(idList):
+            if name not in self.autoLoadedIDMap or set(self.autoLoadedIDMap[name]) != set(idList):
                 return
         self.onAutoLoadedCompleted()
 
     def onAutoLoadedCompleted(self):
         del KBEngine.globalData["EqualizationEntity"]
+        KBEngine.BaseApp.onGlobalDataDel("EqualizationEntity")
         self.destroy()
 
 
@@ -135,25 +136,26 @@ def equalization_change(signal, sender, key, value):
                 return
             if baseRef is None:
                 ERROR_MSG(
-                    "equalization::callback: the equalization obj you wanted to created is not exist! %s, %s, %s, %s" % (
-                        name, baseRef, dbid, wasActive))
+                    "equalization::callback: the equalization obj you wanted to created is not exist! %s, %s, %s, %s" %
+                    (name, baseRef, dbid, wasActive))
                 return
             KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, dbid)
 
-        def onCreateBaseCallback(name, entity):
-            if not entity:
-                ERROR_MSG("equalization::onCreateBaseCallback: obj created failed!")
-                return
-            KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
-
+        need_created = []
         for name, idList in Equalization_.autoLoadedIDMap.items():
             for i in range(index - 1, len(idList), settings.BaseApp.equalizationBaseappAmount):
                 KBEngine.createBaseFromDBID(name, idList[i], partial(callback, name))
             if not idList:
-                if settings.get(name).autoLoadedOrCreate and index == 1:
-                    KBEngine.createBaseAnywhere(name, dict(), partial(onCreateBaseCallback, name))
+                if settings.get(name).autoLoadedOrCreate:
+                    need_created.append(name)
                 else:
                     KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
+
+        for i in range(index - 1, len(need_created), settings.BaseApp.equalizationBaseappAmount):
+            name = need_created[i]
+            KBEngine.createBaseLocally(name, dict())
+            KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
+
         if not Equalization_.autoLoadedIDMap:
             KBEngine.globalData["EqualizationEntity"].addAutoLoaded("", 0)
 

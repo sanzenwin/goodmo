@@ -166,7 +166,7 @@ class Signal:
             return responses
 
         for receiver in self._live_receivers(sender):
-            response = receiver(signal=self, sender=sender, **named)
+            response = receiver(self, sender, **named)
             responses.append((receiver, response))
         return responses
 
