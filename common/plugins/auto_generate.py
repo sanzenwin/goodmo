@@ -4,6 +4,7 @@ import re
 import importlib
 import codecs
 import shutil
+import time
 import KBEngine
 import kbe.log
 from collections import OrderedDict
@@ -589,6 +590,11 @@ class %(cls_name)s(%(cls_name)sBase):
         return d
 
     @classmethod
+    def exit(cls, wait=2):
+        time.sleep(wait)
+        sys.exit()
+
+    @classmethod
     def discover(cls):
         cls.clear_dir()
         cls.init__sys_path()
@@ -600,3 +606,4 @@ class %(cls_name)s(%(cls_name)sBase):
         cls.init__apps_completed()
         print("""==============\n""")
         print("""plugins completed!!""")
+        cls.exit()

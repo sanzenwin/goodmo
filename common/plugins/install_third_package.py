@@ -1,9 +1,9 @@
 import os
 from common.utils import get_module_attr
-from .auto_generate import Plugins as PluginsBase
+from .auto_generate import Plugins as Plugins_
 
 
-class Plugins(PluginsBase):
+class Plugins(Plugins_):
     HOME_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     THIRD_PACKAGE_DIR = os.path.join(os.path.dirname(os.path.dirname(HOME_DIR)), "kbe", "res", "scripts", "common",
                                      "Lib", "site-packages")
@@ -21,3 +21,4 @@ class Plugins(PluginsBase):
         cls.init__third_package()
         print("""==============\n""")
         print("""plugins completed!!""")
+        cls.exit()
