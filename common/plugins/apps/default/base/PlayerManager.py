@@ -12,6 +12,8 @@ class PlayerManager(KBEngine.Base):
         runOnline=BaseMethod(Type.DBID, Type.CALL.array),
     )
 
+    errorDeepMax = 3
+
     def __init__(self):
         super().__init__()
         self.guarantees = {}
@@ -52,7 +54,7 @@ class PlayerManager(KBEngine.Base):
         if player:
             player.run(callList)
 
-    def loadGuarantee(self, guaranteeID):
+    def loadGuarantee(self, guaranteeID, errorDeep=0):
         def callback(baseRef, dbid, wasActive):
             try:
                 if wasActive:
@@ -73,7 +75,12 @@ class PlayerManager(KBEngine.Base):
                         guaranteeID, self.id, baseRef, dbid, wasActive))
             except RunException as e:
                 ERROR_MSG(e.args[0])
-                self.loadGuarantee(guaranteeID)
+                if errorDeep < self.errorDeepMax:
+                    self.loadGuarantee(guaranteeID, errorDeep + 1)
+                else:
+                    ERROR_MSG(
+                        "PlayerManager::loadGuarantee:(%i): load failed! %s, %s, %s, %s" % (
+                            guaranteeID, self.id, baseRef, dbid, wasActive))
             else:
                 guarantee.run(self.players.get(guarantee.databaseID), self.products.pop(guarantee.databaseID))
 

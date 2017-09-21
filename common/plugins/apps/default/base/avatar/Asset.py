@@ -23,7 +23,7 @@ class Asset(LockAsset("gold")):
         Type=Type.UNICODE,
         Flags=Property.Flags.BASE_AND_CLIENT,
         # Index=Property.Index.UNIQUE,
-        DatabaseLength=settings.Avatar.nameLimit,
+        DatabaseLength=settings.Avatar.nameLengthUpLimit,
         Persistent=Property.Persistent.true
     )
 

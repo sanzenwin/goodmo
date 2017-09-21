@@ -42,6 +42,8 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         return False
 
     def onReqReady(self):
+        self.onCommonLogin()
+        avatar_common_login.send(self)
         if self.isFirstLogin:
             avatar_login.send(self)
             self.onLogin()
@@ -49,8 +51,6 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         else:
             avatar_quick_login.send(self)
             self.onQuickLogin()
-        self.onCommonLogin()
-        avatar_common_login.send(self)
 
     def onEntitiesEnabled(self):
         self.client.onServerTime(server_time.stamp())
