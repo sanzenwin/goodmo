@@ -309,8 +309,8 @@ class %(cls_name)s(%(cls_name)sBase):
 
         base_avatar_cls_list = []
         for m, v in cls.m_entity_avatars.items():
-            module = importlib.import_module(v)
-            avatar_cls = getattr(module, m, None)
+            mm = importlib.import_module(v)
+            avatar_cls = getattr(mm, m, None)
             if avatar_cls is None:
                 print("warring :: module[{0}] has no class named [{0}]".format(m))
                 continue
@@ -327,8 +327,8 @@ class %(cls_name)s(%(cls_name)sBase):
 
         entity_cls = dict(base=EntityOfBase, cell=EntityOfCell)[app]
         for m, v in cls.m_entities.items():
-            module = importlib.import_module(v)
-            c = getattr(module, m)
+            mm = importlib.import_module(v)
+            c = getattr(mm, m)
             entity_cls(c)
             cls.init_clients(c)
 
