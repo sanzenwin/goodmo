@@ -362,3 +362,14 @@ class Export:
     @staticmethod
     def is_method(f):
         return getattr(f, "__export__", False)
+
+
+class List:
+    def __init__(self, obj):
+        self.object = obj
+
+    def __getitem__(self, item):
+        if isinstance(item, slice):
+            lst = len(self.object)
+            return [self.object[i] for i in range(item.start, item.stop, item.step or 1) if 0 <= i < lst]
+        return self.object[item]

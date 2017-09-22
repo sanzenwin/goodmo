@@ -1,1 +1,1 @@
-__third_package__ = "xlrd", "tornado", "aioredis", "redis", "pymysql"
+__third_package__ = "xlrd", "tornado", "aioredis", "redis", "pymysql", "motor"

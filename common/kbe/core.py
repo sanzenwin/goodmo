@@ -7,6 +7,7 @@ import redis
 import aioredis
 import KBEngine
 import functools
+# from motor.motor_asyncio import AsyncIOMotorClient
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.xml import Xml, settings_kbengine
 from common.dispatcher import receiver
@@ -271,6 +272,52 @@ class Redis:
                                                                 password=r.get("password"))
             cls.attach(redis_map, objects)
             redis_completed.send(cls)
+
+        asyncio.async(init_connections())
+
+    @classmethod
+    def isCompleted(cls):
+        return cls.Proxy.ready
+
+
+class Mongodb:
+    class Proxy:
+        ready = False
+
+        def attach(self, key, r):
+            setattr(self, key, r)
+
+    @classmethod
+    def discover(cls):
+        settings = importlib.import_module("settings")
+        mongodb_set = set()
+        objects = {}
+        for k, v in settings.__dict__.items():
+            if hasattr(v, "mongodb") and v.redis:
+                objects[k] = v.redis()
+                for r in objects[k].values():
+                    mongodb_set.add(r)
+        if settings.Global.enableAsyncio:
+            cls.generateAsyncMongodb(mongodb_set, objects)
+
+    @classmethod
+    def attach(cls, redis_map, objects):
+        for k, v in objects.items():
+            for m, n in v.items():
+                proxy = getattr(cls, k, None) or cls.Proxy()
+                proxy.attach(m, redis_map[n])
+                setattr(cls, k, proxy)
+        cls.Proxy.ready = True
+
+    @classmethod
+    def generateAsyncMongodb(cls, mongodb_set, objects):
+        @asyncio.coroutine
+        def init_connections():
+            redis_map = dict()
+            for r in mongodb_set:
+                redis_map[r] = yield from aioredis.create_redis((r["host"], r["port"]), db=r["db"],
+                                                                password=r.get("password"))
+            cls.attach(redis_map, objects)
 
         asyncio.async(init_connections())
 
