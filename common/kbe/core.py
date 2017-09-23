@@ -313,7 +313,8 @@ class Mongodb:
         for k, v in objects.items():
             for m, n in v.items():
                 proxy = getattr(cls, k, None) or cls.Proxy()
-                proxy.attach(m, mongodb_map[cls.dumps(n)])
+                database = settings_kbengine.dbmgr.databaseInterfaces.default.databaseName.value
+                proxy.attach(m, mongodb_map[cls.dumps(n)][database][k+m])
                 setattr(cls, k, proxy)
         cls.Proxy.ready = True
 
@@ -324,7 +325,7 @@ class Mongodb:
             mongodb_map = dict()
             for p in mongodb_set:
                 r = cls.loads(p)
-                mongodb_map[p] = AsyncIOMotorClient(host=r["host"], port=r["port"],
+                mongodb_map[p] = AsyncIOMotorClient(host=r["host"], port=r["port"], username=r.get("username"),
                                                     password=r.get("password"))
             cls.attach(mongodb_map, objects)
 
