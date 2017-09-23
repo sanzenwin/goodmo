@@ -1,6 +1,5 @@
 import json
 import urllib
-import os, sys;sys.dllhandle = 1407057920 if os.name == "nt" else None
 from tornado.httpclient import AsyncHTTPClient
 from tornado.ioloop import IOLoop
 from tornado.escape import json_encode

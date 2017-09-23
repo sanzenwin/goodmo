@@ -7,7 +7,7 @@ import redis
 import aioredis
 import KBEngine
 import functools
-# from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.xml import Xml, settings_kbengine
 from common.dispatcher import receiver
@@ -288,24 +288,32 @@ class Mongodb:
             setattr(self, key, r)
 
     @classmethod
+    def dumps(cls, s):
+        return pickle.dumps(s)
+
+    @classmethod
+    def loads(cls, s):
+        return s if s is None else pickle.loads(s)
+
+    @classmethod
     def discover(cls):
         settings = importlib.import_module("settings")
         mongodb_set = set()
         objects = {}
         for k, v in settings.__dict__.items():
-            if hasattr(v, "mongodb") and v.redis:
-                objects[k] = v.redis()
+            if hasattr(v, "mongodb") and v.mongodb:
+                objects[k] = v.mongodb()
                 for r in objects[k].values():
-                    mongodb_set.add(r)
+                    mongodb_set.add(cls.dumps(r))
         if settings.Global.enableAsyncio:
             cls.generateAsyncMongodb(mongodb_set, objects)
 
     @classmethod
-    def attach(cls, redis_map, objects):
+    def attach(cls, mongodb_map, objects):
         for k, v in objects.items():
             for m, n in v.items():
                 proxy = getattr(cls, k, None) or cls.Proxy()
-                proxy.attach(m, redis_map[n])
+                proxy.attach(m, mongodb_map[cls.dumps(n)])
                 setattr(cls, k, proxy)
         cls.Proxy.ready = True
 
@@ -313,11 +321,12 @@ class Mongodb:
     def generateAsyncMongodb(cls, mongodb_set, objects):
         @asyncio.coroutine
         def init_connections():
-            redis_map = dict()
-            for r in mongodb_set:
-                redis_map[r] = yield from aioredis.create_redis((r["host"], r["port"]), db=r["db"],
-                                                                password=r.get("password"))
-            cls.attach(redis_map, objects)
+            mongodb_map = dict()
+            for p in mongodb_set:
+                r = cls.loads(p)
+                mongodb_map[p] = AsyncIOMotorClient(host=r["host"], port=r["port"],
+                                                    password=r.get("password"))
+            cls.attach(mongodb_map, objects)
 
         asyncio.async(init_connections())
 
@@ -357,13 +366,14 @@ def discover(signal, sender):
         KBEngineProxy.discover()
     if sender.app not in ("login",):
         Redis.discover()
+        Mongodb.discover()
 
 
 @receiver(baseapp_ready)
 def baseappReady(signal, sender):
     if sender.groupIndex == 1:
         Database.discover()
-    lst = [Redis, Database]
+    lst = [Redis, Mongodb, Database]
     settings = importlib.import_module("settings")
     if sender.groupIndex <= settings.BaseApp.equalizationBaseappAmount:
         lst.append(Equalization)
