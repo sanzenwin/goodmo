@@ -7,7 +7,7 @@ from interfaces.Ref import Ref
 from default.interfaces.RunObject import RunObject
 from kbe.protocol import Property, Client, ClientMethod, Type
 from default.signals import avatar_created, avatar_common_login, avatar_quick_login, avatar_login, avatar_logout, \
-    avatar_modify, avatar_modify_multi
+    avatar_modify, avatar_modify_multi, avatar_modify_common
 
 
 class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
@@ -72,9 +72,12 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
 
     def onModifyAttr(self, key, value):
         avatar_modify.send(self, key=key, value=value)
+        avatar_modify_common.send(self, key=key, value=value)
 
     def onModifyAttrMulti(self, data):
         avatar_modify_multi.send(self, data=data)
+        for key, value in data.items():
+            avatar_modify_common.send(self, key=key, value=value)
 
     def destroy(self, deleteFromDB=False, writeToDB=True):
         if self.accountEntity:
