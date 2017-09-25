@@ -95,7 +95,7 @@ class Equalization(metaclass=MetaOfEqualization):
             if error:
                 ERROR_MSG("loadEntities: error! args: %s, %s, %s, %s, %s" % (name, result, lines, insertid, error))
             else:
-                cls.autoLoadedIDMap[name] = [int(x[0]) for x in result]
+                cls.autoLoadedIDMap[name] = sorted([int(x[0]) for x in result])
                 if len(cls.autoLoadedIDMap) == len(cls.autoLoadedEntities):
                     success()
 

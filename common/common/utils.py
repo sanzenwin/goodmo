@@ -371,5 +371,7 @@ class List:
     def __getitem__(self, item):
         if isinstance(item, slice):
             lst = len(self.object)
-            return [self.object[i] for i in range(item.start, item.stop, item.step or 1) if 0 <= i < lst]
+            return [self.object[i] for i in
+                    range(item.start or 0, len(self.object) if item.stop is None else item.stop, item.step or 1) if
+                    0 <= i < lst]
         return self.object[item]

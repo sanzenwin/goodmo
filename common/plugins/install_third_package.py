@@ -13,6 +13,7 @@ class Plugins(Plugins_):
         install = []
         for name in cls.apps:
             install.extend(list(get_module_attr("%s.__third_package__" % name) or []))
+        cls.clear(cls.THIRD_PACKAGE_DIR)
         os.system("pip3 install -t %s %s" % (cls.THIRD_PACKAGE_DIR, " ".join(set(install))))
 
     @classmethod
