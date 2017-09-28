@@ -21,6 +21,10 @@ class TCall(DictType):
 class TEvent(DictType):
     properties_type = dict(func=Type.UNICODE, args=Type.PYTHON.client)
 
+    @classmethod
+    def pkg(cls, func, *args):
+        return cls(func=func, args=args).client
+
 
 class DefaultType:
     Type.BOOL(Type.UINT8)
