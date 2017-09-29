@@ -25,6 +25,7 @@ class Account(SettingsEntity):
         emailCode=r"http://127.0.0.1:8000/account/email_code/",
         phoneCode=r"http://127.0.0.1:8000/account/phone_code/",
         syncData=r"http://127.0.0.1:8000/account/sync_data/",
+        openUrl=r"http://127.0.0.1:8000/account/open_url/",
     )
 
 

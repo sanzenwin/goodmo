@@ -1,20 +1,25 @@
 # -*- coding: utf-8 -*-
 import KBEngine
 import settings
-from common.utils import server_time, Event
+from common.utils import server_time, Event, Bytes
 from kbe.utils import TimerProxy
 from interfaces.Ref import Ref
 from default.interfaces.RunObject import RunObject
-from kbe.protocol import Property, Client, ClientMethod, Type
+from kbe.protocol import Base, BaseMethodExposed, Property, Client, ClientMethod, Type
 from default.signals import avatar_created, avatar_common_login, avatar_quick_login, avatar_login, avatar_logout, \
     avatar_modify, avatar_modify_multi, avatar_modify_common
 
 
 class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
+    base = Base(
+        reqOpenUrl=BaseMethodExposed(Type.UNICODE),
+    )
+
     client = Client(
         onEvent=ClientMethod(Type.EVENT),
         onRetCode=ClientMethod(Type.RET_CODE),
         onServerTime=ClientMethod(Type.TIME_STAMP),
+        onOpenUrl=ClientMethod(Type.UNICODE)
         # onLogOnAttempt=ClientMethod(Type.BOOL, Type.UNICODE),
     )
 
@@ -85,6 +90,19 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
             self.accountEntity.destroy()
             self.accountEntity = None
         super().destroy(deleteFromDB, writeToDB)
+
+    def reqOpenUrl(self, key):
+        def callback(orderID, dbID, success, datas):
+            if uid != orderID:
+                return
+            if self.client:
+                self.client.onOpenUrl(Bytes(datas).get("url", ""))
+            self.release()
+
+        self.addRef()
+        uid = str(KBEngine.genUUID64())
+        KBEngine.charge(uid, self.databaseID, Bytes(interface="openUrl", id=self.guaranteeID, key=key).dumps(),
+                        callback)
 
     @property
     def pk(self):

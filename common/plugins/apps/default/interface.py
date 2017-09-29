@@ -20,3 +20,7 @@ def syncData(ordersID, entityDBID, data):
 
 def operate(ordersID, entityDBID, data):
     AsyncHttp().post(settings.Account.url.operateUser, partial(callback, ordersID), data)
+
+
+def openUrl(ordersID, entityDBID, data):
+    AsyncHttp().post(settings.Account.url.openUrl, partial(callback, ordersID), data)
