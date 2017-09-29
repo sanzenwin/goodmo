@@ -91,7 +91,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
             self.accountEntity = None
         super().destroy(deleteFromDB, writeToDB)
 
-    def reqOpenUrl(self, key):
+    def reqOpenUrl(self, operation):
         def callback(orderID, dbID, success, datas):
             if uid != orderID:
                 return
@@ -101,7 +101,8 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
 
         self.addRef()
         uid = str(KBEngine.genUUID64())
-        KBEngine.charge(uid, self.databaseID, Bytes(interface="openUrl", id=self.guaranteeID, key=key).dumps(),
+        KBEngine.charge(uid, self.databaseID,
+                        Bytes(interface="openUrl", id=self.guaranteeID, operation=operation).dumps(),
                         callback)
 
     @property
