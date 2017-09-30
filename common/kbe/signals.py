@@ -2,6 +2,7 @@ from common.dispatcher import Signal
 
 database_completed = Signal()
 redis_completed = Signal()
+mongodb_completed = Signal()
 
 baseapp_ready = Signal()
 

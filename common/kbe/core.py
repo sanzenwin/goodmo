@@ -11,7 +11,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.xml import Xml, settings_kbengine
 from common.dispatcher import receiver
-from kbe.signals import database_completed, redis_completed
+from kbe.signals import database_completed, redis_completed, mongodb_completed
 from plugins.conf.signals import plugins_completed
 from kbe.signals import baseapp_ready
 
@@ -328,6 +328,7 @@ class Mongodb:
                 mongodb_map[p] = AsyncIOMotorClient(host=r["host"], port=r["port"], username=r.get("username"),
                                                     password=r.get("password"))
             cls.attach(mongodb_map, objects)
+            mongodb_completed.send(cls)
 
         asyncio.async(init_connections())
 
