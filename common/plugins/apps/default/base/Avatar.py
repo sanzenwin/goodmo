@@ -19,7 +19,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         onEvent=ClientMethod(Type.EVENT),
         onRetCode=ClientMethod(Type.RET_CODE),
         onServerTime=ClientMethod(Type.TIME_STAMP),
-        onOpenUrl=ClientMethod(Type.UNICODE)
+        onOpenUrl=ClientMethod(Type.UNICODE, Type.UNICODE)
         # onLogOnAttempt=ClientMethod(Type.BOOL, Type.UNICODE),
     )
 
@@ -96,7 +96,8 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
             if uid != orderID:
                 return
             if self.client:
-                self.client.onOpenUrl(Bytes(datas).get("url", ""))
+                data = Bytes(datas)
+                self.client.onOpenUrl(data.get("operation", ""), data.get("url", ""))
             self.release()
 
         self.addRef()
