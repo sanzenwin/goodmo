@@ -1,12 +1,13 @@
 import os
 import sys
 import re
-import importlib
 import codecs
 import shutil
 import time
+import types
 import KBEngine
 import kbe.log
+from importlib import import_module, reload
 from collections import OrderedDict
 from common.utils import get_module_list, get_module_attr, get_module_all
 from kbe.protocol import Type, Property, Parent, Implements, Volatile, Properties, Client, Base, Cell, Entity, Entities
@@ -165,14 +166,14 @@ class Object:
     def is_avatar_base_cls(self):
         if self.entity_name != "Avatar":
             return False
-        dir_name = os.path.normpath(os.path.dirname(importlib.import_module(self.entity.__module__).__file__))
+        dir_name = os.path.normpath(os.path.dirname(import_module(self.entity.__module__).__file__))
         for name, path in Plugins.apps.items():
             if os.path.normpath(os.path.join(path, self.app, "avatar")) in dir_name:
                 return True
         return False
 
     def _is_plugin_object(self):
-        dir_name = os.path.normpath(os.path.dirname(importlib.import_module(self.entity.__module__).__file__))
+        dir_name = os.path.normpath(os.path.dirname(import_module(self.entity.__module__).__file__))
         return os.path.normpath(Plugins.BASE_DIR) not in dir_name
 
 
@@ -309,7 +310,7 @@ class %(cls_name)s(%(cls_name)sBase):
 
         base_avatar_cls_list = []
         for m, v in cls.m_entity_avatars.items():
-            mm = importlib.import_module(v)
+            mm = import_module(v)
             avatar_cls = getattr(mm, m, None)
             if avatar_cls is None:
                 print("warring :: module[{0}] has no class named [{0}]".format(m))
@@ -319,7 +320,7 @@ class %(cls_name)s(%(cls_name)sBase):
 
         if base_avatar_cls_list:
             try:
-                avatar_module = importlib.import_module("Avatar")
+                avatar_module = import_module("Avatar")
                 base_avatar_cls_list.append(avatar_module.Avatar)
                 avatar_module.Avatar = type(avatar_module.Avatar.__name__, tuple(base_avatar_cls_list), {})
             except ImportError:
@@ -327,7 +328,7 @@ class %(cls_name)s(%(cls_name)sBase):
 
         entity_cls = dict(base=EntityOfBase, cell=EntityOfCell)[app]
         for m, v in cls.m_entities.items():
-            mm = importlib.import_module(v)
+            mm = import_module(v)
             c = getattr(mm, m)
             entity_cls(c)
             cls.init_clients(c)
@@ -375,7 +376,7 @@ class %(cls_name)s(%(cls_name)sBase):
     @classmethod
     def clear_dir(cls):
         cls.clear(cls.DEF_DIR)
-        cls.clear(cls.DATA_DIR)
+        cls.clear(cls.DATA_DIR, True)
         cls.clear(cls.PLUGINS_PROXY_BASE_DIR)
         cls.clear(cls.PLUGINS_PROXY_CELL_DIR)
         cls.clear(cls.PLUGINS_PROXY_COMMON_DIR, True)
@@ -417,7 +418,7 @@ class %(cls_name)s(%(cls_name)sBase):
     def init__sys_path(cls):
         sys.path = [cls.PLUGINS_OUTER_DIR, cls.PLUGINS_DIR] + sys.path
         sys.path = [cls.PLUGINS_PROXY_COMMON_DIR] + sys.path
-        settings = importlib.import_module("settings")
+        settings = import_module("settings")
         for name in reversed(settings.install_apps):
             for path in sys.path:
                 dir_name = os.path.join(path, name)
@@ -436,7 +437,7 @@ class %(cls_name)s(%(cls_name)sBase):
         settings_dict = {}
         for name in ["%s.settings" % name for name in cls.apps] + ["plugins.conf.global_settings"]:
             try:
-                settings = importlib.import_module(name)
+                settings = import_module(name)
                 for k, v in settings.__dict__.items():
                     if isinstance(v, type) and issubclass(v, SettingsNode):
                         base_list = settings_dict.setdefault(k, [])
@@ -445,7 +446,7 @@ class %(cls_name)s(%(cls_name)sBase):
             except ImportError:
                 print("import warring: %s is not found" % name)
 
-        settings = importlib.import_module("settings")
+        settings = import_module("settings")
         for k, base_list in settings_dict.items():
             c = type(k, tuple(base_list), {})()
             c.collect_nodes()
@@ -461,7 +462,7 @@ class %(cls_name)s(%(cls_name)sBase):
                 if m.upper() == m and m not in user_types:
                     user_types.append(m)
         for m in user_types:
-            importlib.import_module(m)
+            import_module(m)
 
     @classmethod
     def init__entity(cls):
@@ -544,26 +545,33 @@ class %(cls_name)s(%(cls_name)sBase):
 
     @classmethod
     def init__apps_setup(cls):
-        class Proxy:
-            def __getattr__(self, item):
-                return None
-
-        all_proxy_modules = []
-
-        for name in cls.apps:
-            proxy_modules = get_module_attr("%s.plugins.__proxy_modules__" % name, [])
-            for modules in proxy_modules:
-                modules = modules.split(".")
-                for i in range(len(modules)):
-                    m = ".".join(modules[:i + 1])
-                    if m not in sys.modules:
-                        sys.modules[m] = Proxy()
-                        all_proxy_modules.append(m)
+        # class Proxy(types.ModuleType):
+        #     def __getattr__(self, item):
+        #         return None
+        #
+        # all_proxy_modules = []
+        #
+        # for name in cls.apps:
+        #     proxy_modules = get_module_attr("%s.plugins.__proxy_modules__" % name, [])
+        #     for modules in proxy_modules:
+        #         modules = modules.split(".")
+        #         for i in range(len(modules)):
+        #             m = ".".join(modules[:i + 1])
+        #             if m not in sys.modules:
+        #                 sys.modules[m] = Proxy(m)
+        #                 all_proxy_modules.append(m)
 
         cls.run_plugins("setup")
 
-        for m in all_proxy_modules:
-            sys.modules.pop(m)
+        # for m in all_proxy_modules:
+        #     sys.modules.pop(m)
+        #     try:
+        #         mm = import_module(m)
+        #     except ImportError as e:
+        #         print(e.args[0])
+        #         continue
+        #     else:
+        #         reload(mm)
 
     @classmethod
     def init__apps_run(cls):

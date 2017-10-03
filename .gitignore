@@ -92,9 +92,10 @@ ENV/
 .ropeproject
 /entities.xml
 /entity_defs/*
-/data/*
 /common/plugins/proxy/base/*
 /common/plugins/proxy/bots/*
 /common/plugins/proxy/cell/*
 /common/plugins/proxy/common/*
 !/common/plugins/proxy/common/.gitkeep
+/data/*
+!/data/.gitkeep
