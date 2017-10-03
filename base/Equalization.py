@@ -148,7 +148,7 @@ def equalization_change(signal, sender, key, value):
             if not idList:
                 if settings.get(name).autoLoadedOrCreate:
                     need_created.append(name)
-                else:
+                elif sender.groupIndex == 1:
                     KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
 
         for i in range(index - 1, len(need_created), settings.BaseApp.equalizationBaseappAmount):
@@ -156,7 +156,7 @@ def equalization_change(signal, sender, key, value):
             KBEngine.createBaseLocally(name, dict())
             KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
 
-        if not Equalization_.autoLoadedIDMap:
+        if not Equalization_.autoLoadedIDMap and sender.groupIndex == 1:
             KBEngine.globalData["EqualizationEntity"].addAutoLoaded("", 0)
 
     index = sender.groupIndex

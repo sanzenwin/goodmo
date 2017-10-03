@@ -5,8 +5,6 @@ import settings
 from collections import OrderedDict
 from plugins.conf import Str
 
-__proxy_modules__ = "ret_code", "excel_data"
-
 
 def run(plugins, name):
     init_ret_code(plugins)
