@@ -26,6 +26,9 @@ class TimerProxy:
                 self.__timer__.pop(tid, None)
             callback()
 
+    def runInNextFrame(self, callback):
+        self.addTimerProxy(0, callback)
+
 
 def LockAsset(*nameList):
     class Asset:

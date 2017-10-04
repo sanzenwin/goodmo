@@ -4,8 +4,8 @@ from kbe.xml import settings_kbengine
 
 
 class Global(SettingsEntity):
-    enableAsyncHttp = False
-    enableAsyncio = False
+    enableAsyncHttp = True
+    enableAsyncio = True
     gameTimeInterval = 0.5 / settings_kbengine.gameUpdateHertz.value
 
 

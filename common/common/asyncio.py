@@ -1,9 +1,9 @@
-import sys
+import platform
 import asyncio
 from asyncio.base_events import _format_handle
 from asyncio.log import logger
 
-if sys.platform == 'win32':
+if platform.system() == 'Windows':
     from asyncio.windows_events import SelectorEventLoop, DefaultEventLoopPolicy
 else:
     from asyncio.unix_events import SelectorEventLoop, DefaultEventLoopPolicy

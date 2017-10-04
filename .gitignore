@@ -99,3 +99,7 @@ ENV/
 !/common/plugins/proxy/common/.gitkeep
 /data/*
 !/data/.gitkeep
+/shell/start_server.sh
+/shell/start_server.cmd
+/shell/start_bots.cmd
+/shell/start_bots.sh

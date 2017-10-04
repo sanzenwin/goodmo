@@ -5,15 +5,14 @@ import settings
 import plugins
 from functools import partial
 from common.dispatcher import receiver
-from kbe.utils import DatabaseBaseMixin
+from kbe.utils import DatabaseBaseMixin, TimerProxy
 from kbe.core import Equalization as Equalization_
 from kbe.protocol import Type, Base, BaseMethod
 from kbe.signals import baseapp_ready, global_data_change, global_data_del
-from plugins.conf import SettingsEntity
 from kbe.log import ERROR_MSG
 
 
-class Equalization(KBEngine.Base):
+class Equalization(KBEngine.Base, TimerProxy):
     base = Base(
         addEntity=BaseMethod(Type.UNICODE, Type.PY_LIST, Type.MAILBOX),
         addAutoLoaded=BaseMethod(Type.UNICODE, Type.DBID),
@@ -84,6 +83,9 @@ class Equalization(KBEngine.Base):
         super().__init__()
         self.entities = {}
         self.autoLoadedIDMap = {}
+        self.runInNextFrame(self.init)
+
+    def init(self):
         KBEngine.globalData["EqualizationEntity"] = self
         KBEngine.BaseApp.onGlobalData("EqualizationEntity", self)
 

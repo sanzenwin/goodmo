@@ -4,14 +4,14 @@ import re
 import codecs
 import shutil
 import time
-import types
 import KBEngine
 import kbe.log
-from importlib import import_module, reload
+from importlib import import_module
 from collections import OrderedDict
 from common.utils import get_module_list, get_module_attr, get_module_all
 from kbe.protocol import Type, Property, Parent, Implements, Volatile, Properties, Client, Base, Cell, Entity, Entities
 from plugins.conf import SettingsNode, EqualizationMixin
+from plugins.conf.start_server import shell_maker
 
 for i in range(len(sys.path)):
     sys.path[i] = os.path.normpath(sys.path[i])
@@ -227,6 +227,7 @@ class Plugins:
     BASE_DIR = os.path.join(HOME_DIR, "base")
     CELL_DIR = os.path.join(HOME_DIR, "cell")
     DATA_DIR = os.path.join(HOME_DIR, "data")
+    SHELL_DIR = os.path.join(HOME_DIR, "shell")
     DEF_DIR = os.path.join(HOME_DIR, "entity_defs")
     COMMON_DIR = os.path.join(HOME_DIR, "common")
     RES_DIR = os.path.join(os.path.dirname(HOME_DIR), "res")
@@ -582,6 +583,26 @@ class %(cls_name)s(%(cls_name)sBase):
         cls.run_plugins("completed")
 
     @classmethod
+    def init__shell(cls):
+        settings = import_module("settings")
+        bc = settings.BaseApp.equalizationBaseappAmount + len(settings.BaseApp.multi["baseappIndependence"].dict)
+        common = dict(
+            machine=1,
+            logger=1,
+            interfaces=1,
+            dbmgr=1,
+            baseappmgr=1,
+            cellappmgr=1,
+            loginapp=1
+        )
+        bots = dict(bots=1, **common)
+        base = dict(baseapp=bc, **common)
+        cls.write(shell_maker.apps_shell(base, True), cls.SHELL_DIR, "start_server.cmd")
+        cls.write(shell_maker.apps_shell(base, False), cls.SHELL_DIR, "start_server.sh")
+        cls.write(shell_maker.apps_shell(bots, True), cls.SHELL_DIR, "start_bots.cmd")
+        cls.write(shell_maker.apps_shell(bots, False), cls.SHELL_DIR, "start_bots.sh")
+
+    @classmethod
     def run_plugins(cls, method):
         for name in cls.apps:
             entry = get_module_attr("%s.plugins.%s" % (name, method))
@@ -612,6 +633,7 @@ class %(cls_name)s(%(cls_name)sBase):
         cls.init__user_type()
         cls.init__entity()
         cls.init__apps_completed()
+        cls.init__shell()
         print("""==============\n""")
         print("""plugins completed!!""")
         cls.exit()

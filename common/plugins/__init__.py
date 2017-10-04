@@ -1,7 +1,8 @@
 import os
 import sys
+import platform
 
-if os.name == "nt":
+if platform.system() == 'Windows':
     sys.dllhandle = 1407057920
 
 if os.getenv("KBE_PLUGINS__AUTO_GENERATE"):
