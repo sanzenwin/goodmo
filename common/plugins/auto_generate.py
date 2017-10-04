@@ -586,21 +586,21 @@ class %(cls_name)s(%(cls_name)sBase):
     def init__shell(cls):
         settings = import_module("settings")
         bc = settings.BaseApp.equalizationBaseappAmount + len(settings.BaseApp.multi["baseappIndependence"].dict)
-        common = dict(
+        base = dict(
             machine=1,
             logger=1,
             interfaces=1,
             dbmgr=1,
             baseappmgr=1,
             cellappmgr=1,
-            loginapp=1
+            loginapp=1,
+            baseapp=bc
         )
-        bots = dict(bots=1, **common)
-        base = dict(baseapp=bc, **common)
-        cls.write(shell_maker.apps_shell(base, True), cls.SHELL_DIR, "start_server.cmd")
-        cls.write(shell_maker.apps_shell(base, False), cls.SHELL_DIR, "start_server.sh")
-        cls.write(shell_maker.apps_shell(bots, True), cls.SHELL_DIR, "start_bots.cmd")
-        cls.write(shell_maker.apps_shell(bots, False), cls.SHELL_DIR, "start_bots.sh")
+        bots = dict(bots=1)
+        cls.write(shell_maker.apps_shell(base, True, True), cls.SHELL_DIR, "start_server.cmd")
+        cls.write(shell_maker.apps_shell(base, True, False), cls.SHELL_DIR, "start_server.sh")
+        cls.write(shell_maker.apps_shell(bots, False, True), cls.SHELL_DIR, "start_bots.cmd")
+        cls.write(shell_maker.apps_shell(bots, False, False), cls.SHELL_DIR, "start_bots.sh")
 
     @classmethod
     def run_plugins(cls, method):

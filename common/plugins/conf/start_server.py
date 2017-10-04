@@ -2,6 +2,10 @@ import KBEngine
 
 
 class ShellMaker:
+    class Default(dict):
+        def __missing__(self, key):
+            return "{%s}" % key
+
     cmd_template = """\
 @echo off
 
@@ -16,7 +20,7 @@ set KBE_BIN_PATH=%KBE_ROOT%/kbe/bin/server/
 if defined uid (echo UID = %uid%) else set uid=%random%%%32760+1
 
 cd %curpath%
-call "scripts/shell/kill_server"
+{kill}
 
 echo KBE_ROOT = %KBE_ROOT%
 echo KBE_RES_PATH = %KBE_RES_PATH%
@@ -24,8 +28,9 @@ echo KBE_BIN_PATH = %KBE_BIN_PATH%
 
 {apps}
 """
+    cmd_kill_str = 'call "scripts/shell/kill_server"'
 
-    app_cmd_template = """start %KBE_BIN_PATH%/%s.exe --cid=/%s --gus=%s"""
+    app_cmd_template = """start %KBE_BIN_PATH%/{app}.exe --cid={cid} --gus={gus}"""
 
     sh_template = """\
 #!/bin/sh
@@ -39,12 +44,14 @@ echo KBE_ROOT = \"${KBE_ROOT}\"
 echo KBE_RES_PATH = \"${KBE_RES_PATH}\"
 echo KBE_BIN_PATH = \"${KBE_BIN_PATH}\"
 
-sh ./kill_server.sh
+{kill}
 
 {apps}
 """
 
-    app_sh_template = """$KBE_BIN_PATH/%s --cid=%s --gus=%s&"""
+    sh_kill_str = 'sh ./kill_server.sh'
+
+    app_sh_template = """$KBE_BIN_PATH/{app} --cid={cid} --gus={gus}&"""
 
     machine = "machine"
     logger = "logger"
@@ -58,8 +65,8 @@ sh ./kill_server.sh
     bots = "bots"
 
     def __init__(self):
-        self.origin_cid = KBEngine.genUUID64()
-        self.origin_gus = KBEngine.genUUID64()
+        self.origin_cid = 10000
+        self.origin_gus = 0
 
     def new_cid(self):
         self.origin_cid += 1
@@ -71,15 +78,16 @@ sh ./kill_server.sh
 
     def app_shell(self, name, cmd=True):
         app_template = self.app_cmd_template if cmd else self.app_sh_template
-        return app_template % (getattr(self, name), self.new_cid(), self.new_gus())
+        return app_template.format(app=getattr(self, name), cid=self.new_cid(), gus=self.new_gus())
 
-    def apps_shell(self, name_dict, cmd=True):
+    def apps_shell(self, name_dict, kill=True, cmd=True):
         apps = []
         template = self.cmd_template if cmd else self.sh_template
+        kill_str = (self.cmd_kill_str if cmd else self.sh_kill_str) if kill else ""
         for name in sorted(name_dict):
             for i in range(name_dict[name]):
-                apps.append(self.app_shell(name))
-        return template.format(apps="\r\n".join(apps))
+                apps.append(self.app_shell(name, cmd))
+        return template.format_map(self.Default(apps="\r\n".join(apps), kill=kill_str))
 
 
 shell_maker = ShellMaker()
