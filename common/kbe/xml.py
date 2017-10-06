@@ -1,11 +1,13 @@
 import os
 import re
 import codecs
+import dicttoxml
 import xml.dom.minidom
 import KBEngine
 
 if KBEngine.component == "bots":
     resPathList = re.split(';|:', os.getenv("KBE_RES_PATH"))[::-1]
+
 
     def getResFullPath(filename):
         for resPath in resPathList:
@@ -13,6 +15,8 @@ if KBEngine.component == "bots":
             if os.path.exists(fullPath):
                 return fullPath
         return ""
+
+
     KBEngine.getResFullPath = getResFullPath
 
 
@@ -136,10 +140,13 @@ class Xml(Node):
     def __init__(self, filename):
         super().__init__()
         filename = KBEngine.getResFullPath(filename)
-        with codecs.open(filename, 'r', 'utf-8') as f:
-            dom = xml.dom.minidom.parse(f)
-            root = dom.documentElement
-            self.recursive(self, root)
+        try:
+            with codecs.open(filename, 'r', 'utf-8') as f:
+                dom = xml.dom.minidom.parse(f)
+                root = dom.documentElement
+                self.recursive(self, root)
+        except FileNotFoundError:
+            pass
 
     def recursive(self, obj, node):
         for child in node.childNodes:
@@ -157,6 +164,15 @@ class Xml(Node):
                     self.recursive(new_obj, child)
                 elif len(child.childNodes) == 1:
                     new_obj.value = self.get_py_value(child.firstChild.data)
+
+    @classmethod
+    def dict2xml(cls, d, beautiful=True):
+        s = dicttoxml.dicttoxml(d, attr_type=False)
+        if beautiful:
+            x = xml.dom.minidom.parseString(s)
+            s = x.toprettyxml()
+        return s
+
 
 settings_kbengine_defs = Xml(os.path.join('server', 'kbengine_defs.xml'))
 settings_kbengine_custom = Xml(os.path.join('server', 'kbengine.xml'))

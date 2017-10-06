@@ -8,10 +8,11 @@ import KBEngine
 import kbe.log
 from importlib import import_module
 from collections import OrderedDict
-from common.utils import get_module_list, get_module_attr, get_module_all
+from common.utils import get_module, get_module_list, get_module_attr, get_module_all
 from kbe.protocol import Type, Property, Parent, Implements, Volatile, Properties, Client, Base, Cell, Entity, Entities
 from plugins.conf import SettingsNode, EqualizationMixin
 from plugins.conf.start_server import shell_maker
+from plugins.conf.xml import config
 
 for i in range(len(sys.path)):
     sys.path[i] = os.path.normpath(sys.path[i])
@@ -231,6 +232,8 @@ class Plugins:
     DEF_DIR = os.path.join(HOME_DIR, "entity_defs")
     COMMON_DIR = os.path.join(HOME_DIR, "common")
     RES_DIR = os.path.join(os.path.dirname(HOME_DIR), "res")
+    RES_KEY_DIR = os.path.join(RES_DIR, "key")
+    RES_SERVER_DIR = os.path.join(RES_DIR, "server")
     EXCEL_DIR = os.path.join(RES_DIR, "excel")
     EXCEL_DATA_DIR = os.path.join(DATA_DIR, "excel_data")
     PLUGINS_DIR = os.path.join(COMMON_DIR, "plugins", "apps")
@@ -241,6 +244,8 @@ class Plugins:
     PLUGINS_PROXY_BOTS_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "bots")
     PLUGINS_PROXY_COMMON_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "common")
 
+    uid = os.getenv("uid")
+    public_key = None
     r = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
     apps = OrderedDict()
 
@@ -583,6 +588,36 @@ class %(cls_name)s(%(cls_name)sBase):
         cls.run_plugins("completed")
 
     @classmethod
+    def init__rsa(cls):
+        crypto = get_module("oscrypto.asymmetric")
+        public_key, private_key = crypto.generate_pair("rsa", 1024)
+        cls.public_key = public_key
+        cls.write(crypto.dump_private_key(private_key, None).decode("utf-8"), cls.RES_KEY_DIR, "kbengine_private.key")
+        cls.write(crypto.dump_public_key(public_key).decode("utf-8"), cls.RES_KEY_DIR, "kbengine_public.key")
+
+    @classmethod
+    def init__xml_config(cls):
+        settings = import_module("settings")
+        xml = get_module_attr("kbe.xml.Xml")
+        client = get_module_attr("pymongo.MongoClient")
+        data = dict()
+        for name in reversed(cls.apps):
+            d = get_module_attr("%s.__server_config__" % name, dict())
+            data = config.update_recursive(data, d)
+        default = config.get_default_with_telnet(settings.Global.telnetOnePassword)
+        data = config.update_recursive(data, default)
+        collection = client(host='localhost', port=27017)["goodmo__%s" % cls.uid].ServerConfig
+        try:
+            d = collection.find({}, dict(_id=False)).next()
+        except StopIteration:
+            collection.save(config.get_default())
+            d = dict()
+        data = config.update_recursive(data, d)
+        data = config.final(data, lambda x: x)
+        s = xml.dict2xml(data)
+        cls.write(s, cls.RES_SERVER_DIR, "kbengine.xml")
+
+    @classmethod
     def init__shell(cls):
         settings = import_module("settings")
         bc = settings.BaseApp.equalizationBaseappAmount + len(settings.BaseApp.multi["baseappIndependence"].dict)
@@ -633,6 +668,8 @@ class %(cls_name)s(%(cls_name)sBase):
         cls.init__user_type()
         cls.init__entity()
         cls.init__apps_completed()
+        cls.init__rsa()
+        cls.init__xml_config()
         cls.init__shell()
         print("""==============\n""")
         print("""plugins completed!!""")

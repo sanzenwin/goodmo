@@ -9,11 +9,10 @@ import KBEngine
 import functools
 from motor.motor_asyncio import AsyncIOMotorClient
 from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
-from kbe.xml import Xml, settings_kbengine
+from kbe.xml import Xml
 from common.dispatcher import receiver
-from kbe.signals import database_completed, redis_completed, mongodb_completed
+from kbe.signals import database_completed, redis_completed, mongodb_completed, baseapp_ready
 from plugins.conf.signals import plugins_completed
-from kbe.signals import baseapp_ready
 
 
 class MetaOfEqualization(type):
@@ -313,8 +312,7 @@ class Mongodb:
         for k, v in objects.items():
             for m, n in v.items():
                 proxy = getattr(cls, k, None) or cls.Proxy()
-                database = settings_kbengine.dbmgr.databaseInterfaces.default.databaseName.value
-                proxy.attach(m, mongodb_map[cls.dumps(n)][database][k+m])
+                proxy.attach(m, mongodb_map[cls.dumps(n)]["goodmo__%s" % os.getenv("uid")][k + m])
                 setattr(cls, k, proxy)
         cls.Proxy.ready = True
 

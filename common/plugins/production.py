@@ -25,6 +25,7 @@ class Plugins:
     PLUGINS_DIR = os.path.join(COMMON_DIR, "plugins", "apps")
     PLUGINS_OUTER_DIR = os.path.join(os.path.dirname(HOME_DIR), "apps")
 
+    uid = os.getenv("uid")
     r = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
 
     empty = object()

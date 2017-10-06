@@ -7,6 +7,7 @@ class Global(SettingsEntity):
     enableAsyncHttp = True
     enableAsyncio = True
     gameTimeInterval = 0.5 / settings_kbengine.gameUpdateHertz.value
+    telnetOnePassword = True
 
 
 class BaseApp(SettingsEntity):
