@@ -51,7 +51,7 @@ echo KBE_BIN_PATH = \"${KBE_BIN_PATH}\"
 {apps}
 """
 
-    sh_kill_str = 'sh ./kill_server.sh'
+    sh_kill_str = 'sh ./scripts/shell/kill_server.sh'
 
     app_sh_template = """$KBE_BIN_PATH/{app} --cid={cid} --gus={gus}&"""
 
