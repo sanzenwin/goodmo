@@ -35,8 +35,9 @@ echo KBE_BIN_PATH = %KBE_BIN_PATH%
     sh_template = """\
 #!/bin/sh
 
-export KBE_ROOT=$(cd ../../; pwd)
-export KBE_ASSERT_PATH=$(cd ../.; pwd)
+cd ../../
+export KBE_ROOT=$(cd ../; pwd)
+export KBE_ASSERT_PATH=$(cd .; pwd)
 export KBE_RES_PATH="$KBE_ROOT/kbe/res/:$KBE_ASSERT_PATH/:$KBE_ASSERT_PATH/res/:$KBE_ASSERT_PATH/scripts/"
 export KBE_BIN_PATH="$KBE_ROOT/kbe/bin/server/"
 
