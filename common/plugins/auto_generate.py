@@ -234,7 +234,7 @@ class Plugins:
     RES_DIR = os.path.join(os.path.dirname(HOME_DIR), "res")
     RES_KEY_DIR = os.path.join(RES_DIR, "key")
     RES_SERVER_DIR = os.path.join(RES_DIR, "server")
-    EXCEL_DIR = os.path.join(RES_DIR, "excel")
+    RES_EXCEL_DIR = os.path.join(RES_DIR, "excel")
     EXCEL_DATA_DIR = os.path.join(DATA_DIR, "excel_data")
     PLUGINS_DIR = os.path.join(COMMON_DIR, "plugins", "apps")
     PLUGINS_OUTER_DIR = os.path.join(os.path.dirname(HOME_DIR), "apps")
@@ -602,11 +602,11 @@ class %(cls_name)s(%(cls_name)sBase):
         client = get_module_attr("pymongo.MongoClient")
         data = dict()
         for name in reversed(cls.apps):
-            d = get_module_attr("%s.__server_config__" % name, dict())
+            d = get_module_attr("%s.__kbengine_xml__" % name, dict())
             data = config.update_recursive(data, d)
         default = config.get_default_with_telnet(settings.Global.telnetOnePassword)
         data = config.update_recursive(data, default)
-        collection = client(host='localhost', port=27017)["goodmo__%s" % cls.uid].ServerConfig
+        collection = client(host='localhost', port=27017)["goodmo__%s" % cls.uid].kbengine_xml
         try:
             d = collection.find({}, dict(_id=False)).next()
         except StopIteration:
@@ -652,6 +652,19 @@ class %(cls_name)s(%(cls_name)sBase):
             if "__ignore__" not in md:
                 d.update(md)
         return d
+
+    @classmethod
+    def get_res(cls, app_name, res_type, path_or_filename):
+        path_list = os.path.split(path_or_filename)
+        real_path = os.path.join(cls.RES_DIR, res_type, app_name, *path_list)
+        if os.path.exists(real_path):
+            return real_path
+        for name in cls.apps:
+            app_path = cls.get_app_path(name)
+            real_path = os.path.join(app_path, "res", res_type, app_name, *path_list)
+            if os.path.exists(real_path):
+                return real_path
+        return None
 
     @classmethod
     def exit(cls, wait=2):

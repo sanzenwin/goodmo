@@ -1,6 +1,6 @@
 __third_package__ = "xlrd", "tornado", "aioredis", "redis", "pymysql", "motor", "dicttoxml", "oscrypto"
 
-__server_config__ = dict(
+__kbengine_xml__ = dict(
     gameUpdateHertz=60,
     publish=dict(
         state=0,
