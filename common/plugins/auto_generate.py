@@ -13,6 +13,7 @@ from kbe.protocol import Type, Property, Parent, Implements, Volatile, Propertie
 from plugins.conf import SettingsNode, EqualizationMixin
 from plugins.conf.start_server import shell_maker
 from plugins.conf.xml import config
+from plugins.utils.excel.xlsx2py import xlsx2py
 
 for i in range(len(sys.path)):
     sys.path[i] = os.path.normpath(sys.path[i])
@@ -665,6 +666,16 @@ class %(cls_name)s(%(cls_name)sBase):
             if os.path.exists(real_path):
                 return real_path
         return None
+
+    @classmethod
+    def export_excel(cls, app_name_or_list, *module_list):
+        if not isinstance(app_name_or_list, (list, tuple)):
+            app_name_or_list = [app_name_or_list]
+        for app_name in app_name_or_list:
+            for module_name in module_list:
+                path = cls.get_res(app_name, "excel", "%s.xlsx" % module_name)
+                if path is not None:
+                    xlsx2py(path, os.path.join(cls.EXCEL_DATA_DIR, app_name, "%s.py" % module_name)).run()
 
     @classmethod
     def exit(cls, wait=2):
