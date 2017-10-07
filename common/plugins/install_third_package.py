@@ -20,6 +20,4 @@ class Plugins(Plugins_):
     def discover(cls):
         cls.init__sys_path()
         cls.init__third_package()
-        print("""==============\n""")
-        print("""plugins completed!!""")
-        cls.exit()
+        cls.completed()

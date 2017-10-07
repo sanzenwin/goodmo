@@ -678,7 +678,9 @@ class %(cls_name)s(%(cls_name)sBase):
                     xlsx2py(path, os.path.join(cls.EXCEL_DATA_DIR, app_name, "%s.py" % module_name)).run()
 
     @classmethod
-    def exit(cls, wait=2):
+    def completed(cls, wait=2):
+        print("""==================\n""")
+        print("""plugins completed!!""")
         time.sleep(wait)
         sys.exit()
 
@@ -695,6 +697,4 @@ class %(cls_name)s(%(cls_name)sBase):
         cls.init__rsa()
         cls.init__xml_config()
         cls.init__shell()
-        print("""==============\n""")
-        print("""plugins completed!!""")
-        cls.exit()
+        cls.completed()
