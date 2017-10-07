@@ -40,11 +40,11 @@ class Equalization(KBEngine.Base, TimerProxy):
             ec = getattr(m, name)
             c = type(ec.__name__, (ec, cls.EqualizationBase), {})
             setattr(m, name, c)
-            plugins.Plugins.entities[name] = c
+            plugins.plugins.entities[name] = c
 
     @classmethod
     def databaseAll(cls):
-        for name in list(plugins.Plugins.entities):
+        for name in list(plugins.plugins.entities):
             v = getattr(settings, name, None)
             mm = importlib.import_module(name)
             ec = getattr(mm, name)
@@ -55,7 +55,7 @@ class Equalization(KBEngine.Base, TimerProxy):
                 setattr(v, "database", n)
             c = type(ec.__name__, (cls.DatabaseBase, ec), dict(dbInterfaceName=n))
             setattr(mm, name, c)
-            plugins.Plugins.entities[name] = c
+            plugins.plugins.entities[name] = c
 
     # @classmethod
     # def databaseAll(cls):

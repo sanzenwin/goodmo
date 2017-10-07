@@ -47,34 +47,31 @@ class Plugins:
 
     entities = {}
 
-    @classmethod
-    def get_module_list(cls, *path):
+    def get_module_list(self, *path):
         return get_module_list(*path)
 
-    @classmethod
-    def init__sys_path(cls):
-        sys.path = [cls.PLUGINS_OUTER_DIR, cls.PLUGINS_DIR] + sys.path
-        sys.path = [cls.PLUGINS_PROXY_COMMON_DIR, cls.PLUGINS_PROXY_DIR] + sys.path
+    def init__sys_path(self):
+        sys.path = [self.PLUGINS_OUTER_DIR, self.PLUGINS_DIR] + sys.path
+        sys.path = [self.PLUGINS_PROXY_COMMON_DIR, self.PLUGINS_PROXY_DIR] + sys.path
         settings = importlib.import_module("settings")
         for name in reversed(settings.install_apps):
             for path in sys.path:
                 dir_name = os.path.join(path, name)
                 if os.path.isdir(dir_name):
-                    cls.apps[name] = dir_name
+                    self.apps[name] = dir_name
                     break
             else:
                 assert False, "can not find the app [%s] by name" % name
-        for name, path in cls.apps.items():
+        for name, path in self.apps.items():
             sys.path.append(path)
-            if cls.app in ("base", "cell", "bots"):
-                app_path = os.path.join(path, cls.app)
+            if self.app in ("base", "cell", "bots"):
+                app_path = os.path.join(path, self.app)
                 if os.path.exists(app_path):
                     sys.path.append(app_path)
 
-    @classmethod
-    def init__settings(cls):
+    def init__settings(self):
         settings_dict = {}
-        for name in ["%s.settings" % name for name in cls.apps] + ["plugins.conf.global_settings"]:
+        for name in ["%s.settings" % name for name in self.apps] + ["plugins.conf.global_settings"]:
             try:
                 settings = importlib.import_module(name)
                 for k, v in settings.__dict__.items():
@@ -94,19 +91,18 @@ class Plugins:
             setattr(settings, k, c)
         settings.get = lambda x: getattr(settings, x, None)
 
-    @classmethod
-    def init__entity(cls):
+    def init__entity(self):
 
         def entity():
             def check(v):
                 return 'A' <= v[0] <= 'Z'
 
             ret = OrderedDict()
-            for m in cls.get_module_list(cls.HOME_DIR, cls.app):
+            for m in self.get_module_list(self.HOME_DIR, self.app):
                 if check(m):
                     ret[m] = m
-            for path in cls.apps.values():
-                for m in cls.get_module_list(path, cls.app):
+            for path in self.apps.values():
+                for m in self.get_module_list(path, self.app):
                     if m not in ret and check(m):
                         ret[m] = m
             return ret
@@ -116,10 +112,10 @@ class Plugins:
                 return 'A' <= v[0] <= 'Z'
 
             ret = OrderedDict()
-            for name, path in cls.apps.items():
-                for m in cls.get_module_list(path, cls.app, "avatar"):
+            for name, path in self.apps.items():
+                for m in self.get_module_list(path, self.app, "avatar"):
                     if m not in ret and check(m):
-                        ret[m] = "%s.%s.avatar.%s" % (name, cls.app, m)
+                        ret[m] = "%s.%s.avatar.%s" % (name, self.app, m)
             return ret
 
         m_entity_avatars = avatar()
@@ -154,7 +150,7 @@ class Plugins:
         for m, v in entities.items():
             mm = importlib.import_module(v)
             c = getattr(mm, m)
-            cls.entities[m] = c
+            self.entities[m] = c
             for cc in c.mro():
                 for k, vv in cc.__dict__.items():
                     if isinstance(vv, (Property, AnyProperty, Volatile, Base, Cell, Client)):
@@ -173,7 +169,7 @@ class Plugins:
         for c, s in del_attr.items():
             for a in s:
                 g = getattr(c, a)
-                if isinstance(g, AnyProperty) and g.get("defaultValue", cls.empty) is not cls.empty:
+                if isinstance(g, AnyProperty) and g.get("defaultValue", self.empty) is not self.empty:
                     setattr(c, a, g["defaultValue"])
                 else:
                     delattr(c, a)
@@ -188,36 +184,32 @@ class Plugins:
 
         Type.finish_dict_type()
 
-    @classmethod
-    def init__user_type(cls):
+    def init__user_type(self):
         user_types = []
-        for path in cls.apps.values():
-            for m in cls.get_module_list(path):
+        for path in self.apps.values():
+            for m in self.get_module_list(path):
                 if m.upper() == m and m not in user_types:
                     user_types.append(m)
         for m in user_types:
             importlib.import_module(m)
         Type.finish_dict_type()
 
-    @classmethod
-    def init__charge(cls):
-        for name in cls.apps:
+    def init__charge(self):
+        for name in self.apps:
             m = get_module("%s.interface" % name)
             if m:
                 for k in dir(m):
                     f = getattr(m, k)
-                    if isinstance(f, types.FunctionType) and k not in cls.interface_handle_map:
-                        cls.interface_handle_map[k] = f
+                    if isinstance(f, types.FunctionType) and k not in self.interface_handle_map:
+                        self.interface_handle_map[k] = f
 
-    @classmethod
-    def onRequestCharge(cls, ordersID, entityDBID, data):
-        handle = cls.interface_handle_map.get(data.pop("interface", None))
+    def onRequestCharge(self, ordersID, entityDBID, data):
+        handle = self.interface_handle_map.get(data.pop("interface", None))
         if handle:
             handle(ordersID, entityDBID, data)
 
-    @classmethod
-    def init_bots(cls):
-        assert cls.app == "bots"
+    def init_bots(self):
+        assert self.app == "bots"
 
         class Tid(int):
             def __init__(self, *args, **kwargs):
@@ -244,9 +236,8 @@ class Plugins:
         KBEngine.addTimer = addTimer
         KBEngine.delTimer = delTimer
 
-    @classmethod
-    def open_async(cls):
-        assert cls.app not in ("base", "cell")
+    def open_async(self):
+        assert self.app not in ("base", "cell")
         settings = get_module("settings")
         AsyncHttp = get_module_attr("common.asyncHttp.AsyncHttp")
         asyncio_loop = get_module_attr("common.asyncio.asyncio_loop")
@@ -258,36 +249,36 @@ class Plugins:
             asyncio_loop.run_frame()
 
         gameTimeInterval = settings.Global.gameTimeInterval
-        if cls.app == "bots":
+        if self.app == "bots":
             gameTimeInterval *= 2
         if settings.Global.enableAsyncHttp:
             KBEngine.addTimer(gameTimeInterval, gameTimeInterval, onAsyncHttpTick)
         if settings.Global.enableAsyncio:
             KBEngine.addTimer(gameTimeInterval, gameTimeInterval, onAsyncioTick)
 
-    @classmethod
-    def load_all_module(cls, module_name):
+    def load_all_module(self, module_name):
         d = {}
-        for name in cls.apps:
+        for name in self.apps:
             md = get_module_all("%s.%s" % (name, module_name))
             if "__ignore__" not in md:
                 d.update(md)
         return d
 
-    @classmethod
-    def runtime(cls, entity):
-        return cls.entities[entity.__name__]
+    def runtime(self, entity):
+        return self.entities[entity.__name__]
 
-    @classmethod
-    def discover(cls):
-        cls.init__sys_path()
-        cls.init__settings()
-        if cls.app in ("base", "cell", "bots"):
-            cls.init__user_type()
-        if cls.app in ("base", "cell"):
-            cls.init__entity()
-        if cls.app == "interface":
-            cls.init__charge()
-        cls.load_all_module("plugins.setup")
+    def discover(self):
+        self.init__sys_path()
+        self.init__settings()
+        if self.app in ("base", "cell", "bots"):
+            self.init__user_type()
+        if self.app in ("base", "cell"):
+            self.init__entity()
+        if self.app == "interface":
+            self.init__charge()
+        self.load_all_module("plugins.setup")
         Type.init_dict_types()
-        plugins_completed.send(cls)
+        plugins_completed.send(self)
+
+
+plugins = Plugins()

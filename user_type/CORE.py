@@ -346,7 +346,7 @@ class GenericDictType(DictType):
 
     @classmethod
     def load_all(cls):
-        return plugins.Plugins.load_all_module(cls.generic_module)
+        return plugins.plugins.load_all_module(cls.generic_module)
 
     @classmethod
     def import_module(cls):

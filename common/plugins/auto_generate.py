@@ -2,10 +2,7 @@ import os
 import sys
 import re
 import codecs
-import shutil
-import time
 import KBEngine
-import kbe.log
 from importlib import import_module
 from collections import OrderedDict
 from common.utils import get_module, get_module_list, get_module_attr, get_module_all
@@ -14,6 +11,7 @@ from plugins.conf import SettingsNode, EqualizationMixin
 from plugins.conf.start_server import shell_maker
 from plugins.conf.xml import config
 from plugins.utils.excel.xlsx2py import xlsx2py
+from .install_third_package import Plugins as Plugins_
 
 for i in range(len(sys.path)):
     sys.path[i] = os.path.normpath(sys.path[i])
@@ -51,7 +49,7 @@ class Object:
         self.entity = entity
         self.bases = []
         self.plugin = self._is_plugin_object()
-        self.valid = Plugins.add_entity(self)
+        self.valid = plugins.add_entity(self)
         self.generate_bases()
 
     def generate_bases(self):
@@ -150,12 +148,12 @@ class Object:
     def def_file_path(self):
         assert self.valid, "def_file_path: %s should be valid" % self.entity
         if self.is_entity:
-            return os.path.join(Plugins.DEF_DIR, "%s.def" % self.entity.__name__)
+            return os.path.join(plugins.DEF_DIR, "%s.def" % self.entity.__name__)
         else:
             if self.is_avatar_base_cls():
-                return os.path.join(Plugins.DEF_DIR, "interfaces", "avatar", "%s.def" % self.entity.__name__)
+                return os.path.join(plugins.DEF_DIR, "interfaces", "avatar", "%s.def" % self.entity.__name__)
             else:
-                return os.path.join(Plugins.DEF_DIR, "interfaces", "%s.def" % self.entity.__name__)
+                return os.path.join(plugins.DEF_DIR, "interfaces", "%s.def" % self.entity.__name__)
 
     def implement_path(self):
         assert self.valid, "implement_path: %s should be valid" % self.entity
@@ -169,14 +167,14 @@ class Object:
         if self.entity_name != "Avatar":
             return False
         dir_name = os.path.normpath(os.path.dirname(import_module(self.entity.__module__).__file__))
-        for name, path in Plugins.apps.items():
+        for name, path in plugins.apps.items():
             if os.path.normpath(os.path.join(path, self.app, "avatar")) in dir_name:
                 return True
         return False
 
     def _is_plugin_object(self):
         dir_name = os.path.normpath(os.path.dirname(import_module(self.entity.__module__).__file__))
-        return os.path.normpath(Plugins.BASE_DIR) not in dir_name
+        return os.path.normpath(plugins.BASE_DIR) not in dir_name
 
 
 class ObjectOfBase(Object):
@@ -223,32 +221,28 @@ class EntityOfCell(ObjectOfCell):
         return Volatile()
 
 
-class Plugins:
+class Plugins(Plugins_):
     HOME_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     BOTS_DIR = os.path.join(HOME_DIR, "bots")
     BASE_DIR = os.path.join(HOME_DIR, "base")
     CELL_DIR = os.path.join(HOME_DIR, "cell")
     DATA_DIR = os.path.join(HOME_DIR, "data")
     SHELL_DIR = os.path.join(HOME_DIR, "shell")
-    DEF_DIR = os.path.join(HOME_DIR, "entity_defs")
     COMMON_DIR = os.path.join(HOME_DIR, "common")
+    DEF_DIR = os.path.join(HOME_DIR, "entity_defs")
     RES_DIR = os.path.join(os.path.dirname(HOME_DIR), "res")
     RES_KEY_DIR = os.path.join(RES_DIR, "key")
     RES_SERVER_DIR = os.path.join(RES_DIR, "server")
     RES_EXCEL_DIR = os.path.join(RES_DIR, "excel")
     EXCEL_DATA_DIR = os.path.join(DATA_DIR, "excel_data")
-    PLUGINS_DIR = os.path.join(COMMON_DIR, "plugins", "apps")
-    PLUGINS_OUTER_DIR = os.path.join(os.path.dirname(HOME_DIR), "apps")
 
     PLUGINS_PROXY_BASE_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "base")
     PLUGINS_PROXY_CELL_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "cell")
     PLUGINS_PROXY_BOTS_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "bots")
-    PLUGINS_PROXY_COMMON_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "common")
 
     uid = os.getenv("uid")
     public_key = None
     r = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
-    apps = OrderedDict()
 
     m_entities = OrderedDict()
     m_entity_avatars = OrderedDict()
@@ -269,9 +263,8 @@ class %(cls_name)s(%(cls_name)sBase):
     pass
 """
 
-    @classmethod
-    def add_entity(cls, entity):
-        maps = cls.entities[entity.__class__]
+    def add_entity(self, entity):
+        maps = self.entities[entity.__class__]
         maps = maps.setdefault(entity.entity_name, {})
         if entity.entity.__name__ in maps:
             if str(entity.entity) != str(maps[entity.entity.__name__].entity):
@@ -280,22 +273,20 @@ class %(cls_name)s(%(cls_name)sBase):
         maps[entity.entity.__name__] = entity
         return True
 
-    @classmethod
-    def get_module_list(cls, *path):
+    def get_module_list(self, *path):
         return get_module_list(*path)
 
-    @classmethod
-    def init_entity(cls, app):
+    def init_entity(self, app):
         def entity(ret2):
             def check(v):
                 return 'A' <= v[0] <= 'Z'
 
             ret = OrderedDict()
-            for m in cls.get_module_list(cls.HOME_DIR, app):
+            for m in self.get_module_list(self.HOME_DIR, app):
                 if check(m):
                     ret[m] = m
-            for name, path in cls.apps.items():
-                for m in cls.get_module_list(path, app):
+            for name, path in self.apps.items():
+                for m in self.get_module_list(path, app):
                     if m not in ret and check(m):
                         ret[m] = m
                         ret2[app][m] = name
@@ -306,17 +297,17 @@ class %(cls_name)s(%(cls_name)sBase):
                 return 'A' <= v[0] <= 'Z'
 
             ret = OrderedDict()
-            for name, path in cls.apps.items():
-                for m in cls.get_module_list(path, app, "avatar"):
+            for name, path in self.apps.items():
+                for m in self.get_module_list(path, app, "avatar"):
                     if m not in ret and check(m):
                         ret[m] = "%s.%s.avatar.%s" % (name, app, m)
             return ret
 
-        cls.m_entities = entity(cls.m_entity_plugins)
-        cls.m_entity_avatars = avatar()
+        self.m_entities = entity(self.m_entity_plugins)
+        self.m_entity_avatars = avatar()
 
         base_avatar_cls_list = []
-        for m, v in cls.m_entity_avatars.items():
+        for m, v in self.m_entity_avatars.items():
             mm = import_module(v)
             avatar_cls = getattr(mm, m, None)
             if avatar_cls is None:
@@ -334,115 +325,72 @@ class %(cls_name)s(%(cls_name)sBase):
                 pass
 
         entity_cls = dict(base=EntityOfBase, cell=EntityOfCell)[app]
-        for m, v in cls.m_entities.items():
+        for m, v in self.m_entities.items():
             mm = import_module(v)
             c = getattr(mm, m)
             entity_cls(c)
-            cls.init_clients(c)
+            self.init_clients(c)
 
-    @classmethod
-    def switch_to_cell(cls):
-        if cls.BASE_DIR in sys.path:
-            index = sys.path.index(cls.BASE_DIR)
-            sys.path[index] = cls.CELL_DIR
+    def switch_to_cell(self):
+        if self.BASE_DIR in sys.path:
+            index = sys.path.index(self.BASE_DIR)
+            sys.path[index] = self.CELL_DIR
 
-        for path in cls.apps.values():
+        for path in self.apps.values():
             path = os.path.join(path, "base")
             if path in sys.path:
                 sys.path.remove(path)
 
-        for path in cls.apps.values():
+        for path in self.apps.values():
             path = os.path.join(path, "cell")
             sys.path.append(path)
 
-        for m in cls.m_entity_avatars.values():
+        for m in self.m_entity_avatars.values():
             sys.modules.pop(m)
-        for m in cls.m_entities.values():
+        for m in self.m_entities.values():
             sys.modules.pop(m)
 
-    @classmethod
-    def switch_to_base(cls):
-        if cls.CELL_DIR in sys.path:
-            index = sys.path.index(cls.CELL_DIR)
-            sys.path[index] = cls.BASE_DIR
+    def switch_to_base(self):
+        if self.CELL_DIR in sys.path:
+            index = sys.path.index(self.CELL_DIR)
+            sys.path[index] = self.BASE_DIR
 
-        for path in cls.apps.values():
+        for path in self.apps.values():
             path = os.path.join(path, "cell")
             if path in sys.path:
                 sys.path.remove(path)
 
-        for path in cls.apps.values():
+        for path in self.apps.values():
             path = os.path.join(path, "base")
             sys.path.append(path)
 
-        for m in cls.m_entity_avatars.values():
+        for m in self.m_entity_avatars.values():
             sys.modules.pop(m)
-        for m in cls.m_entities.values():
+        for m in self.m_entities.values():
             sys.modules.pop(m)
 
-    @classmethod
-    def clear_dir(cls):
-        cls.clear(cls.DEF_DIR)
-        cls.clear(cls.DATA_DIR, True)
-        cls.clear(cls.PLUGINS_PROXY_BASE_DIR)
-        cls.clear(cls.PLUGINS_PROXY_CELL_DIR)
-        cls.clear(cls.PLUGINS_PROXY_COMMON_DIR, True)
-        cls.clear(cls.PLUGINS_PROXY_BOTS_DIR)
+    def clear_dir(self):
+        self.clear(self.DEF_DIR)
+        self.clear(self.DATA_DIR, True)
+        self.clear(self.PLUGINS_PROXY_BASE_DIR)
+        self.clear(self.PLUGINS_PROXY_CELL_DIR)
+        self.clear(self.PLUGINS_PROXY_COMMON_DIR, True)
+        self.clear(self.PLUGINS_PROXY_BOTS_DIR)
 
-    @classmethod
-    def clear(cls, dir_name, need_keep=False):
-        if os.path.isdir(dir_name):
-            shutil.rmtree(dir_name)
-        os.makedirs(dir_name)
-        if need_keep:
-            cls.write("", dir_name, ".gitkeep")
-
-    @classmethod
-    def write(cls, s, *path):
-        filename = os.path.join(*path)
-        dir_name = os.path.dirname(filename)
-        if not os.path.isdir(dir_name):
-            os.makedirs(dir_name)
-        mode = "w" if os.path.isfile(filename) else "x"
-        with codecs.open(filename, mode, 'utf-8') as f:
-            f.write(s)
-            f.close()
-
-    @classmethod
-    def read(cls, *path):
+    def read(self, *path):
         filename = os.path.join(*path)
         with codecs.open(filename, 'r', 'utf-8') as f:
             return f.read()
 
-    @classmethod
-    def get_app_path(cls, name):
-        path = os.path.join(cls.PLUGINS_OUTER_DIR, name)
+    def get_app_path(self, name):
+        path = os.path.join(self.PLUGINS_OUTER_DIR, name)
         if os.path.exists(path):
             return path
-        return os.path.join(cls.PLUGINS_DIR, name)
+        return os.path.join(self.PLUGINS_DIR, name)
 
-    @classmethod
-    def init__sys_path(cls):
-        sys.path = [cls.PLUGINS_OUTER_DIR, cls.PLUGINS_DIR] + sys.path
-        sys.path = [cls.PLUGINS_PROXY_COMMON_DIR] + sys.path
-        settings = import_module("settings")
-        for name in reversed(settings.install_apps):
-            for path in sys.path:
-                dir_name = os.path.join(path, name)
-                if os.path.isdir(dir_name):
-                    cls.apps[name] = dir_name
-                    break
-            else:
-                assert False, "can not find the app [%s] by name" % name
-        for name, path in cls.apps.items():
-            sys.path.append(path)
-            sys.path.append(os.path.join(path, "base"))
-            sys.path.append(os.path.join(path, "plugins"))
-
-    @classmethod
-    def init__settings(cls):
+    def init__settings(self):
         settings_dict = {}
-        for name in ["%s.settings" % name for name in cls.apps] + ["plugins.conf.global_settings"]:
+        for name in ["%s.settings" % name for name in self.apps] + ["plugins.conf.global_settings"]:
             try:
                 settings = import_module(name)
                 for k, v in settings.__dict__.items():
@@ -461,23 +409,21 @@ class %(cls_name)s(%(cls_name)sBase):
                 c.init_equalization_format()
             setattr(settings, k, c)
 
-    @classmethod
-    def init__user_type(cls):
+    def init__user_type(self):
         user_types = []
-        for path in cls.apps.values():
-            for m in cls.get_module_list(path):
+        for path in self.apps.values():
+            for m in self.get_module_list(path):
                 if m.upper() == m and m not in user_types:
                     user_types.append(m)
         for m in user_types:
             import_module(m)
 
-    @classmethod
-    def init__entity(cls):
-        cls.init_entity("base")
-        cls.switch_to_cell()
-        cls.init_entity("cell")
-        cls.switch_to_base()
-        cls.init_entity("base")
+    def init__entity(self):
+        self.init_entity("base")
+        self.switch_to_cell()
+        self.init_entity("cell")
+        self.switch_to_base()
+        self.init_entity("base")
 
         def handle(entity_base, entity_cell):
             parent = entity_base.parent()
@@ -503,18 +449,18 @@ class %(cls_name)s(%(cls_name)sBase):
                 cell=cell.str(),
                 client=client.str()
             ).str()
-            cls.write(s, entity_base.def_file_path())
+            self.write(s, entity_base.def_file_path())
 
-        for k, v in cls.entities[ObjectOfBase].items():
+        for k, v in self.entities[ObjectOfBase].items():
             for k2, v2 in v.items():
-                v2c = cls.entities[ObjectOfCell].get(k, {}).get(k2)
+                v2c = self.entities[ObjectOfCell].get(k, {}).get(k2)
                 print(v2.entity)
                 handle(v2, v2c)
 
         entities = Entities()
-        for k, v in cls.entities[EntityOfBase].items():
+        for k, v in self.entities[EntityOfBase].items():
             for k2, v2 in v.items():
-                v2c = cls.entities[EntityOfCell].get(k, {}).get(k2)
+                v2c = self.entities[EntityOfCell].get(k, {}).get(k2)
                 print(v2.entity)
                 handle(v2, v2c)
                 has_client = issubclass(v2.entity, KBEngine.Proxy) or (v2c and hasattr(v2c.entity, "client"))
@@ -527,38 +473,36 @@ class %(cls_name)s(%(cls_name)sBase):
                     hasClient=has_client
                 )
                 entities.append(info)
-        cls.write(entities.str(), cls.HOME_DIR, "entities.xml")
+        self.write(entities.str(), self.HOME_DIR, "entities.xml")
 
-        for k in cls.m_entity_plugins["base"].keys():
-            cls.write(
-                cls.template_proxy_str % dict(app="base", cls_name=k, plugin_name=cls.m_entity_plugins["base"][k]),
-                cls.PLUGINS_PROXY_BASE_DIR, k + ".py")
-        for k in cls.m_entity_plugins["cell"].keys():
-            cls.write(
-                cls.template_proxy_str % dict(app="cell", cls_name=k, plugin_name=cls.m_entity_plugins["cell"][k]),
-                cls.PLUGINS_PROXY_CELL_DIR, k + ".py")
+        for k in self.m_entity_plugins["base"].keys():
+            self.write(
+                self.template_proxy_str % dict(app="base", cls_name=k, plugin_name=self.m_entity_plugins["base"][k]),
+                self.PLUGINS_PROXY_BASE_DIR, k + ".py")
+        for k in self.m_entity_plugins["cell"].keys():
+            self.write(
+                self.template_proxy_str % dict(app="cell", cls_name=k, plugin_name=self.m_entity_plugins["cell"][k]),
+                self.PLUGINS_PROXY_CELL_DIR, k + ".py")
 
         Type.finish_dict_type()
-        cls.write(Type.str(), cls.DEF_DIR, 'alias.xml')
+        self.write(Type.str(), self.DEF_DIR, 'alias.xml')
 
-    @classmethod
-    def init_clients(cls, entity_class):
-        dct = cls.m_entity_client_methods.setdefault(entity_class.__name__, OrderedDict())
+    def init_clients(self, entity_class):
+        dct = self.m_entity_client_methods.setdefault(entity_class.__name__, OrderedDict())
         for c in entity_class.mro():
             client = c.__dict__.get("client", {})
             if isinstance(client, Client):
                 for k in sorted(client):
                     dct[k] = client[k]
 
-    @classmethod
-    def init__apps_setup(cls):
+    def init__apps_setup(self):
         # class Proxy(types.ModuleType):
         #     def __getattr__(self, item):
         #         return None
         #
         # all_proxy_modules = []
         #
-        # for name in cls.apps:
+        # for name in self.apps:
         #     proxy_modules = get_module_attr("%s.plugins.__proxy_modules__" % name, [])
         #     for modules in proxy_modules:
         #         modules = modules.split(".")
@@ -568,7 +512,7 @@ class %(cls_name)s(%(cls_name)sBase):
         #                 sys.modules[m] = Proxy(m)
         #                 all_proxy_modules.append(m)
 
-        cls.run_plugins("setup")
+        self.run_plugins("setup")
 
         # for m in all_proxy_modules:
         #     sys.modules.pop(m)
@@ -580,34 +524,30 @@ class %(cls_name)s(%(cls_name)sBase):
         #     else:
         #         reload(mm)
 
-    @classmethod
-    def init__apps_run(cls):
-        cls.run_plugins("run")
+    def init__apps_run(self):
+        self.run_plugins("run")
 
-    @classmethod
-    def init__apps_completed(cls):
-        cls.run_plugins("completed")
+    def init__apps_completed(self):
+        self.run_plugins("completed")
 
-    @classmethod
-    def init__rsa(cls):
+    def init__rsa(self):
         crypto = get_module("oscrypto.asymmetric")
         public_key, private_key = crypto.generate_pair("rsa", 1024)
-        cls.public_key = public_key
-        cls.write(crypto.dump_private_key(private_key, None).decode("utf-8"), cls.RES_KEY_DIR, "kbengine_private.key")
-        cls.write(crypto.dump_public_key(public_key).decode("utf-8"), cls.RES_KEY_DIR, "kbengine_public.key")
+        self.public_key = public_key
+        self.write(crypto.dump_private_key(private_key, None).decode("utf-8"), self.RES_KEY_DIR, "kbengine_private.key")
+        self.write(crypto.dump_public_key(public_key).decode("utf-8"), self.RES_KEY_DIR, "kbengine_public.key")
 
-    @classmethod
-    def init__xml_config(cls):
+    def init__xml_config(self):
         settings = import_module("settings")
         xml = get_module_attr("kbe.xml.Xml")
         client = get_module_attr("pymongo.MongoClient")
         data = dict()
-        for name in reversed(cls.apps):
+        for name in reversed(self.apps):
             d = get_module_attr("%s.__kbengine_xml__" % name, dict())
             data = config.update_recursive(data, d)
         default = config.get_default_with_telnet(settings.Global.telnetOnePassword)
         data = config.update_recursive(data, default)
-        collection = client(host='localhost', port=27017)["goodmo__%s" % cls.uid].kbengine_xml
+        collection = client(host='localhost', port=27017)["goodmo__%s" % self.uid].kbengine_xml
         try:
             d = collection.find({}, dict(_id=False)).next()
         except StopIteration:
@@ -616,10 +556,9 @@ class %(cls_name)s(%(cls_name)sBase):
         data = config.update_recursive(data, d)
         data = config.final(data, lambda x: x)
         s = xml.dict2xml(data)
-        cls.write(s, cls.RES_SERVER_DIR, "kbengine.xml")
+        self.write(s, self.RES_SERVER_DIR, "kbengine.xml")
 
-    @classmethod
-    def init__shell(cls):
+    def init__shell(self):
         settings = import_module("settings")
         bc = settings.BaseApp.equalizationBaseappAmount + len(settings.BaseApp.multi["baseappIndependence"].dict)
         base = dict(
@@ -633,68 +572,59 @@ class %(cls_name)s(%(cls_name)sBase):
             baseapp=bc
         )
         bots = dict(bots=1)
-        cls.write(shell_maker.apps_shell(base, True, True), cls.SHELL_DIR, "start_server.cmd")
-        cls.write(shell_maker.apps_shell(base, True, False), cls.SHELL_DIR, "start_server.sh")
-        cls.write(shell_maker.apps_shell(bots, False, True), cls.SHELL_DIR, "start_bots.cmd")
-        cls.write(shell_maker.apps_shell(bots, False, False), cls.SHELL_DIR, "start_bots.sh")
+        self.write(shell_maker.apps_shell(base, True, True), self.SHELL_DIR, "start_server.cmd")
+        self.write(shell_maker.apps_shell(base, True, False), self.SHELL_DIR, "start_server.sh")
+        self.write(shell_maker.apps_shell(bots, False, True), self.SHELL_DIR, "start_bots.cmd")
+        self.write(shell_maker.apps_shell(bots, False, False), self.SHELL_DIR, "start_bots.sh")
 
-    @classmethod
-    def run_plugins(cls, method):
-        for name in cls.apps:
+    def run_plugins(self, method):
+        for name in self.apps:
             entry = get_module_attr("%s.plugins.%s" % (name, method))
             if entry:
-                entry(cls, name)
+                entry(self, name)
 
-    @classmethod
-    def load_all_module(cls, module_name):
+    def load_all_module(self, module_name):
         d = {}
-        for name in cls.apps:
+        for name in self.apps:
             md = get_module_all("%s.%s" % (name, module_name))
             if "__ignore__" not in md:
                 d.update(md)
         return d
 
-    @classmethod
-    def get_res(cls, app_name, res_type, path_or_filename):
+    def get_res(self, app_name, res_type, path_or_filename):
         path_list = os.path.split(path_or_filename)
-        real_path = os.path.join(cls.RES_DIR, res_type, app_name, *path_list)
+        real_path = os.path.join(self.RES_DIR, res_type, app_name, *path_list)
         if os.path.exists(real_path):
             return real_path
-        for name in cls.apps:
-            app_path = cls.get_app_path(name)
+        for name in self.apps:
+            app_path = self.get_app_path(name)
             real_path = os.path.join(app_path, "res", res_type, app_name, *path_list)
             if os.path.exists(real_path):
                 return real_path
         return None
 
-    @classmethod
-    def export_excel(cls, app_name_or_list, *module_list):
+    def export_excel(self, app_name_or_list, *module_list):
         if not isinstance(app_name_or_list, (list, tuple)):
             app_name_or_list = [app_name_or_list]
         for app_name in app_name_or_list:
             for module_name in module_list:
-                path = cls.get_res(app_name, "excel", "%s.xlsx" % module_name)
+                path = self.get_res(app_name, "excel", "%s.xlsx" % module_name)
                 if path is not None:
-                    xlsx2py(path, os.path.join(cls.EXCEL_DATA_DIR, app_name, "%s.py" % module_name)).run()
+                    xlsx2py(path, os.path.join(self.EXCEL_DATA_DIR, app_name, "%s.py" % module_name)).run()
 
-    @classmethod
-    def completed(cls, wait=2):
-        print("""==================\n""")
-        print("""plugins completed!!""")
-        time.sleep(wait)
-        sys.exit()
+    def discover(self):
+        self.clear_dir()
+        self.init__sys_path()
+        self.init__apps_setup()
+        self.init__settings()
+        self.init__apps_run()
+        self.init__user_type()
+        self.init__entity()
+        self.init__apps_completed()
+        self.init__rsa()
+        self.init__xml_config()
+        self.init__shell()
+        self.completed()
 
-    @classmethod
-    def discover(cls):
-        cls.clear_dir()
-        cls.init__sys_path()
-        cls.init__apps_setup()
-        cls.init__settings()
-        cls.init__apps_run()
-        cls.init__user_type()
-        cls.init__entity()
-        cls.init__apps_completed()
-        cls.init__rsa()
-        cls.init__xml_config()
-        cls.init__shell()
-        cls.completed()
+
+plugins = Plugins()

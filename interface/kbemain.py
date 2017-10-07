@@ -42,7 +42,7 @@ def onInterfaceAppReady():
     """
     INFO_MSG('onInterfaceAppReady: bootstrapGroupIndex=%s, bootstrapGlobalIndex=%s' % \
              (os.getenv("KBE_BOOTIDX_GROUP"), os.getenv("KBE_BOOTIDX_GLOBAL")))
-    plugins.Plugins.open_async()
+    plugins.plugins.open_async()
 
 
 def onInterfaceAppShutDown():
@@ -115,4 +115,4 @@ def onRequestCharge(ordersID, entityDBID, datas):
     # KBEngine.registerReadFileDescriptor()和KBEngine.registerWriteFileDescriptor()结合
     # tornado异步访问。也可以结合socket模拟http的方式与平台交互。
     # KBEngine.chargeResponse(ordersID, datas, KBEngine.SERVER_SUCCESS)
-    plugins.Plugins.onRequestCharge(ordersID, entityDBID, Bytes(datas))
+    plugins.plugins.onRequestCharge(ordersID, entityDBID, Bytes(datas))
