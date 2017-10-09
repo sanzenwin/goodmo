@@ -100,11 +100,23 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
                 self.client.onOpenUrl(data.get("operation", ""), data.get("url", ""))
             self.release()
 
+        data = dict()
+        passed = False
+        for d in self.openUrlData(operation):
+            if isinstance(d, dict):
+                data.update(d)
+                passed = True
+        if not passed:
+            return
         self.addRef()
         uid = str(KBEngine.genUUID64())
         KBEngine.charge(uid, self.databaseID,
-                        Bytes(interface="openUrl", id=self.guaranteeID, operation=operation).dumps(),
+                        Bytes(interface="openUrl", id=self.guaranteeID, operation=operation, data=data).dumps(),
                         callback)
+
+    @Event.method
+    def openUrlData(self, operation):
+        return None
 
     @property
     def pk(self):
