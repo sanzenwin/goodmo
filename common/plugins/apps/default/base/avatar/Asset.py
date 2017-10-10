@@ -2,7 +2,7 @@
 import settings
 import KBEngine
 from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodExposed, Client, ClientMethod
-from common.utils import Bytes, ExpiredData, TodayData, WeekData, MonthData, YearData
+from common.utils import Bytes
 from common.dispatcher import receiver
 from kbe.utils import LockAsset
 from default.signals import avatar_common_login, avatar_consume
@@ -36,13 +36,6 @@ class Asset(LockAsset("gold")):
     avatarUrl = Property(
         Type=Type.UNICODE,
         Flags=Property.Flags.BASE_AND_CLIENT,
-        Persistent=Property.Persistent.true
-    )
-
-    data = Property(
-        Type=Type.PYTHON,
-        Flags=Property.Flags.BASE,
-        Default={},
         Persistent=Property.Persistent.true
     )
 

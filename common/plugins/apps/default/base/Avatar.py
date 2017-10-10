@@ -11,15 +11,10 @@ from default.signals import avatar_created, avatar_common_login, avatar_quick_lo
 
 
 class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
-    base = Base(
-        reqOpenUrl=BaseMethodExposed(Type.UNICODE),
-    )
-
     client = Client(
         onEvent=ClientMethod(Type.EVENT),
         onRetCode=ClientMethod(Type.RET_CODE),
         onServerTime=ClientMethod(Type.TIME_STAMP),
-        onOpenUrl=ClientMethod(Type.UNICODE, Type.UNICODE)
         # onLogOnAttempt=ClientMethod(Type.BOOL, Type.UNICODE),
     )
 
@@ -90,33 +85,6 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
             self.accountEntity.destroy()
             self.accountEntity = None
         super().destroy(deleteFromDB, writeToDB)
-
-    def reqOpenUrl(self, operation):
-        def callback(orderID, dbID, success, datas):
-            if uid != orderID:
-                return
-            if self.client:
-                data = Bytes(datas)
-                self.client.onOpenUrl(data.get("operation", ""), data.get("url", ""))
-            self.release()
-
-        data = dict()
-        passed = False
-        for d in self.openUrlData(operation):
-            if isinstance(d, dict):
-                data.update(d)
-                passed = True
-        if not passed:
-            return
-        self.addRef()
-        uid = str(KBEngine.genUUID64())
-        KBEngine.charge(uid, self.databaseID,
-                        Bytes(interface="openUrl", id=self.guaranteeID, operation=operation, data=data).dumps(),
-                        callback)
-
-    @Event.method
-    def openUrlData(self, operation):
-        return None
 
     @property
     def pk(self):

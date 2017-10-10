@@ -175,7 +175,7 @@ def get_module_all(module_name):
     return {name: d[name] for name in x}
 
 
-class Data:
+class SteadyData:
     def __init__(self, data):
         self.data = data
 
@@ -188,8 +188,11 @@ class Data:
     def pop(self, key, default=None):
         return self.data.pop(key, default)
 
+    def add(self, key, value=1):
+        self.set(key, self.get(key, 0) + value)
 
-class StampData(Data):
+
+class StampData(SteadyData):
     def __init__(self, data):
         super().__init__(data)
         self.__stamp__ = self.data.setdefault("__stamp__", dict())
@@ -203,10 +206,9 @@ class StampData(Data):
     def check_stamp(self, key, stamp):
         raise NotImplementedError()
 
-    def set(self, key, value, stamp=True):
+    def set(self, key, value, stamp=None):
         super().set(key, value)
-        if stamp:
-            self.__stamp__[key] = server_time.stamp()
+        self.__stamp__[key] = stamp or server_time.stamp()
 
     def get(self, key, default=None):
         if self._is_expired(key):
@@ -214,9 +216,12 @@ class StampData(Data):
             return default
         return super().get(key, default)
 
-    def pop(self, key, default=None):
+    def pop(self, key, default=None, stamp=None):
         self.__stamp__.pop(key, None)
         return super().pop(key, default)
+
+    def add(self, key, value=1, stamp=True):
+        self.set(key, self.get(key, 0) + value, stamp)
 
 
 class ExpiredData(StampData):
@@ -234,11 +239,14 @@ class ExpiredData(StampData):
         has_expired = expired is not None
         if has_expired:
             self.__expired__[key] = expired
-        super().set(key, value, has_expired)
+        super().set(key, value, None)
 
-    def pop(self, key, default=None):
+    def pop(self, key, default=None, expired=None):
         self.__expired__.pop(key, None)
         return super().pop(key, default)
+
+    def add(self, key, value=1, expired=None):
+        self.set(key, self.get(key, 0) + value, expired)
 
 
 class DateDate(StampData):
