@@ -383,3 +383,8 @@ class List:
                     range(item.start or 0, len(self.object) if item.stop is None else item.stop, item.step or 1) if
                     0 <= i < lst]
         return self.object[item]
+
+    def sort(self, key=None, reverse=False):
+        new_list = self[:]
+        new_list.sort(key=key, reverse=reverse)
+        return new_list
