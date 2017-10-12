@@ -5,7 +5,7 @@ import platform
 if platform.system() == 'Windows':
     sys.dllhandle = 1407057920
 elif platform.system() == "Linux":
-    os.environ["uid"] = os.getuid()
+    os.environ["uid"] = str(os.getuid())
 
 
 if os.getenv("KBE_PLUGINS__AUTO_GENERATE"):
