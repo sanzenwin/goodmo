@@ -40,12 +40,12 @@ class PlayerManager(KBEngine.Base):
             product.extend(callList)
             return
         player = self.players.get(guaranteeID)
-        if player:
+        if player and callList:
             player.run(callList)
         else:
             guarantee = self.guarantees.get(guaranteeID)
             if guarantee:
-                guarantee.run(None, callList)
+                guarantee.run(player, callList)
             else:
                 self.products[guaranteeID] = callList
                 self.loadGuarantee(guaranteeID)
