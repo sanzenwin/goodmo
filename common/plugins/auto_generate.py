@@ -3,6 +3,7 @@ import sys
 import re
 import codecs
 import KBEngine
+from copy import deepcopy
 from importlib import import_module
 from collections import OrderedDict
 from common.utils import get_module, get_module_list, get_module_attr, get_module_all
@@ -542,16 +543,19 @@ class %(cls_name)s(%(cls_name)sBase):
         xml = get_module_attr("kbe.xml.Xml")
         client = get_module_attr("pymongo.MongoClient")
         data = dict()
+        data_default = dict()
         for name in reversed(self.apps):
             d = get_module_attr("%s.__kbengine_xml__" % name, dict())
+            d_default = get_module_attr("%s.__kbengine_xml_default__" % name, dict())
             data = config.update_recursive(data, d)
-        default = config.get_default_with_telnet(settings.Global.telnetOnePassword)
+            data_default = config.update_recursive(data_default, d_default)
+        default = config.get_default_with_telnet(deepcopy(data_default), settings.Global.telnetOnePassword)
         data = config.update_recursive(data, default)
         collection = client(host='localhost', port=27017)["goodmo__%s" % self.uid].kbengine_xml
         try:
             d = collection.find({}, dict(_id=False)).next()
         except StopIteration:
-            collection.save(config.get_default())
+            collection.save(deepcopy(data_default))
             d = dict()
         data = config.update_recursive(data, d)
         data = config.final(data, lambda x: x)

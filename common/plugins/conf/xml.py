@@ -6,38 +6,6 @@ from copy import deepcopy
 
 
 class Config:
-    default = dict(
-        gameUpdateHertz=60,
-        publish=dict(
-            state=0
-        ),
-        dbmgr=dict(
-            databaseInterfaces=dict(
-                default=dict(
-                    auth=dict(
-                        username="root",
-                        password="123456",
-                        encrypt="true"
-                    ),
-                    databaseName=""
-                )
-            )
-        ),
-        loginapp=dict(
-            externalAddress=""
-        ),
-        baseapp=dict(
-            externalAddress="",
-            backupPeriod=500
-        ),
-        bots=dict(
-            account_infos=dict(
-                account_name_prefix="bot_",
-                account_name_suffix_inc=1
-            )
-        )
-    )
-
     telnet_service = dict(
         port=0,
         password="",
@@ -71,14 +39,10 @@ class Config:
                 break
         return data
 
-    def get_default(self):
-        return deepcopy(self.default)
-
-    def get_default_with_telnet(self, one_password=True):
+    def get_default_with_telnet(self, cfg, one_password=True):
         password = self.new_password()
         port_start = random.randint(40000, 60000)
         port_step = random.randint(100, 1000)
-        cfg = self.get_default()
         for index, app in enumerate(self.telnet_apps):
             port = port_start + port_step * index
             if not one_password:

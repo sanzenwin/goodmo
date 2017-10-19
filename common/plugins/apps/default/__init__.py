@@ -1,5 +1,37 @@
 __third_package__ = "xlrd", "tornado", "aioredis", "redis", "pymysql", "motor", "dicttoxml", "oscrypto"
 
+__kbengine_xml_default__ = dict(
+    gameUpdateHertz=60,
+    publish=dict(
+        state=0
+    ),
+    dbmgr=dict(
+        databaseInterfaces=dict(
+            default=dict(
+                auth=dict(
+                    username="root",
+                    password="123456",
+                    encrypt="true"
+                ),
+                databaseName=""
+            )
+        )
+    ),
+    loginapp=dict(
+        externalAddress=""
+    ),
+    baseapp=dict(
+        externalAddress="",
+        backupPeriod=500
+    ),
+    bots=dict(
+        account_infos=dict(
+            account_name_prefix="bot_",
+            account_name_suffix_inc=1
+        )
+    )
+)
+
 __kbengine_xml__ = dict(
     gameUpdateHertz=60,
     publish=dict(
