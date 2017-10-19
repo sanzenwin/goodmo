@@ -90,6 +90,7 @@ def onCreateAccountCallbackFromDB(accountName, errorno, datas):
 
 def check_auth_data(data):
     bind = data.get("bind", {})
-    if isinstance(bind, dict) and bind.get("type") in settings.Account.type:
+    bind_type = bind.get("type")
+    if isinstance(bind, dict) and (bind_type is None or bind_type in settings.Account.type):
         return True
     return False
