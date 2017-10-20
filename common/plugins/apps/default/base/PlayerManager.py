@@ -10,6 +10,7 @@ class PlayerManager(KBEngine.Base):
         removePlayer=BaseMethod(Type.DBID),
         run=BaseMethod(Type.DBID, Type.CALL.array),
         runOnline=BaseMethod(Type.DBID, Type.CALL.array),
+        runOnlineAll=BaseMethod(Type.CALL.array),
         sendEvent=BaseMethod(Type.DBID, Type.EVENT)
     )
 
@@ -53,6 +54,10 @@ class PlayerManager(KBEngine.Base):
     def runOnline(self, guaranteeID, callList):
         player = self.players.get(guaranteeID)
         if player:
+            player.run(callList)
+
+    def runOnlineAll(self, callList):
+        for player in self.players.values():
             player.run(callList)
 
     def sendEvent(self, guaranteeID, event):

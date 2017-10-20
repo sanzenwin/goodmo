@@ -38,6 +38,25 @@ class Equalization(metaclass=MetaOfEqualization):
             def proxy(self, *args, **kwargs):
                 print("Equalization error call: %s, %s, %s" % (self.entity_name, self.keys, self.call))
 
+        class AllProxy:
+            def __init__(self, entity):
+                self.entity = entity
+
+            def __getattr__(self, item):
+                self.call = item
+                return self.proxy
+
+            def proxy(self, *args, **kwargs):
+                for keys in self.entity.equalization_list():
+                    path = self.entity.equalization(*keys)
+                    key = self.entity.equalization_format % tuple(path)
+                    obj = KBEngine.globalData["Equalization"].get(key, None)
+                    if obj:
+                        getattr(obj, self.call)(*args, **kwargs)
+                    else:
+                        print("Equalization error call: %s, %s, %s" % (
+                            self.entity.__class__.__name__, self.keys, self.call))
+
         def __init__(self, entity):
             super().__init__()
             self.entity = entity
@@ -46,6 +65,9 @@ class Equalization(metaclass=MetaOfEqualization):
             path = self.entity.equalization(*keys)
             key = self.entity.equalization_format % tuple(path)
             return KBEngine.globalData["Equalization"].get(key, self.InvalidProxy(self.entity.__class__.__name__, keys))
+
+        def __getattr__(self, item):
+            return self.AllProxy(self.entity)
 
         def path(self, *keys):
             return self.entity.equalization(*keys)
