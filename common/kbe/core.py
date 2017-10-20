@@ -41,8 +41,9 @@ class Equalization(metaclass=MetaOfEqualization):
         class AllProxy:
             def __init__(self, entity):
                 self.entity = entity
+                self.call = ""
 
-            def __getattr__(self, item):
+            def real(self, item):
                 self.call = item
                 return self.proxy
 
@@ -67,7 +68,7 @@ class Equalization(metaclass=MetaOfEqualization):
             return KBEngine.globalData["Equalization"].get(key, self.InvalidProxy(self.entity.__class__.__name__, keys))
 
         def __getattr__(self, item):
-            return self.AllProxy(self.entity)
+            return self.AllProxy(self.entity).real(item)
 
         def path(self, *keys):
             return self.entity.equalization(*keys)
