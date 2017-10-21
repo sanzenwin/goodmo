@@ -551,7 +551,7 @@ class %(cls_name)s(%(cls_name)sBase):
             data_default = config.update_recursive(data_default, d_default)
         default = config.get_default_with_telnet(deepcopy(data_default), settings.Global.telnetOnePassword)
         data = config.update_recursive(data, default)
-        collection = client(host='localhost', port=27017)["goodmo__%s" % self.uid].kbengine_xml
+        collection = client(**settings.Global.kbengine_xml_mongodb)["goodmo__%s" % self.uid].kbengine_xml
         try:
             d = collection.find({}, dict(_id=False)).next()
         except StopIteration:

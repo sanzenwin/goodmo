@@ -8,6 +8,7 @@ class Global(SettingsEntity):
     enableAsyncio = True
     gameTimeInterval = 0.5 / settings_kbengine.gameUpdateHertz.value
     telnetOnePassword = True
+    kbengine_xml_mongodb = dict(host='localhost', port=27017, username=None, password=None)
 
 
 class BaseApp(SettingsEntity):
