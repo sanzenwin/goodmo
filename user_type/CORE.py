@@ -2,6 +2,7 @@ import json
 import importlib
 import Math
 import plugins
+from copy import deepcopy
 from kbe.protocol import Type
 
 
@@ -211,6 +212,7 @@ class MetaOfDictType(type):
 
 
 class DictType(object, metaclass=MetaOfDictType):
+    empty = object()
     client_flag = True
     properties = dict()
     properties_type = dict()
@@ -220,7 +222,10 @@ class DictType(object, metaclass=MetaOfDictType):
 
     def __init__(self, **kwargs):
         for k, v in self.dict_properties.items():
-            setattr(self, k, kwargs.get(k, v))
+            vv = kwargs.get(k, self.empty)
+            if vv is self.empty:
+                vv = deepcopy(v)
+            setattr(self, k, vv)
 
     def __str__(self):
         return json.dumps(self.asRecursionDict(), indent=1)
