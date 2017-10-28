@@ -87,3 +87,29 @@ echo KBE_BIN_PATH = \"${KBE_BIN_PATH}\"
 
 
 shell_maker = ShellMaker()
+
+
+"""
+set temp_vbs=telent_goodmo_%random%.vbs
+@del %temp%\%temp_vbs%
+@echo on error resume next >>%temp%\%temp_vbs%
+@echo dim WshShell>>c:\%temp_vbs%
+@echo Set WshShell = WScript.CreateObject("WScript.Shell")>>%temp%\%temp_vbs%
+@echo WshShell.run"cmd">>c:\%temp_vbs%
+@echo WshShell.AppActivate"c:\windows\system32\cmd.exe">>%temp%\%temp_vbs%
+@echo WScript.Sleep 200>>%temp%\%temp_vbs%
+@echo WshShell.SendKeys "telnet 192.168.1.77 56281">>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
+@echo WScript.Sleep 100>>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"3sIPrwA0IgMHbq5Nfg8X">>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
+@echo WScript.Sleep 100>>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
+@echo WScript.Sleep 100>>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
+@echo WScript.Sleep 100>>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
+@echo WScript.Sleep 100>>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
+@start cmd
+@call %temp%\%temp_vbs%"""

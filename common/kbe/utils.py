@@ -16,14 +16,18 @@ class TimerProxy:
         return timerID
 
     def delTimerProxy(self, timerID):
-        self.__timer__.pop(timerID, None)
+        del self.__timer__[timerID]
         self.delTimer(timerID)
+
+    def clearTimerProxy(self):
+        for tid in list(self.__timer__):
+            self.delTimerProxy(tid)
 
     def onTimer(self, tid, userArg):
         if userArg == self.DEFAULT_TIMER_ID:
             callback = self.__timer__[tid][-1]
             if self.__timer__.get(tid, [False])[0]:
-                self.__timer__.pop(tid, None)
+                del self.__timer__[tid]
             callback()
 
     def runInNextFrame(self, callback):
