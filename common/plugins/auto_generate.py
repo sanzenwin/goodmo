@@ -264,6 +264,10 @@ class %(cls_name)s(%(cls_name)sBase):
     pass
 """
 
+    def __init__(self):
+        super().__init__()
+        self.xml_config = None
+
     def add_entity(self, entity):
         maps = self.entities[entity.__class__]
         maps = maps.setdefault(entity.entity_name, {})
@@ -559,6 +563,7 @@ class %(cls_name)s(%(cls_name)sBase):
             d = dict()
         data = config.update_recursive(data, d)
         data = config.final(data, lambda x: x)
+        self.xml_config = data
         s = xml.dict2xml(data)
         self.write(s, self.RES_SERVER_DIR, "kbengine.xml")
 
@@ -580,6 +585,28 @@ class %(cls_name)s(%(cls_name)sBase):
         self.write(shell_maker.apps_shell(base, True, False), self.SHELL_DIR, "start_server.sh")
         self.write(shell_maker.apps_shell(bots, False, True), self.SHELL_DIR, "start_bots.cmd")
         self.write(shell_maker.apps_shell(bots, False, False), self.SHELL_DIR, "start_bots.sh")
+
+        telnet = dict(
+            bots=1,
+            logger=1,
+            interfaces=1,
+            dbmgr=1,
+            loginapp=1,
+            baseapp=bc,
+            cellapp=1
+        )
+        internal_ip_address = get_module_attr("kbe.utils.internal_ip_address")
+        for app, count in telnet.items():
+            data = dict(
+                ip=internal_ip_address(),
+                port=self.xml_config[app]["telnet_service"]["port"],
+                password=self.xml_config[app]["telnet_service"]["password"]
+            )
+            for i in range(count):
+                self.write(shell_maker.app_telnet_shell(data, True), self.SHELL_DIR,
+                           "telnet_%s%s.%s" % (app, "" if i == 0 else i, "cmd"))
+                self.write(shell_maker.app_telnet_shell(data, False), self.SHELL_DIR,
+                           "telnet_%s%s.%s" % (app, "" if i == 0 else i, "sh"))
 
     def run_plugins(self, method):
         for name in self.apps:

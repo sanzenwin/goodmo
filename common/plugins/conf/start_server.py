@@ -28,6 +28,32 @@ echo KBE_BIN_PATH = %KBE_BIN_PATH%
 
 {apps}
 """
+
+    cmd_template_telnet = """\
+set temp_vbs=telent_goodmo_%random%.vbs
+@del %temp%\%temp_vbs%
+@echo on error resume next >>%temp%\%temp_vbs%
+@echo dim WshShell>>c:\%temp_vbs%
+@echo Set WshShell = WScript.CreateObject("WScript.Shell")>>%temp%\%temp_vbs%
+@echo WshShell.run"cmd">>c:\%temp_vbs%
+@echo WshShell.AppActivate"c:\windows\system32\cmd.exe">>%temp%\%temp_vbs%
+@echo WScript.Sleep 200>>%temp%\%temp_vbs%
+@echo WshShell.SendKeys "telnet {ip} {port}">>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
+@echo WScript.Sleep 100>>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"{password}">>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
+@echo WScript.Sleep 100>>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
+@echo WScript.Sleep 100>>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
+@echo WScript.Sleep 100>>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
+@echo WScript.Sleep 100>>%temp%\%temp_vbs%
+@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
+@start cmd
+@call %temp%\%temp_vbs%"""
+
     cmd_kill_str = 'call "scripts/shell/kill_server"'
 
     app_cmd_template = """start %KBE_BIN_PATH%/{app}.exe --cid={cid} --gus={gus}"""
@@ -50,6 +76,13 @@ echo KBE_BIN_PATH = \"${KBE_BIN_PATH}\"
 {kill}
 
 {apps}
+"""
+
+    sh_template_telnet = """\
+#!/usr/bin/expect
+spawn telnet {ip} {port}
+send {password}\\r
+interact
 """
 
     sh_kill_str = 'sh ./scripts/shell/kill_server.sh'
@@ -85,31 +118,9 @@ echo KBE_BIN_PATH = \"${KBE_BIN_PATH}\"
                 apps.append(self.app_shell(name, cmd))
         return template.format_map(self.Default(apps="\r\n".join(apps), kill=kill_str, uid=os.getenv("uid")))
 
+    def app_telnet_shell(self, data, cmd=True):
+        app_template = self.cmd_template_telnet if cmd else self.sh_template_telnet
+        return app_template.format_map(self.Default(**data))
+
 
 shell_maker = ShellMaker()
-
-
-"""
-set temp_vbs=telent_goodmo_%random%.vbs
-@del %temp%\%temp_vbs%
-@echo on error resume next >>%temp%\%temp_vbs%
-@echo dim WshShell>>c:\%temp_vbs%
-@echo Set WshShell = WScript.CreateObject("WScript.Shell")>>%temp%\%temp_vbs%
-@echo WshShell.run"cmd">>c:\%temp_vbs%
-@echo WshShell.AppActivate"c:\windows\system32\cmd.exe">>%temp%\%temp_vbs%
-@echo WScript.Sleep 200>>%temp%\%temp_vbs%
-@echo WshShell.SendKeys "telnet 192.168.1.77 56281">>%temp%\%temp_vbs%
-@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
-@echo WScript.Sleep 100>>%temp%\%temp_vbs%
-@echo WshShell.SendKeys"3sIPrwA0IgMHbq5Nfg8X">>%temp%\%temp_vbs%
-@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
-@echo WScript.Sleep 100>>%temp%\%temp_vbs%
-@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
-@echo WScript.Sleep 100>>%temp%\%temp_vbs%
-@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
-@echo WScript.Sleep 100>>%temp%\%temp_vbs%
-@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
-@echo WScript.Sleep 100>>%temp%\%temp_vbs%
-@echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
-@start cmd
-@call %temp%\%temp_vbs%"""

@@ -157,3 +157,7 @@ class DatabaseBaseMixin:
     def executeDatabaseInsert(cls, insert, callback=None, threadID=-1):
         if insert:
             KBEngine.executeRawDatabaseCommand(cls.__insertSql(insert), callback, threadID, cls.dbInterfaceName)
+
+
+def internal_ip_address():
+    return ".".join(reversed(list(map(str, KBEngine.address()[0].to_bytes(4, 'big')))))
