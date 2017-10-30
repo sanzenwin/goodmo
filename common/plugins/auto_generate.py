@@ -230,6 +230,7 @@ class Plugins(Plugins_):
     DATA_DIR = os.path.join(HOME_DIR, "data")
     SHELL_DIR = os.path.join(HOME_DIR, "shell")
     COMMON_DIR = os.path.join(HOME_DIR, "common")
+    TELNET_DIR = os.path.join(SHELL_DIR, "telnet")
     DEF_DIR = os.path.join(HOME_DIR, "entity_defs")
     RES_DIR = os.path.join(os.path.dirname(HOME_DIR), "res")
     RES_KEY_DIR = os.path.join(RES_DIR, "key")
@@ -377,6 +378,7 @@ class %(cls_name)s(%(cls_name)sBase):
     def clear_dir(self):
         self.clear(self.DEF_DIR)
         self.clear(self.DATA_DIR, True)
+        self.clear(self.TELNET_DIR)
         self.clear(self.PLUGINS_PROXY_BASE_DIR)
         self.clear(self.PLUGINS_PROXY_CELL_DIR)
         self.clear(self.PLUGINS_PROXY_COMMON_DIR, True)
@@ -603,10 +605,10 @@ class %(cls_name)s(%(cls_name)sBase):
                 password=self.xml_config[app]["telnet_service"]["password"]
             )
             for i in range(count):
-                self.write(shell_maker.app_telnet_shell(data, True), self.SHELL_DIR,
-                           "telnet_%s%s.%s" % (app, "" if i == 0 else i, "cmd"))
-                self.write(shell_maker.app_telnet_shell(data, False), self.SHELL_DIR,
-                           "telnet_%s%s.%s" % (app, "" if i == 0 else i, "sh"))
+                self.write(shell_maker.app_telnet_shell(data, True), self.TELNET_DIR,
+                           "%s%s.%s" % (app, "" if i == 0 else i, "cmd"))
+                self.write(shell_maker.app_telnet_shell(data, False), self.TELNET_DIR,
+                           "%s%s.%s" % (app, "" if i == 0 else i, "sh"))
 
     def run_plugins(self, method):
         for name in self.apps:

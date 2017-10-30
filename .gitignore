@@ -103,3 +103,4 @@ ENV/
 /shell/start_server.cmd
 /shell/start_bots.cmd
 /shell/start_bots.sh
+/shell/telnet/
