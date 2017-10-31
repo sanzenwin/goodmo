@@ -16,8 +16,9 @@ class TimerProxy:
         return timerID
 
     def delTimerProxy(self, timerID):
-        del self.__timer__[timerID]
-        self.delTimer(timerID)
+        timer = self.__timer__.pop(timerID, None)
+        if timer is not None:
+            self.delTimer(timerID)
 
     def clearTimerProxy(self):
         for tid in list(self.__timer__):
