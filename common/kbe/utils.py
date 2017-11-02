@@ -43,6 +43,13 @@ def LockAsset(*nameList):
         def isAssetLocked(self, name):
             return getattr(self, get_lockedPropertyName(name), True)
 
+        def isAsset(self, name):
+            if not hasattr(self, "_lock_asset_name_set"):
+                s = self._lock_asset_name_set = set()
+                for c in self.mro():
+                    s.update(c.__dict__.get("__lock_asset_name_set__", set()))
+            return name in self._lock_asset_name_set
+
         def modifyAsset(self, name, changed, unlock=True):
             if unlock:
                 setattr(self, get_lockedPropertyName(name), False)
@@ -102,7 +109,8 @@ def LockAsset(*nameList):
         })
 
     assert len(nameList) == len(set(nameList)), "The name of assets should be unique"
-    return type("set__" + "_".join(nameList), (Asset,) + tuple(generator(name) for name in nameList), {})
+    return type("set__" + "_".join(nameList), (Asset,) + tuple(generator(name) for name in nameList),
+                dict(__lock_asset_name_set__=set(nameList)))
 
 
 class DatabaseBaseMixin:

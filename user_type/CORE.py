@@ -339,7 +339,7 @@ class GenericDictType(DictType):
 
     @classmethod
     def generic_init(cls):
-        cls.generic_map[getattr(cls, cls.generic_key)] = cls
+        cls.generic_map[getattr(cls, cls.generic_key, 0)] = cls
 
     @classmethod
     def real_type(cls, dct):
