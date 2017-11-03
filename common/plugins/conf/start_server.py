@@ -59,7 +59,7 @@ set temp_vbs=telent_goodmo_%random%.vbs
     app_cmd_template = """start %KBE_BIN_PATH%/{app}.exe --cid={cid} --gus={gus}"""
 
     sh_template = """\
-#!/bin/sh
+#!/bin/bash
 
 cd ../../
 export uid={uid}

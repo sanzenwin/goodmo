@@ -211,6 +211,19 @@ class MetaOfDictType(type):
         )
 
 
+class DictOriginType:
+    def __init__(self, dict_type):
+        self.dict_type = dict_type
+
+    def __getattr__(self, item):
+        dict_type = self.dict_type
+        v = getattr(dict_type, item)
+        client_handle = dict_type.client_fields.get(item, None)
+        if client_handle:
+            v = client_handle.load(v, dict_type.client_flag)
+        return v
+
+
 class DictType(object, metaclass=MetaOfDictType):
     empty = object()
     client_flag = True
@@ -265,6 +278,10 @@ class DictType(object, metaclass=MetaOfDictType):
         if self.client_flag:
             DictType._setClient(self, False)
         return self
+
+    @property
+    def origin(self):
+        return DictOriginType(self)
 
     @classmethod
     def real_type(cls, dct):

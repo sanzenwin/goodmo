@@ -84,6 +84,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
             self.accountEntity.activeAvatar = None
             self.accountEntity.destroy()
             self.accountEntity = None
+        self.clearTimerProxy()
         super().destroy(deleteFromDB, writeToDB)
 
     @property

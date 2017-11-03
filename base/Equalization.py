@@ -85,6 +85,10 @@ class Equalization(KBEngine.Base, TimerProxy):
         self.autoLoadedIDMap = {}
         self.runInNextFrame(self.init)
 
+    def destroy(self, deleteFromDB=False, writeToDB=True):
+        self.clearTimerProxy()
+        super().destroy(deleteFromDB, writeToDB)
+
     def init(self):
         KBEngine.globalData["EqualizationEntity"] = self
         KBEngine.BaseApp.onGlobalData("EqualizationEntity", self)

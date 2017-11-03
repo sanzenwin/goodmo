@@ -83,6 +83,10 @@ class BaseApp(KBEngine.Base, TimerProxy):
     def init(self):
         self.tickLoop()
 
+    def destroy(self, deleteFromDB=False, writeToDB=True):
+        self.clearTimerProxy()
+        super().destroy(deleteFromDB, writeToDB)
+
     def addCompletedObject(self, *args):
         self.completedSet.update(args)
 

@@ -25,12 +25,16 @@ class Guarantee(KBEngine.Base, TimerProxy):
         self.destroyTimerID = None
         self.destroy()
 
+    def onInit(self):
+        Equalization.PlayerManager(self.databaseID).addGuarantee(self.databaseID, self)
+
     def onDestroy(self):
         if self.normal:
             Equalization.PlayerManager(self.databaseID).removeGuarantee(self.databaseID)
 
-    def onInit(self):
-        Equalization.PlayerManager(self.databaseID).addGuarantee(self.databaseID, self)
+    def destroy(self, deleteFromDB=False, writeToDB=True):
+        self.clearTimerProxy()
+        super().destroy(deleteFromDB, writeToDB)
 
     def resetDestroy(self):
         if self.destroyTimerID is not None:
