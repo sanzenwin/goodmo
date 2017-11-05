@@ -116,7 +116,8 @@ interact
         for name in sorted(name_dict, key=lambda x: self.apps.index(x)):
             for i in range(name_dict[name]):
                 apps.append(self.app_shell(name, cmd))
-        return template.format_map(self.Default(apps="\r\n".join(apps), kill=kill_str, uid=os.getenv("uid")))
+        return template.format_map(
+            self.Default(apps=("\r\n" if cmd else "\n").join(apps), kill=kill_str, uid=os.getenv("uid")))
 
     def app_telnet_shell(self, data, cmd=True):
         app_template = self.cmd_template_telnet if cmd else self.sh_template_telnet
