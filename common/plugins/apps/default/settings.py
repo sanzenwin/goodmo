@@ -36,6 +36,7 @@ class Avatar(SettingsEntity):
     nameLengthUpLimit = 20
     gold64 = False
     uploadSizeUpLimit = 2 ** 10 ** 2  # 1Mb
+    uploadSizeChunk = 2 ** 10  # 1.5Kb
     newbieData = SettingsNode(gold=0)
 
 

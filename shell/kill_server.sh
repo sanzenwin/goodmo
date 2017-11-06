@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 pkill -9 machine
 pkill -9 dbmgr
