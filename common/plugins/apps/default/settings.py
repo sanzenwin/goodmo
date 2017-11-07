@@ -35,6 +35,7 @@ class Avatar(SettingsEntity):
     delayDestroySeconds = 5 * 60
     nameLengthUpLimit = 20
     gold64 = False
+    uploadFileCountUpLimit = 10
     uploadSizeUpLimit = 2 ** 10 ** 2  # 1Mb
     uploadSizeChunk = 2 ** 10  # 1.5Kb
     newbieData = SettingsNode(gold=0)

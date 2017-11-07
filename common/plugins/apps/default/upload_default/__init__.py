@@ -4,6 +4,7 @@ from weakref import proxy
 
 
 class UploadManager:
+    upload_file_count_up_limit = settings.Avatar.uploadFileCountUpLimit
     file_types = dict()
 
     @classmethod
@@ -27,19 +28,27 @@ class UploadManager:
             return None
         file = self.key_map.get(key)
         if file is None:
-            self.index += 1
-            file = file_class(self, key, self.index, size)
-            self.key_map[key] = file
-            self.file_map[file.fileno] = file
-            return file
+            if len(self.file_map) >= self.upload_file_count_up_limit:
+                self.remove_file(self.file_map[next(iter(self.file_map))])
+            return self.new_file(file_class, key, size)
         elif not isinstance(file, file_class):
             return None
         return file
 
+    def new_file(self, file_class, key, size):
+        self.index += 1
+        file = file_class(self, key, self.index, size)
+        self.key_map[key] = file
+        self.file_map[file.fileno] = file
+        return file
+
+    def remove_file(self, file):
+        del self.key_map[file.key]
+        del self.file_map[file.fileno]
+
     def check_completed(self, file):
         if file.is_completed:
-            del self.key_map[file.key]
-            del self.file_map[file.fileno]
+            self.remove_file(file)
 
     def receive(self, fileno, data):
         file = self.file_map.get(fileno)
