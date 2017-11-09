@@ -55,9 +55,7 @@ class Account(KBEngine.Proxy):
         return KBEngine.LOG_ON_ACCEPT
 
     def onClientDeath(self):
-        if self.activeAvatar:
-            self.activeAvatar.destroy()
-        else:
+        if not self.activeAvatar:
             self.destroy()
 
     def reqAvatarList(self):
