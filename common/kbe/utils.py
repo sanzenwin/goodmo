@@ -35,6 +35,14 @@ class TimerProxy:
         self.addTimerProxy(0, callback)
 
 
+def assetLockedCode(name):
+    return getattr(ret_code, name.upper() + "_LOCKED", ret_code.ASSET_LOCKED)
+
+
+def assetLackCode(name):
+    return getattr(ret_code, name.upper() + "_LACK", ret_code.ASSET_LACK)
+
+
 def LockAsset(*nameList):
     class Asset:
         def lockAsset(self, name):
@@ -62,11 +70,13 @@ def LockAsset(*nameList):
         def asset(self, name):
             return getattr(self, name, 0)
 
-        def assetLockedCode(self, name):
-            return getattr(ret_code, name.upper() + "_LOCKED", ret_code.ASSET_LOCKED)
+        @staticmethod
+        def assetLockedCode(name):
+            return assetLockedCode(name)
 
-        def assetLackCode(self, name):
-            return getattr(ret_code, name.upper() + "_LACK", ret_code.ASSET_LACK)
+        @staticmethod
+        def assetLackCode(name):
+            return assetLackCode(name)
 
     def get_lockedPropertyName(name):
         return "__" + name + "Locked"
