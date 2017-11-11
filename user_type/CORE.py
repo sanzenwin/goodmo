@@ -261,6 +261,7 @@ class DictType(object, metaclass=MetaOfDictType):
             DictType._setClient(self, True)
         return self
 
+    @property
     def server(self):
         if self.client_flag:
             DictType._setClient(self, False)
@@ -321,14 +322,30 @@ class DictType(object, metaclass=MetaOfDictType):
             setattr(self, k, v)
         return self
 
+    def asServerDict(self):
+        client_flag = self.client_flag
+        if client_flag:
+            _ = self.server
+        ret = self.asRecursionDict()
+        _ = self.client if client_flag else self.server
+        return ret
+
+    def createFromServerDict(self, dictData):
+        client_flag = self.client_flag
+        if client_flag:
+            _ = self.server
+        self.createFromRecursionDict(dictData)
+        _ = self.client if client_flag else self.server
+        return self
+
     @classmethod
     def dump(cls, v, client_flag):
-        v = v.client if client_flag else v.server()
+        v = v.client if client_flag else v.server
         return v.asRecursionDict()
 
     @classmethod
     def load(cls, v, client_flag):
-        o = cls().client if client_flag else cls().server()
+        o = cls().client if client_flag else cls().server
         return o.createFromRecursionDict(v)
 
 
