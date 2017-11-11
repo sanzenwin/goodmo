@@ -161,8 +161,8 @@ class MetaOfDictType(type):
             dict_type_cls.generic_init()
         elif mcs.check_t_type(dict_type_cls):
             pickler_cls = type(name[1:] + 'Pickler', (mcs.DictTypePickler,), dict(user_type_class=dict_type_cls))
-            module = importlib.import_module(dict_type_cls.__module__)
-            setattr(module, dict_type_cls.pickler_name(), pickler_cls())
+            m = importlib.import_module(dict_type_cls.__module__)
+            setattr(m, dict_type_cls.pickler_name(), pickler_cls())
         Type.add_dict_type(dict_type_cls)
         return dict_type_cls
 
@@ -209,19 +209,6 @@ class MetaOfDictType(type):
             pickler_name=cls.pickler_name(),
             properties_str=cls.properties_str()
         )
-
-
-class DictOriginType:
-    def __init__(self, dict_type):
-        self.dict_type = dict_type
-
-    def __getattr__(self, item):
-        dict_type = self.dict_type
-        v = getattr(dict_type, item)
-        client_handle = dict_type.client_fields.get(item, None)
-        if client_handle:
-            v = client_handle.load(v, dict_type.client_flag)
-        return v
 
 
 class DictType(object, metaclass=MetaOfDictType):
@@ -278,10 +265,6 @@ class DictType(object, metaclass=MetaOfDictType):
         if self.client_flag:
             DictType._setClient(self, False)
         return self
-
-    @property
-    def origin(self):
-        return DictOriginType(self)
 
     @classmethod
     def real_type(cls, dct):
@@ -361,6 +344,10 @@ class GenericDictType(DictType):
     @classmethod
     def real_type(cls, dct):
         return cls.generic_map[dct[cls.generic_key]]
+
+    @classmethod
+    def get_real(cls, dct):
+        return cls.real_type(dct)(**dct)
 
     @classmethod
     def init_type(cls):
