@@ -36,7 +36,6 @@ set temp_vbs=telent_goodmo_%random%.vbs
 @echo dim WshShell>>%temp%\%temp_vbs%
 @echo Set WshShell = WScript.CreateObject("WScript.Shell")>>%temp%\%temp_vbs%
 @echo WshShell.run"cmd">>%temp%\%temp_vbs%
-@echo WshShell.AppActivate"c:\windows\system32\cmd.exe">>%temp%\%temp_vbs%
 @echo WScript.Sleep 200>>%temp%\%temp_vbs%
 @echo WshShell.SendKeys "telnet {ip} {port}">>%temp%\%temp_vbs%
 @echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
@@ -51,7 +50,6 @@ set temp_vbs=telent_goodmo_%random%.vbs
 @echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
 @echo WScript.Sleep 100>>%temp%\%temp_vbs%
 @echo WshShell.SendKeys"{ENTER}">>%temp%\%temp_vbs%
-@start cmd
 @call %temp%\%temp_vbs%"""
 
     cmd_kill_str = 'call "scripts/shell/kill_server"'

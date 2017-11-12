@@ -604,8 +604,9 @@ class %(cls_name)s(%(cls_name)sBase):
                 port=self.xml_config[app]["telnet_service"]["port"],
                 password=self.xml_config[app]["telnet_service"]["password"]
             )
+            port = data["port"]
             for i in range(count):
-                data["port"] += i
+                data["port"] = port + i
                 self.write(shell_maker.app_telnet_shell(data, True), self.TELNET_DIR,
                            "%s%s.%s" % (app, "" if i == 0 else i, "cmd"))
                 self.write(shell_maker.app_telnet_shell(data, False), self.TELNET_DIR,
