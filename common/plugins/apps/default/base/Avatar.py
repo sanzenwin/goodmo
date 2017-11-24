@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import KBEngine
 import settings
-from common.utils import server_time, Event, Bytes
+from common.utils import server_time, Event, Bytes, PublicAttrMap
 from kbe.utils import TimerProxy
 from interfaces.Ref import Ref
 from default.interfaces.RunObject import RunObject
@@ -25,6 +25,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         self.accountEntity = None
         self.destroyTimerID = None
         self.isFirstLogin = True
+        self.publicAttrMap = PublicAttrMap()
 
     def onCreatedAndCompleted(self):
         avatar_created.send(self)

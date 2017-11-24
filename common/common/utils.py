@@ -388,3 +388,22 @@ class List:
         new_list = self[:]
         new_list.sort(key=key, reverse=reverse)
         return new_list
+
+
+def dict_to_stable_str():
+    pass
+
+
+class PublicAttrMap:
+    class Attr(dict):
+        def init(self):
+            pass
+
+        def __getattr__(self, item):
+            return self[item]
+
+    def __init__(self):
+        self.map = {}
+
+    def __getattr__(self, item):
+        return self.map.setdefault(item, self.Attr())
