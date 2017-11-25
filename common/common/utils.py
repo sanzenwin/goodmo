@@ -390,10 +390,6 @@ class List:
         return new_list
 
 
-def dict_to_stable_str():
-    pass
-
-
 class PublicAttrMap:
     class Attr(dict):
         def init(self):
