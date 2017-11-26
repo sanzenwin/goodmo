@@ -346,8 +346,7 @@ class Mongodb:
             mongodb_map = dict()
             for p in mongodb_set:
                 r = cls.loads(p)
-                mongodb_map[p] = AsyncIOMotorClient(host=r["host"], port=r["port"], username=r.get("username"),
-                                                    password=r.get("password"))
+                mongodb_map[p] = AsyncIOMotorClient(authSource="goodmo__%s" % os.getenv("uid"), **r)
             cls.attach(mongodb_map, objects)
             mongodb_completed.send(cls)
 
