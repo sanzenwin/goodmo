@@ -28,7 +28,7 @@ class Asset(LockAsset("gold")):
     )
 
     gold = Property(
-        Type=Type.GOLD64 if settings.Avatar.gold64 else Type.GOLD,
+        Type=Type.GOLD_X,
         Flags=Property.Flags.BASE_AND_CLIENT,
         Persistent=Property.Persistent.true
     )

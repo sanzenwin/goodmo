@@ -1,3 +1,4 @@
+import settings
 from kbe.log import ERROR_MSG
 from kbe.protocol import Type
 from CORE import DictType
@@ -31,3 +32,4 @@ class DefaultType:
     Type.TIME_STAMP(Type.UINT64)
     Type.GOLD(Type.UINT32)
     Type.GOLD64(Type.UINT64)
+    Type.GOLD_X(Type.UINT64) if settings.Avatar.gold64 else Type.GOLD_X(Type.UINT32)
