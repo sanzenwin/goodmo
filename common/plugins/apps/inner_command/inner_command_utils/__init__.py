@@ -10,8 +10,9 @@ class C:
         self.commands = dict()
 
     def __getattr__(self, item):
-        com = self.commands.get(item, UnknownCommand)
-        return com()
+        com_cls = self.commands.get(item, UnknownCommand)
+        com = com_cls()
+        return com if com.args_conditions else None
 
 
 c = C()
@@ -26,20 +27,26 @@ def command(com):
 
 class Command:
     name = None
-    max_args_length = None
-    args_conditions = None
+    args_conditions = ()
 
     @classmethod
     def command_name(cls):
         return cls.name or cls.__name__.lower()
 
     def __init__(self):
+        super().__init__()
         self.args = []
         self.valid = True
+        self.max_args_length = len(self.args_conditions)
+        if self.max_args_length == 0:
+            self.do_execute()
+
+    def __str__(self):
+        return None
 
     def __truediv__(self, arg):
         self.args.append(arg)
-        if self.max_args_length is not None and len(self.args) >= self.max_args_length:
+        if len(self.args) >= self.max_args_length:
             self.do_execute()
             return None
         return self
@@ -49,18 +56,14 @@ class Command:
         self.do_execute()
 
     def check_args(self):
-        if self.args_conditions is None:
+        if not self.args_conditions:
             return True
-        for args in self.args_conditions:
-            if args == [type(arg) for arg in self.args]:
-                return True
+        if self.args_conditions == tuple(type(arg) for arg in self.args):
+            return True
         return False
 
     def error_args(self):
-        print("Wrong args.")
-
-    def error_valid(self):
-        print("Command is invalid.")
+        print("Wrong args. current is %s,should be %s" % (self.args, str(self.args_conditions)))
 
     def success_execute(self):
         print("Command executed success: %s, %s" % (self.command_name(), self.args))
@@ -94,7 +97,7 @@ class UnknownCommand(Command):
 
 
 class AddAsset(Command):
-    max_args_length = 2
+    args_conditions = (int, int)
 
     def asset_name(self):
         return self.__class__.__name__.replace("Add", "")
