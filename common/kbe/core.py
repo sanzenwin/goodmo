@@ -82,10 +82,10 @@ class Equalization(metaclass=MetaOfEqualization):
         settings = importlib.import_module("settings")
         equalization = importlib.import_module("Equalization")
         for k, v in settings.__dict__.items():
-            if hasattr(v, "equalization") and v.equalization:
+            if getattr(v, "equalization", False):
                 setattr(cls, k, cls.Proxy(v))
                 cls.memEntities[k] = v
-            if hasattr(v, "autoLoaded") and v.autoLoaded or hasattr(v, "autoLoadedOrCreate") and v.autoLoadedOrCreate:
+            if getattr(v, "autoLoaded", False) or getattr(v, "autoLoadedOrCreate", False):
                 cls.autoLoadedEntities[k] = v
         equalization.Equalization.discover()
 

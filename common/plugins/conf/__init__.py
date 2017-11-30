@@ -44,7 +44,8 @@ class SettingsNode:
 
 
 class SettingsEntity(SettingsNode):
-    pass
+    def isAutoLoaded(self):
+        return getattr(self, "autoLoaded", False) or getattr(self, "autoLoadedOrCreate", False)
 
 
 class EqualizationMixin:

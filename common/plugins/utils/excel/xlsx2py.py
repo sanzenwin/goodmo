@@ -360,16 +360,12 @@ class xlsx2py:
     def isKey(self, cellData):
         if not hasattr(self, "tempKeys"):
             self.tempKeys = []
-
         if cellData['v'] not in self.tempKeys:
             self.tempKeys.append(cellData['v'])
         else:
             self.xlsxClear(EXPORT_ERROR_REPKEY, (cellData['pos'], \
                                                  (self.tempKeys.index(cellData['v']) + 3, cellData['pos'][1]),
                                                  cellData['v']))
-
-
-
 
         ###############export to  py部分######################
 
@@ -434,12 +430,11 @@ class xlsx2py:
         return
 
     def writeHead(self):
-        print("开始写入文件:", time.ctime(time.time()))
         try:
             SheetName = self.xbook.getSheetNameByIndex(self.curProIndex[-1])
         except:
-            print("获取表的名字出错")
-
+            print("获取表的名字出错", self.infile, self.curProIndex[-1])
+        print("开始写入文件:", self.infile, SheetName, time.ctime(time.time()))
         sheetName = SheetName[SheetName.find(EXPORT_PREFIX_CHAR) + 1:]
         if sheetName in self.mapDict:
             dataName = self.mapDict[sheetName]
@@ -547,6 +542,7 @@ class xlsx2py:
 
     def getSheetsCounts(self):
         return reduce(lambda x, y: x + y, [self.xbook.getColCount(index) for index in self.__exportSheetIndex])
+
 
 EXPORT_SIGN['.'] = xlsx2py.isNotEmpty
 EXPORT_SIGN['$'] = xlsx2py.needReplace

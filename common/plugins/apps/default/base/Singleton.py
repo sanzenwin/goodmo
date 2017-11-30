@@ -1,4 +1,5 @@
 import KBEngine
+import settings
 from kbe.core import Singleton as Singleton_
 from kbe.log import ERROR_MSG
 
@@ -6,10 +7,13 @@ from kbe.log import ERROR_MSG
 class Singleton(KBEngine.Base):
     def __init__(self):
         super().__init__()
-        if self.databaseID:
-            self.onInit()
+        if settings.get(self.__class__.__name__).isAutoLoaded():
+            if self.databaseID:
+                self.onInit()
+            else:
+                self.writeToDB(self.onSaved)
         else:
-            self.writeToDB(self.onSaved)
+            self.onInit()
 
     def onSaved(self, success, entity):
         if self.isDestroyed:
