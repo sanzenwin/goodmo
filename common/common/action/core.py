@@ -296,3 +296,68 @@ class ActionManager:
     def on_node_get_parent(self, action):
         if self.tree.is_on_top(action) and self.playing:
             action.start()
+
+
+class ActionSubManager(ActionManager):
+    def __init__(self, parent):
+        super().__init__(True)
+        self.parent = parent
+
+    def get_to_manager(self):
+        p = self.parent
+        m = None
+        while p:
+            m = p.get_manager()
+            if not m:
+                return None
+            p = m.parent
+        return m
+
+    def broadcast_action_start_prev(self, action):
+        manager = self.get_to_manager()
+        if manager:
+            manager.on_other_start_prev(action)
+
+    def broadcast_action_start(self, action):
+        manager = self.get_to_manager()
+        if manager:
+            manager.on_other_start(action)
+
+    def broadcast_action_completed(self, action):
+        manager = self.get_to_manager()
+        if manager:
+            manager.on_other_completed(action)
+
+
+class Action(ActionBase):
+    has_sub_manager = True
+    bind_sub_manager = False
+
+    def __init__(self):
+        super().__init__()
+        self.sub_manager = None
+
+    def clear(self):
+        super().clear()
+        if self.sub_manager:
+            self.sub_manager.clear()
+
+    def on_start(self):
+        if self.has_sub_manager:
+            self.sub_manager = ActionSubManager(self)
+            if self.bind_sub_manager:
+                self.sub_manager.on_completed = self.bind_complete()
+
+    def on_completed(self):
+        super().on_completed()
+        if self.sub_manager:
+            self.sub_manager.clear()
+            self.sub_manager = None
+
+    def on_other_start(self, action):
+        if self.sub_manager:
+            self.sub_manager.on_other_start(action)
+
+    def on_other_completed(self, action):
+        if self.sub_manager:
+            self.sub_manager.on_other_completed(action)
