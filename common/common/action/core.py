@@ -1,3 +1,6 @@
+from weakref import proxy
+
+
 class Node:
     _cursor_id = 0
 
@@ -133,8 +136,8 @@ class ActionBase(Node):
     def get_manager(self):
         return self.get_delegate()
 
-    def delay_run(self, callback, seconds=0, repeat=1):
-        pass
+    def delay_run(self, callback, offset=0, repeat=1):
+        return self.get_manager().delay_run(callback, offset, repeat)
 
     def start(self):
         if self.playing:
@@ -145,7 +148,7 @@ class ActionBase(Node):
         self.on_start()
         manager.on_action_start(self, self.quiet)
 
-    def bind_complete(self, quiet):
+    def bind_complete(self, quiet=False):
         def bind_complete():
             self.complete(quiet)
 
@@ -196,10 +199,20 @@ class ActionEvent(ActionNone):
     pass
 
 
+class TimerInterface:
+    def add_timer(self, callback, offset, repeat):
+        pass
+
+    def del_timer(self, timer_id):
+        pass
+
+
 class ActionManager:
-    def __init__(self, start):
+    def __init__(self, timer, start):
+        self.timer = proxy(timer)
         self.playing = start
         self.tree = Tree(self)
+        self.completed_list = []
 
     def start(self):
         if self.playing:
@@ -212,9 +225,16 @@ class ActionManager:
 
     def clear(self):
         self.tree.clear()
+        self.completed_list = []
 
-    def delay_run(self, callback, seconds=0, repeat=1):
-        pass
+    def get_timer(self):
+        return self.timer
+
+    def add_completed(self, callback):
+        self.completed_list.append(callback)
+
+    def delay_run(self, callback, offset=0, repeat=1):
+        return self.timer.add_timer(callback, offset, repeat)
 
     def add_node(self, node, parent=None, group=None):
         node.group = group
@@ -258,6 +278,8 @@ class ActionManager:
             self.broadcast_action_completed(action)
         action.remove_from_parent(True)
         if self.tree.count() == 0:
+            for completed in self.completed_list:
+                completed()
             self.on_completed()
 
     def broadcast_action_start_prev(self, action):
@@ -300,7 +322,7 @@ class ActionManager:
 
 class ActionSubManager(ActionManager):
     def __init__(self, parent):
-        super().__init__(True)
+        super().__init__(parent.get_manager().get_timer(), True)
         self.parent = parent
 
     def get_to_manager(self):

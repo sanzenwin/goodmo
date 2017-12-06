@@ -13,7 +13,11 @@ class ServerTime:
         self.cursor = 0.0
 
     def __str__(self):
-        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.mktime(self.genesis.timetuple())))
+        return self.format("%Y-%m-%d %H:%M:%S", self.genesis)
+
+    def format(self, s, t=None):
+        t = t or self.now()
+        return time.strftime(s, time.localtime(time.mktime(t.timetuple())))
 
     def set_cursor(self, cursor):
         self.cursor = cursor  # microseconds
