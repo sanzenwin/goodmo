@@ -38,19 +38,23 @@ class ServerTime:
     def passed(self, stamp):
         return (self.stamp() - stamp) / 1000.0
 
+    def get_date(self, stamp):
+        return self.genesis + datetime.timedelta(milliseconds=float(stamp))
+
+    def from_s14(self, s):
+        return self.make_time(int(s[:4]), int(s[4:6]), int(s[6:8]), int(s[8:10]), int(s[10:12]), int(s[12:]))
+
     @staticmethod
     def now():
         return datetime.datetime.now()
 
-    def get_date(self, stamp):
-        return self.genesis + datetime.timedelta(milliseconds=float(stamp))
+    @staticmethod
+    def offset(date, offset):
+        return date + datetime.timedelta(microseconds=float(offset))
 
     @staticmethod
     def make_time(*args, **kwargs):
         return datetime.datetime(*args, **kwargs)
-
-    def from_s14(self, s):
-        return self.make_time(int(s[:4]), int(s[4:6]), int(s[6:8]), int(s[8:10]), int(s[10:12]), int(s[12:]))
 
 
 server_time = ServerTime()
