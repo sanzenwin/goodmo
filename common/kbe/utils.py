@@ -1,5 +1,6 @@
 import ret_code
 import KBEngine
+from common.utils import server_time
 from pymysql.converters import escape_str
 
 
@@ -183,3 +184,7 @@ class DatabaseBaseMixin:
 
 def internal_ip_address():
     return ".".join(reversed(list(map(str, KBEngine.address()[0].to_bytes(4, 'big')))))
+
+
+def generate_pk():
+    return "%s%s" % (KBEngine.genUUID64(), server_time.stamp())
