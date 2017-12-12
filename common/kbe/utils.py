@@ -186,5 +186,9 @@ def internal_ip_address():
     return ".".join(reversed(list(map(str, KBEngine.address()[0].to_bytes(4, 'big')))))
 
 
-def generate_pk():
+def generate_absolute_pk():
     return "%s%s" % (KBEngine.genUUID64(), server_time.stamp())
+
+
+def generate_runtime_pk():
+    return str(KBEngine.genUUID64())
