@@ -49,3 +49,6 @@ class Ref:
     def objects(self, count):
         self.addRef(count)
         return self
+
+    def refStatus(self):
+        return "id: %d, lifeCount: %d, del: %s" % (self.id, self.__lifeCount, self.__del)
