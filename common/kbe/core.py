@@ -235,7 +235,12 @@ class KBEngineProxy:
                 setattr(m, nodeName, cls.optimize(proxy_class))
 
 
-class Redis:
+class Subscriptable(type):
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+
+class Redis(metaclass=Subscriptable):
     class Proxy:
         ready = False
 
@@ -302,7 +307,7 @@ class Redis:
         return cls.Proxy.ready
 
 
-class Mongodb:
+class Mongodb(metaclass=Subscriptable):
     class Proxy:
         ready = False
 
