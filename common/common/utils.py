@@ -35,6 +35,16 @@ class ServerTime:
         delta = to - self.genesis
         return int(delta.total_seconds() * 1000)
 
+    def last_month(self, to=None):
+        if to is None:
+            to = self.now()
+        return to.replace(day=1) - datetime.timedelta(days=1)
+
+    def last_week(self, to=None):
+        if to is None:
+            to = self.now()
+        return to - datetime.timedelta(days=to.weekday(), weeks=1)
+
     def passed(self, stamp):
         return (self.stamp() - stamp) / 1000.0
 
@@ -59,6 +69,33 @@ class ServerTime:
 
 server_time = ServerTime()
 del ServerTime
+
+
+class TimeIndex:
+    def __init__(self, to=None):
+        self.to = server_time.now() if to is None else to
+        self.genesis = server_time.genesis
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    @property
+    def year(self):
+        return self.to.year - self.genesis.year
+
+    @property
+    def month(self):
+        year = self.year
+        if year == 0:
+            return self.to.month - self.genesis.month
+        else:
+            return year * 12 - self.genesis.month + self.to.month
+
+    @property
+    def week(self):
+        start_date = self.genesis - datetime.timedelta(days=self.genesis.weekday())
+        new_date = server_time.make_time(start_date.year, start_date.month, start_date.day)
+        return int((self.to - new_date).total_seconds()) // (7 * 24 * 60 * 60)
 
 
 class Event:
@@ -306,7 +343,7 @@ class PerformanceWatcher:
         if not self.debug:
             return
         print("\nlog_result: %sms\n" % (
-            (time.monotonic() - self.last_time) / ((self.count - self.last_count) or 1) * 1e3))
+                (time.monotonic() - self.last_time) / ((self.count - self.last_count) or 1) * 1e3))
         self.last_count = self.count
         self.last_time = time.monotonic()
 

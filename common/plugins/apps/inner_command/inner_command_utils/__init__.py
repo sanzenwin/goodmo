@@ -80,7 +80,7 @@ class Command:
         self.valid = False
 
     def execute(self):
-        raise NotImplementedError("Class based on Command should implement execute method.")
+        raise NotImplementedError("subclass[%s] should implement this method!" % self.__class__.__name__)
 
     def on_execute(self):
         pass

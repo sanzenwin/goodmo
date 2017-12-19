@@ -244,6 +244,9 @@ class Redis(metaclass=Subscriptable):
     class Proxy:
         ready = False
 
+        def __getitem__(self, item):
+            return getattr(self, item)
+
         def attach(self, key, r):
             setattr(self, key, r)
 
@@ -310,6 +313,9 @@ class Redis(metaclass=Subscriptable):
 class Mongodb(metaclass=Subscriptable):
     class Proxy:
         ready = False
+
+        def __getitem__(self, item):
+            return getattr(self, item)
 
         def attach(self, key, r):
             setattr(self, key, r)
