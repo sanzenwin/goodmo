@@ -1,4 +1,4 @@
-__third_package__ = "xlrd", "tornado", "aioredis", "redis", "pymysql", "motor", "dicttoxml", "oscrypto"
+__third_package__ = "xlrd", "tornado", "yapf", "aioredis", "redis", "pymysql", "motor", "dicttoxml", "oscrypto"
 
 __kbengine_xml_default__ = dict(
     gameUpdateHertz=60,

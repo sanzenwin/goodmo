@@ -97,6 +97,11 @@ class TimeIndex:
         new_date = server_time.make_time(start_date.year, start_date.month, start_date.day)
         return int((self.to - new_date).total_seconds()) // (7 * 24 * 60 * 60)
 
+    @property
+    def day(self):
+        new_date = server_time.make_time(self.genesis.year, self.genesis.month, self.genesis.day)
+        return int((self.to - new_date).total_seconds()) // (24 * 60 * 60)
+
 
 class Event:
     class Meta(type):
