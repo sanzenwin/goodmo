@@ -6,7 +6,6 @@ import shutil
 import kbe.log
 from collections import OrderedDict
 from importlib import import_module
-from yapf.yapflib.yapf_api import FormatCode
 from common.utils import get_module_attr
 
 
@@ -61,6 +60,7 @@ class Plugins:
             self.write("", dir_name, ".gitkeep")
 
     def to_pep8(self, s):
+        from yapf.yapflib.yapf_api import FormatCode
         return FormatCode(s)[0]
 
     def write(self, s, *path):
