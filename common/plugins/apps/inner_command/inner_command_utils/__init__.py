@@ -55,6 +55,10 @@ class Command:
         self.args.append(arg)
         self.do_execute()
 
+    @staticmethod
+    def doc():
+        return ""
+
     def check_args(self):
         if not self.args_conditions:
             return True

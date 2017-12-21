@@ -21,6 +21,14 @@ class Plugins:
 
     apps = OrderedDict()
 
+    app_component = dict(
+        baseapp="base",
+        cellapp="cell",
+        interfaces="interface",
+        bots="bots",
+        loginapp="login"
+    )
+
     def init__sys_path(self):
         sys.path = [self.PLUGINS_OUTER_DIR, self.PLUGINS_DIR] + sys.path
         sys.path = [self.PLUGINS_PROXY_COMMON_DIR] + sys.path
