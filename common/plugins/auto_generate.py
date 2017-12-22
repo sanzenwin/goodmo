@@ -252,6 +252,8 @@ class Plugins(Plugins_):
 
     m_entity_client_methods = dict()
 
+    m_user_types_modules = list()
+
     entities = {
         ObjectOfBase: {},
         EntityOfBase: {},
@@ -423,7 +425,7 @@ class %(cls_name)s(%(cls_name)sBase):
                 if m.upper() == m and m not in user_types:
                     user_types.append(m)
         for m in user_types:
-            import_module(m)
+            self.m_user_types_modules.append(import_module(m))
 
     def init__entity(self):
         self.init_entity("base")
