@@ -67,9 +67,10 @@ def LockAsset(*nameList):
                 setattr(self, get_lockedPropertyName(name), False)
             if changed == 0:
                 return
-            v = max(0, getattr(self, name) + changed)
+            vv = getattr(self, name)
+            v = max(0, vv + changed)
             setattr(self, name, v)
-            self.onModifyAttr(name, v)
+            self.onModifyAttr(name, v, vv)
 
         def asset(self, name):
             return getattr(self, name, 0)
@@ -111,9 +112,10 @@ def LockAsset(*nameList):
                 setattr(self, lockedPropertyName, False)
             if changed == 0:
                 return
-            v = max(0, getattr(self, name) + changed)
+            vv = getattr(self, name)
+            v = max(0, vv + changed)
             setattr(self, name, v)
-            self.onModifyAttr(name, v)
+            self.onModifyAttr(name, v, vv)
 
         return type("lock_" + name, (object,), {
             lockedPropertyName: False,

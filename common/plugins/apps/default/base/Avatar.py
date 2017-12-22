@@ -71,14 +71,14 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
 
         self.destroyTimerID = self.addTimerProxy(settings.Avatar.delayDestroySeconds, callback)
 
-    def onModifyAttr(self, key, value):
-        avatar_modify.send(self, key=key, value=value)
-        avatar_modify_common.send(self, key=key, value=value)
+    def onModifyAttr(self, key, value, old):
+        avatar_modify.send(self, key=key, value=value, old=old)
+        avatar_modify_common.send(self, key=key, value=value, old=old)
 
-    def onModifyAttrMulti(self, data):
-        avatar_modify_multi.send(self, data=data)
+    def onModifyAttrMulti(self, data, old):
+        avatar_modify_multi.send(self, data=data, old=old)
         for key, value in data.items():
-            avatar_modify_common.send(self, key=key, value=value)
+            avatar_modify_common.send(self, key=key, value=value, old=old[key])
 
     def destroy(self, deleteFromDB=False, writeToDB=True):
         if self.accountEntity:

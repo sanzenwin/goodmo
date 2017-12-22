@@ -78,8 +78,9 @@ class Asset(LockAsset("gold")):
             handler(data["attach"])
 
     def modifyName(self, changed):
+        name = self.name
         self.name = changed
-        self.onModifyAttr("name", changed)
+        self.onModifyAttr("name", changed, name)
 
 
 @receiver(avatar_common_login)
