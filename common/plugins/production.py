@@ -167,6 +167,7 @@ class Plugins:
                                     d[km] = vm
 
         for c, s in del_attr.items():
+            setattr(c, "__kbe_properties__", s)
             for a in s:
                 g = getattr(c, a)
                 if isinstance(g, AnyProperty) and g.get("defaultValue", self.empty) is not self.empty:
