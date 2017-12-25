@@ -14,7 +14,7 @@ class InnerCommand:
             self.executeInnerCommand(s)
 
     def canExecuteInnerCommand(self):
-        return KBEngine.publish()
+        return not KBEngine.publish()
 
     def executeInnerCommand(self, s):
         try:

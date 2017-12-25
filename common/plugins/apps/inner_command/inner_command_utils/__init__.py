@@ -17,7 +17,7 @@ class C:
 
     @property
     def a(self):
-        pformat({k: v.doc() for k, v in self.commands.items()})
+        return pformat({k: v.doc() for k, v in self.commands.items()})
 
 
 c = C()
