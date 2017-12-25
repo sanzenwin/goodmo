@@ -1,5 +1,6 @@
 import builtins
 import settings
+from pprint import pformat
 from kbe.core import Equalization
 from DEFAULT import TCall
 
@@ -13,6 +14,10 @@ class C:
         com_cls = self.commands.get(item, UnknownCommand)
         com = com_cls()
         return com if com.args_conditions else None
+
+    @property
+    def a(self):
+        pformat({k: v.doc() for k, v in self.commands.items()})
 
 
 c = C()
