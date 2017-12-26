@@ -71,8 +71,11 @@ class Command:
             return True
         return False
 
+    def error(self, s):
+        print(s)
+
     def error_args(self):
-        print("Wrong args. current is %s,should be %s" % (self.args, str(self.args_conditions)))
+        self.error("Wrong args. current is %s,should be %s" % (self.args, str(self.args_conditions)))
 
     def success_execute(self):
         print("Command executed success: %s, %s" % (self.command_name(), self.args))
