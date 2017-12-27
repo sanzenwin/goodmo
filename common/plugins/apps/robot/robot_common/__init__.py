@@ -74,9 +74,9 @@ class RobotManager:
             it = i
         return self.ic[it]
 
-    def addBots(self, c, count, d):
-        lastId = next(reversed(self.ic), 0)
-        self.ic[lastId + count] = (self.typeMap[c], d)
+    def addBots(self, c, count, data):
+        last_id = next(reversed(self.ic), 0)
+        self.ic[last_id + count] = (self.typeMap[c], data)
         t = min(1, settings.Robot.totalTime / (count / settings.Robot.tickCount))
         KBEngine.addBots(count, settings.Robot.tickCount, t)
 
@@ -148,11 +148,11 @@ class RobotFactory(Robot):
     addBotsKey = settings_kbengine.bots.account_infos.account_name_prefix.value
 
     @classmethod
-    def addBots(cls, key, c, count, d):
+    def addBots(cls, key, c, count, data=None):
         if not robotManager.checkType(c):
             ERROR_MSG("RobotFactory::addBots:type error: %s" % c)
             return
-        asyncio.async(pushAddBots_generation(key, c, count, d))
+        asyncio.async(pushAddBots_generation(key, c, count, data or dict()))
 
     def onStart(self):
         self.runForever(settings.Global.gameTimeInterval * 2, self.onCheckCommond)
@@ -189,10 +189,12 @@ def popAddBots_generation():
 
 @receiver(mongodb_completed)
 def init_robot(signal, sender):
+    global cache_factory
+    cache_factory = Mongodb.Robot.Factory
     if KBEngine.component == "bots":
         pass
-        # RobotFactory.addBots("bot_", "holdem_Mtt", 30)
-        RobotFactory.addBots("bot_", "holdem_FreeTableMember", 1)
+        # RobotFactory.addBots("bot_", "holdem_Mtt", 10)
+        # RobotFactory.addBots("bot_", "holdem_FreeTableMember", 1)
         # RobotFactory.addBots("bot_", "holdem_FreeTableMaster", 1)
 
 
