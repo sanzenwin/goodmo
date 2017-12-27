@@ -16,8 +16,13 @@ class C:
         return com if com.args_conditions else None
 
     @property
+    def doc(self):
+        return {k: v.doc() for k, v in self.commands.items()}
+
+    @property
     def a(self):
-        return pformat({k: v.doc() for k, v in self.commands.items()})
+        print(pformat(self.doc))
+        return None
 
 
 c = C()
