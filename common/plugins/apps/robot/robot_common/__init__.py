@@ -202,9 +202,6 @@ def init_robot(signal, sender):
     cache_factory = Mongodb.Robot.Factory
     if KBEngine.component == "bots":
         pass
-        # RobotFactory.addBots("bot_", "holdem_Mtt", 10)
-        # RobotFactory.addBots("bot_", "holdem_FreeTableMember", 1)
-        # RobotFactory.addBots("bot_", "holdem_FreeTableMaster", 1)
 
 
 @receiver(plugins_completed)
