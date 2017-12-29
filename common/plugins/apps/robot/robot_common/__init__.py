@@ -98,12 +98,15 @@ class Robot:
         self.forever = {}
 
     def __getattr__(self, item):
-        return getattr(self.entity, item)
+        return getattr(self.entity(), item)
+
+    def isValid(self):
+        return bool(self.entity())
 
     def init(self, entity, data):
         self.index = robotManager.newId()
         self.data = data
-        self.entity = weakref.proxy(entity)
+        self.entity = weakref.ref(entity)
         self.onStart()
 
     def onStart(self):
