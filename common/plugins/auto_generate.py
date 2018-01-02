@@ -7,7 +7,7 @@ from copy import deepcopy
 from importlib import import_module
 from collections import OrderedDict
 from common.utils import get_module, get_module_list, get_module_attr, get_module_all
-from kbe.protocol import Type, Property, Parent, Implements, Volatile, Properties, Client, Base, Cell, Entity, Entities
+from kbe.protocol import Type, Property, Parent, Interfaces, Volatile, Properties, Client, Base, Cell, Entity, Entities
 from plugins.conf import SettingsNode, EqualizationMixin
 from plugins.conf.start_server import shell_maker
 from plugins.conf.xml import config
@@ -130,7 +130,7 @@ class Object:
         return Parent()
 
     def implements(self):
-        impl = Implements()
+        impl = Interfaces()
 
         def travel(obj):
             for c in obj.bases:

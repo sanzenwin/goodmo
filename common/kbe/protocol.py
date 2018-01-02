@@ -272,10 +272,10 @@ class Parent(str):
         return self.template_whole_str % self if self else self
 
 
-class Implements(list):
+class Interfaces(list):
     template_detail_str = """        <Interface>%(detail)s</Interface>"""
-    template_whole_str = """    <Implements>%s
-    </Implements>\n\n"""
+    template_whole_str = """    <Interfaces>%s
+    </Interfaces>\n\n"""
 
     def str(self):
         s = ""
