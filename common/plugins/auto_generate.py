@@ -494,7 +494,7 @@ class %(cls_name)s(%(cls_name)sBase):
                 self.PLUGINS_PROXY_CELL_DIR, k + ".py")
 
         Type.finish_dict_type()
-        self.write(Type.str(), self.DEF_DIR, 'alias.xml')
+        self.write(Type.str(), self.DEF_DIR, 'types.xml')
 
     def init_clients(self, entity_class):
         dct = self.m_entity_client_methods.setdefault(entity_class.__name__, OrderedDict())

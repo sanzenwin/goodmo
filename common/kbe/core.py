@@ -357,7 +357,11 @@ class Mongodb(metaclass=Subscriptable):
             mongodb_map = dict()
             for p in mongodb_set:
                 r = cls.loads(p)
-                mongodb_map[p] = AsyncIOMotorClient(authSource="goodmo__%s" % os.getenv("uid"), **r)
+                if "uri" in r:
+                    c = dict(host=r["uri"])
+                else:
+                    c = dict(authSource="goodmo__%s" % os.getenv("uid"), **r)
+                mongodb_map[p] = AsyncIOMotorClient(**c)
             cls.attach(mongodb_map, objects)
             mongodb_completed.send(cls)
 
