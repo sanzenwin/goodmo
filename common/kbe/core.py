@@ -358,7 +358,7 @@ class Mongodb(metaclass=Subscriptable):
             for p in mongodb_set:
                 r = cls.loads(p)
                 if "uri" in r:
-                    c = dict(host=r["uri"])
+                    c = dict(host=r.pop("uri"))
                 else:
                     c = dict(authSource="goodmo__%s" % os.getenv("uid"), **r)
                 mongodb_map[p] = AsyncIOMotorClient(**c)
