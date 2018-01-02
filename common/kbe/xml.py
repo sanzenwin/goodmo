@@ -174,6 +174,6 @@ class Xml(Node):
         return s
 
 
-settings_kbengine_defs = Xml(os.path.join('server', 'kbengine_defaults.xml'))
+settings_kbengine_defaults = Xml(os.path.join('server', 'kbengine_defaults.xml'))
 settings_kbengine_custom = Xml(os.path.join('server', 'kbengine.xml'))
-settings_kbengine = settings_kbengine_defs.copy().over(settings_kbengine_custom)
+settings_kbengine = settings_kbengine_defaults.copy().over(settings_kbengine_custom)
