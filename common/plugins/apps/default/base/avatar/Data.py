@@ -47,7 +47,7 @@ class Data:
         self.monthData = MonthData(self._monthData)
         self.yearData = YearData(self._yearData)
 
-    def modifySteadyData(self, method, key, value):
+    def modifySteadyData(self, method, key, value=None):
         getattr(self.steadyData, method)(key, value)
 
     def modifyDateData(self, t, method, key, value, expired=None):
