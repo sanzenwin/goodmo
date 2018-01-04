@@ -5,8 +5,8 @@ import os
 import signal
 import time
 import codecs
-import json
 import copy
+import simplejson as json
 from functools import reduce
 from .config import *
 from . import functions, xlsxtool, xlsxError
@@ -474,7 +474,7 @@ class xlsx2py:
             if mainName.endswith(".py"):
                 mainName = mainName[:-3]
             jsonhandle = codecs.open(mainName + "." + dataName + ".json", "w+", 'utf-8')
-            s = json.dumps(datas)
+            s = json.dumps(datas, sort_keys=True)
             jsonhandle.write("{%s}" % (s[1:-1]))
             jsonhandle.close()
 

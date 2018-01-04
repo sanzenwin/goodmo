@@ -1,6 +1,6 @@
 __third_package__ = (
     "xlrd", "tornado", "yapf", "aioredis==0.3.5", "redis", "pymongo==3.5.0", "pymysql", "motor==1.1", "dicttoxml",
-    "oscrypto"
+    "oscrypto", "simplejson"
 )
 
 __kbengine_xml_default__ = dict(

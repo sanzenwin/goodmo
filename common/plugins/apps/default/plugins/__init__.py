@@ -1,7 +1,7 @@
 import os
-import json
 import shutil
 import settings
+import simplejson as json
 from collections import OrderedDict
 from plugins.conf import Str
 
@@ -62,4 +62,5 @@ def completed(plugins, _):
         path_list = name.split(".")[:-1]
         for i, path in enumerate(path_list):
             d = d.setdefault(path, {} if i != len(path_list) - 1 else name)
-    plugins.write("var resData = %s;" % json.dumps(data, indent=1), os.path.join(client_data, "data.js"))
+    plugins.write("var resData = %s;" % json.dumps(data, indent=1, sort_keys=True),
+                  os.path.join(client_data, "data.js"))
