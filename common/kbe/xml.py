@@ -17,7 +17,12 @@ if KBEngine.component == "bots":
         return ""
 
 
+    def publish():
+        return settings_kbengine.publish.state.value
+
+
     KBEngine.getResFullPath = getResFullPath
+    KBEngine.publish = publish
 
 
 class Node:
