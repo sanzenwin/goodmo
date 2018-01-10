@@ -91,6 +91,14 @@ robotManager = RobotManager()
 class Robot:
     stop = object()
 
+    class Proxy:
+        def __getitem__(self, item):
+            return self.proxy
+
+        @staticmethod
+        def proxy(*args, **kwargs):
+            pass
+
     def __init__(self):
         self.index = 0
         self.data = None
@@ -98,7 +106,10 @@ class Robot:
         self.forever = {}
 
     def __getattr__(self, item):
-        return getattr(self.entity(), item)
+        entity = self.entity()
+        if entity is None:
+            return self.Proxy()
+        return getattr(entity, item)
 
     def isValid(self):
         return bool(self.entity())
