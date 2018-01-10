@@ -102,8 +102,10 @@ ENV/
 /shell/
 !/shell/safe_kill.cmd
 !/shell/kill_server.cmd
+!/shell/kill_bots.cmd
 !/shell/guiconsole.cmd
 !/shell/kill_server.sh
+!/shell/kill_bots.sh
 !/shell/safe_kill.sh
 !/shell/start_plugins.sh
 !/shell/start_plugins_install_package.sh
