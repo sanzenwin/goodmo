@@ -30,6 +30,7 @@ class TEvent(DictType):
 class DefaultType:
     Type.BOOL(Type.UINT8)
     Type.TIME_STAMP(Type.UINT64)
+    Type.URL(Type.UNICODE)
     Type.GOLD(Type.UINT32)
     Type.GOLD64(Type.UINT64)
     Type.GOLD_X(Type.UINT64) if settings.Avatar.gold64 else Type.GOLD_X(Type.UINT32)
