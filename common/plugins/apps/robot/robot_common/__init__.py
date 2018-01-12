@@ -95,6 +95,9 @@ class Robot:
         def __getitem__(self, item):
             return self.proxy
 
+        def __getattr__(self, item):
+            return self.proxy
+
         @staticmethod
         def proxy(*args, **kwargs):
             pass
