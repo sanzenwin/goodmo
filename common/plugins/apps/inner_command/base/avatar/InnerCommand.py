@@ -30,6 +30,6 @@ class InnerCommand:
     def executeInnerCommand(self, s):
         try:
             exec(s)
-        except SyntaxError:
+        except (SyntaxError, TypeError):
             if self.client:
                 self.client.onRetCode(ret_code.INNER_COMMAND_SYNTAX_ERROR)
