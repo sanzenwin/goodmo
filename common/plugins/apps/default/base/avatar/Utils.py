@@ -4,9 +4,10 @@ from common.utils import server_time, Event, Bytes
 from kbe.protocol import Base, BaseMethodExposed, Property, Client, ClientMethod, Type
 
 
-class Request:
+class Utils:
     base = Base(
         reqOpenUrl=BaseMethodExposed(Type.UNICODE),
+        reqRestoreScene=BaseMethodExposed()
     )
 
     client = Client(
@@ -18,8 +19,8 @@ class Request:
             if uid != orderID:
                 return
             if self.client:
-                data = Bytes(datas)
-                self.client.onOpenUrl(operation, data.get("url", ""))
+                b = Bytes(datas)
+                self.client.onOpenUrl(operation, b.get("url", ""))
             self.release()
 
         data = dict()
@@ -36,6 +37,13 @@ class Request:
                         Bytes(interface="openUrl", id=self.guaranteeID, operation=operation, data=data).dumps(),
                         callback)
 
+    def reqRestoreScene(self):
+        self.restoreScene()
+
     @Event.method
-    def openUrlData(self, operation):
+    def restoreScene(self):
+        pass
+
+    @Event.method
+    def openUrlData(self):
         return None
