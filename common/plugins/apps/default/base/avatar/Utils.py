@@ -45,5 +45,5 @@ class Utils:
         pass
 
     @Event.method
-    def openUrlData(self):
+    def openUrlData(self, operation):
         return None
