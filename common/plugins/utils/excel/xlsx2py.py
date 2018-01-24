@@ -367,7 +367,7 @@ class xlsx2py:
                                                  (self.tempKeys.index(cellData['v']) + 3, cellData['pos'][1]),
                                                  cellData['v']))
 
-        ###############export to  py部分######################
+            ###############export to  py部分######################
 
     def exportSheet(self):
         """
@@ -465,7 +465,8 @@ class xlsx2py:
         if "globalDefs" in self.g_fdatas:
             self.xlsxWrite(self.g_fdatas["globalDefs"])
 
-        for dataName, datas in self.g_dctDatas.items():
+        for dataName in sorted(self.g_dctDatas):
+            datas = self.g_dctDatas[dataName]
             stream = dataName + "="
             # stream += xlsxtool.dict_to_text(datas) + "\n"
             stream += "%s\n" % (datas)
@@ -495,12 +496,17 @@ class xlsx2py:
                 self.g_fdatas["allDataDefs"] = allDataDefs
 
         stream = "\ndata_map = {\n"
+        for dataName in sorted(self.g_dctDatas):
+            stream += '    "{0}": {0},\n'.format(dataName)
+        stream += "}\n"
+
+        stream += "\nsheet_map = {\n"
         for dataName, indexList in self.sheet2Data.items():
             for index in indexList:
                 SheetName = self.xbook.getSheetNameByIndex(index)
                 sheetName = SheetName[SheetName.find(EXPORT_PREFIX_CHAR) + 1:]
                 stream += "    '" + sheetName
-                stream += "':"
+                stream += "': "
                 stream += dataName
                 stream += ",\n"
 

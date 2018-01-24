@@ -17,6 +17,9 @@ class BaseApp(KBEngine.Base, TimerProxy):
     instance = None
     completedSet = set()
 
+    pendingGlobalDataList = []
+    pendingGlobalDataDelList = []
+
     @classmethod
     def checkType(cls, obj):
         return isinstance(obj, KBEngine.Base) or obj.__class__.__name__ == "EntityMailbox"
@@ -28,6 +31,13 @@ class BaseApp(KBEngine.Base, TimerProxy):
                                                                   globalIndex=int(os.getenv("KBE_BOOTIDX_GLOBAL"))))
         cls.instance.init()
         baseapp_ready.send(cls.instance)
+
+        for d in cls.pendingGlobalDataList:
+            global_data_change.send(cls.instance, **d)
+        for d in cls.pendingGlobalDataDelList:
+            global_data_del.send(cls.instance, **d)
+        cls.pendingGlobalDataList = []
+        cls.pendingGlobalDataDelList = []
 
     @classmethod
     def onReadyForLogin(cls):
@@ -62,11 +72,17 @@ class BaseApp(KBEngine.Base, TimerProxy):
 
     @classmethod
     def onGlobalData(cls, key, value):
-        global_data_change.send(cls.instance, key=key, value=value)
+        if cls.instance is None:
+            cls.pendingGlobalDataList.append(dict(key=key, value=value))
+        else:
+            global_data_change.send(cls.instance, key=key, value=value)
 
     @classmethod
     def onGlobalDataDel(cls, key):
-        global_data_del.send(cls.instance, key=key)
+        if cls.instance is None:
+            cls.pendingGlobalDataDelList.append(dict(key=key))
+        else:
+            global_data_del.send(cls.instance, key=key)
 
     @classmethod
     def onGlobalBases(cls, key, value):
