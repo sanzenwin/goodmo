@@ -50,6 +50,6 @@ class Data:
     def modifySteadyData(self, method, key, value=None):
         getattr(self.steadyData, method)(key, value)
 
-    def modifyDateData(self, t, method, key, value, expired=None):
+    def modifyDateData(self, t, method, key, value=None, expired=None):
         obj = getattr(self, "%sData" % t)
         getattr(obj, method)(key, value, expired)
