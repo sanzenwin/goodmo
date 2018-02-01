@@ -8,7 +8,7 @@ from common.dispatcher import receiver
 from kbe.utils import DatabaseBaseMixin, TimerProxy
 from kbe.core import Equalization as Equalization_
 from kbe.protocol import Type, Base, BaseMethod
-from kbe.signals import baseapp_ready, global_data_change, global_data_del
+from kbe.signals import baseapp_ready, global_data_change, global_data_del, entity_auto_load_completed
 from kbe.log import ERROR_MSG
 
 
@@ -123,6 +123,7 @@ class Equalization(KBEngine.Base, TimerProxy):
     def onAutoLoadedCompleted(self):
         del KBEngine.globalData["EqualizationEntity"]
         KBEngine.BaseApp.onGlobalDataDel("EqualizationEntity")
+        entity_auto_load_completed.send(self)
         self.destroy()
 
 

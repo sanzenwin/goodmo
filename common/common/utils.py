@@ -22,6 +22,9 @@ class ServerTime:
     def set_cursor(self, cursor):
         self.cursor = cursor  # microseconds
 
+    def set_date(self, to):
+        self.cursor = int((to - self.genesis).total_seconds() * 1000)
+
     def reset(self):
         self.set_cursor(0.0)
 

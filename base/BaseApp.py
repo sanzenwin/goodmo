@@ -113,5 +113,9 @@ class BaseApp(KBEngine.Base, TimerProxy):
         if settings.Global.enableAsyncio:
             self.addTimerProxy(gameTimeInterval, asyncio_loop.run_frame, gameTimeInterval)
 
+    @classmethod
+    def isCompleted(cls):
+        return bool(cls.instance)
+
 
 KBEngine.BaseApp = BaseApp
