@@ -187,7 +187,7 @@ class ObjectOfBase(Object):
 
 
 class EntityOfBase(ObjectOfBase):
-    types = (KBEngine.Base, KBEngine.Proxy)
+    types = (KBEngine.Entity, KBEngine.Proxy)
     is_entity = True
 
     def parent(self):

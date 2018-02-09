@@ -40,7 +40,7 @@ class Guarantee:
                 self.writeToDB(callback)
             else:
                 self.destroy()
-        guarantee = KBEngine.createBaseLocally('Guarantee', {})
+        guarantee = KBEngine.createEntityLocally('Guarantee', {})
         if guarantee:
             guarantee.writeToDB(callback)
         else:

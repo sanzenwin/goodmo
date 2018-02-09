@@ -53,7 +53,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
             avatar_quick_login.send(self)
             self.onQuickLogin()
 
-    def onEntitiesEnabled(self):
+    def onClientEnabled(self):
         self.client.onServerTime(server_time.stamp())
         if self.isReqReady():
             self.onReqReady()

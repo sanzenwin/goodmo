@@ -6,7 +6,7 @@ from kbe.core import Equalization
 from kbe.protocol import Property, Type
 
 
-class Guarantee(KBEngine.Base, TimerProxy):
+class Guarantee(KBEngine.Entity, TimerProxy):
     callList = Property(
         Type=Type.CALL.array,
         Flags=Property.Flags.BASE,

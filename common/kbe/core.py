@@ -109,7 +109,7 @@ class Equalization(metaclass=MetaOfEqualization):
         for i in range(index - 1, len(paths), settings.BaseApp.equalizationBaseappAmount):
             path = paths[i]
             # print(path)
-            KBEngine.createBaseLocally(path[0], dict(equalizationPath=path[1:]))
+            KBEngine.createEntityLocally(path[0], dict(equalizationPath=path[1:]))
 
     @classmethod
     def loadEntities(cls, success):

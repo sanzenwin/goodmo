@@ -37,7 +37,7 @@ class Account(KBEngine.Proxy):
     )
 
     activeAvatar = Property(
-        Type=Type.MAILBOX,
+        Type=Type.ENTITYCALL,
         Flags=Property.Flags.BASE,
         Persistent=Property.Persistent.true
     )
@@ -87,7 +87,7 @@ class Account(KBEngine.Proxy):
         newbieData["name"] = prefix + str(len(self.avatars) + 1) + str(
             self.databaseID + settings.Avatar.nameIndexRadix)
         avatar_newbie.send(self, newbieData=newbieData)
-        avatar = KBEngine.createBaseLocally('Avatar', newbieData)
+        avatar = KBEngine.createEntityLocally('Avatar', newbieData)
         if avatar:
             avatar.writeToDB(self.__onAvatarSaved)
 
@@ -105,7 +105,7 @@ class Account(KBEngine.Proxy):
             for avatar in self.avatars:
                 if avatar.dbid == dbid:
                     self.lastSelectAvatar = dbid
-                    KBEngine.createBaseFromDBID("Avatar", dbid, self.__onAvatarLoaded)
+                    KBEngine.createEntityFromDBID("Avatar", dbid, self.__onAvatarLoaded)
                     break
             else:
                 ERROR_MSG("Account[%i]::reqSelectAvatar: not found dbid(%i)" % (self.id, dbid))

@@ -4,9 +4,9 @@ from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.protocol import Type, Base, BaseMethod
 
 
-class PlayerManager(KBEngine.Base):
+class PlayerManager(KBEngine.Entity):
     base = Base(
-        addPlayer=BaseMethod(Type.DBID, Type.MAILBOX),
+        addPlayer=BaseMethod(Type.DBID, Type.ENTITYCALL),
         removePlayer=BaseMethod(Type.DBID),
         run=BaseMethod(Type.DBID, Type.CALL.array),
         runOnline=BaseMethod(Type.DBID, Type.CALL.array),
@@ -95,7 +95,7 @@ class PlayerManager(KBEngine.Base):
             else:
                 guarantee.run(self.players.get(guarantee.databaseID), self.products.pop(guarantee.databaseID))
 
-        KBEngine.createBaseFromDBID('Guarantee', guaranteeID, callback)
+        KBEngine.createEntityFromDBID('Guarantee', guaranteeID, callback)
 
 
 class RunException(Exception):

@@ -116,7 +116,7 @@ class Type(object, metaclass=MetaOfType):
     PY_DICT = X()
     PY_TUPLE = X()
     PY_LIST = X()
-    MAILBOX = X()
+    ENTITYCALL = X()
     BLOB = X()
 
     @classmethod

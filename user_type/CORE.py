@@ -87,7 +87,7 @@ class MetaOfDictType(type):
         PY_DICT=dict(),
         PY_TUPLE=tuple(),
         PY_LIST=list(),
-        MAILBOX=None,
+        ENTITYCALL=None,
         BLOB=""
     )
 

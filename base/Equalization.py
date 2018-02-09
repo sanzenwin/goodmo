@@ -12,9 +12,9 @@ from kbe.signals import baseapp_ready, global_data_change, global_data_del, enti
 from kbe.log import ERROR_MSG
 
 
-class Equalization(KBEngine.Base, TimerProxy):
+class Equalization(KBEngine.Entity, TimerProxy):
     base = Base(
-        addEntity=BaseMethod(Type.UNICODE, Type.PY_LIST, Type.MAILBOX),
+        addEntity=BaseMethod(Type.UNICODE, Type.PY_LIST, Type.ENTITYCALL),
         addAutoLoaded=BaseMethod(Type.UNICODE, Type.DBID),
     )
 
@@ -25,7 +25,7 @@ class Equalization(KBEngine.Base, TimerProxy):
                 KBEngine.globalData["EqualizationEntity"].addEntity(self.__class__.__name__, self.equalizationPath,
                                                                     self)
 
-    class DatabaseBase(KBEngine.Base, DatabaseBaseMixin):
+    class DatabaseBase(KBEngine.Entity, DatabaseBaseMixin):
         def writeToDB(self, callback=None, shouldAutoLoad=False):
             super().writeToDB(callback, False, self.dbInterfaceName)
 
@@ -48,7 +48,7 @@ class Equalization(KBEngine.Base, TimerProxy):
             v = getattr(settings, name, None)
             mm = importlib.import_module(name)
             ec = getattr(mm, name)
-            if not issubclass(ec, KBEngine.Base):
+            if not issubclass(ec, KBEngine.Entity):
                 continue
             n = (getattr(v, "database", None) if v else None) or "default"
             if v:
@@ -65,7 +65,7 @@ class Equalization(KBEngine.Base, TimerProxy):
     #         try:
     #             module = importlib.import_module(name)
     #             entityClass = getattr(module, name)
-    #             if not issubclass(entityClass, KBEngine.Base):
+    #             if not issubclass(entityClass, KBEngine.Entity):
     #                 continue
     #             dbInterfaceName = getattr(v, "database", None) or "default"
     #             setattr(v, "database", dbInterfaceName)
@@ -130,7 +130,7 @@ class Equalization(KBEngine.Base, TimerProxy):
 @receiver(baseapp_ready)
 def baseappReady(signal, sender):
     if sender.groupIndex == 1:
-        KBEngine.createBaseLocally('Equalization', dict())
+        KBEngine.createEntityLocally('Equalization', dict())
 
 
 @receiver(global_data_change)
@@ -151,7 +151,7 @@ def equalization_change(signal, sender, key, value):
         need_created = []
         for name, idList in Equalization_.autoLoadedIDMap.items():
             for i in range(index - 1, len(idList), settings.BaseApp.equalizationBaseappAmount):
-                KBEngine.createBaseFromDBID(name, idList[i], partial(callback, name))
+                KBEngine.createEntityFromDBID(name, idList[i], partial(callback, name))
             if not idList:
                 if settings.get(name).autoLoadedOrCreate:
                     need_created.append(name)
@@ -160,7 +160,7 @@ def equalization_change(signal, sender, key, value):
 
         for i in range(index - 1, len(need_created), settings.BaseApp.equalizationBaseappAmount):
             name = need_created[i]
-            KBEngine.createBaseLocally(name, dict())
+            KBEngine.createEntityLocally(name, dict())
             KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
 
         if not Equalization_.autoLoadedIDMap and sender.groupIndex == 1:

@@ -10,7 +10,7 @@ from kbe.signals import baseapp_ready, global_data_change, global_data_del
 from kbe.log import ERROR_MSG
 
 
-class BaseApp(KBEngine.Base, TimerProxy):
+class BaseApp(KBEngine.Entity, TimerProxy):
     readyStamp = None
     notReadyTimeStamp = 0
 
@@ -22,12 +22,12 @@ class BaseApp(KBEngine.Base, TimerProxy):
 
     @classmethod
     def checkType(cls, obj):
-        return isinstance(obj, KBEngine.Base) or obj.__class__.__name__ == "EntityMailbox"
+        return isinstance(obj, KBEngine.Entity) or obj.__class__.__name__ == "EntityMailbox"
 
     @classmethod
     def onBaseAppReady(cls):
         cls.readyStamp = server_time.stamp()
-        cls.instance = KBEngine.createBaseLocally('BaseApp', dict(groupIndex=int(os.getenv("KBE_BOOTIDX_GROUP")),
+        cls.instance = KBEngine.createEntityLocally('BaseApp', dict(groupIndex=int(os.getenv("KBE_BOOTIDX_GROUP")),
                                                                   globalIndex=int(os.getenv("KBE_BOOTIDX_GLOBAL"))))
         cls.instance.init()
         baseapp_ready.send(cls.instance)
