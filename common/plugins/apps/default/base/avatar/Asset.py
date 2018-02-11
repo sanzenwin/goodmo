@@ -5,7 +5,7 @@ from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodE
 from common.utils import Bytes
 from common.dispatcher import receiver
 from kbe.utils import LockAsset
-from default.signals import avatar_common_login, avatar_consume
+from default.signals import avatar_login, avatar_consume
 from CORE import python_client
 
 
@@ -83,6 +83,11 @@ class Asset(LockAsset("gold")):
         self.onModifyAttr("name", changed, name)
 
 
-@receiver(avatar_common_login)
+@receiver(avatar_login)
 def login(signal, avatar):
-    avatar.syncData()
+    data = Bytes(avatar.accountEntity.getClientDatas()[0])
+    consume_data = data.get("consume_data")
+    if consume_data:
+        data_list = data.get("x")
+        if data_list:
+            avatar.consumeData(data_list)
