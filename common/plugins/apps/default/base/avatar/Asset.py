@@ -85,7 +85,7 @@ class Asset(LockAsset("gold")):
 
 @receiver(avatar_login)
 def login(signal, avatar):
-    data = Bytes(avatar.accountEntity.getClientDatas()[0])
+    data = Bytes(avatar.getClientDatas()[0])
     consume_data = data.get("consume_data")
     if consume_data:
         data_list = data.get("x")
