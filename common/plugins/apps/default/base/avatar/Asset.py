@@ -5,7 +5,7 @@ from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodE
 from common.utils import Bytes
 from common.dispatcher import receiver
 from kbe.utils import LockAsset
-from default.signals import avatar_login, avatar_consume
+from default.signals import avatar_common_login, avatar_consume
 from CORE import python_client
 
 
@@ -38,6 +38,10 @@ class Asset(LockAsset("gold")):
         Flags=Property.Flags.BASE_AND_CLIENT,
         Persistent=Property.Persistent.true
     )
+
+    def __init__(self):
+        super().__init__()
+        self.transactionSet = set()
 
     def reqSyncData(self):
         self.syncData()
@@ -83,11 +87,18 @@ class Asset(LockAsset("gold")):
         self.onModifyAttr("name", changed, name)
 
 
-@receiver(avatar_login)
+@receiver(avatar_common_login)
 def login(signal, avatar):
     data = Bytes(avatar.getClientDatas()[0])
     consume_data = data.get("consume_data")
     if consume_data:
         data_list = consume_data.get("x")
         if data_list:
-            avatar.consumeData(data_list)
+            d_list = []
+            for d in data_list:
+                transaction_id = d["transaction_id"]
+                if transaction_id not in avatar.transactionSet:
+                    avatar.transactionSet.add(transaction_id)
+                    d_list.append(d)
+            if d_list:
+                avatar.consumeData(d_list)
