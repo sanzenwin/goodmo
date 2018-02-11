@@ -182,7 +182,7 @@ class Singleton(metaclass=MetaOfSingleton):
     @classmethod
     def add(cls, obj):
         name = obj.__class__.__name__
-        assert cls.getKey(name) not in KBEngine.globalData
+        assert cls.getKey(name) not in KBEngine.globalData, "[%s], [%s] is in global data." % (name, cls.getKey(name))
         KBEngine.globalData[cls.getKey(name)] = obj
 
     @classmethod

@@ -88,6 +88,6 @@ def login(signal, avatar):
     data = Bytes(avatar.getClientDatas()[0])
     consume_data = data.get("consume_data")
     if consume_data:
-        data_list = data.get("x")
+        data_list = consume_data.get("x")
         if data_list:
             avatar.consumeData(data_list)
