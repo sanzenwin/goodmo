@@ -96,9 +96,9 @@ def login(signal, avatar):
         if data_list:
             d_list = []
             for d in data_list:
-                transaction_id = d["transaction_id"]
-                if transaction_id not in avatar.transactionSet:
-                    avatar.transactionSet.add(transaction_id)
+                transaction = "%s:%s" % (d["pay_type"], d["transaction_id"])
+                if transaction not in avatar.transactionSet:
+                    avatar.transactionSet.add(transaction)
                     d_list.append(d)
             if d_list:
                 avatar.consumeData(d_list)
