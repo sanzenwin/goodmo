@@ -4,8 +4,22 @@ from kbe.protocol import Type
 from CORE import DictType
 
 
+class DefaultType:
+    Type.DBID(Type.UINT64)
+    Type.BOOL(Type.UINT8)
+    Type.TIME_STAMP(Type.UINT64)
+    Type.URL(Type.UNICODE)
+    Type.GOLD(Type.UINT32)
+    Type.GOLD64(Type.UINT64)
+    Type.GOLD_X(Type.UINT64) if settings.Avatar.gold64 else Type.GOLD_X(Type.UINT32)
+
+
+class TAvatar(DictType):
+    properties_type = dict(dbid=Type.DBID, entity=Type.ENTITYCALL)
+
+
 class TAvatarInfo(DictType):
-    properties_type = dict(dbid=Type.DBID(Type.UINT64), name=Type.UNICODE)
+    properties_type = dict(dbid=Type.DBID, name=Type.UNICODE)
 
 
 class TCall(DictType):
@@ -25,12 +39,3 @@ class TEvent(DictType):
     @classmethod
     def pkg(cls, func, *args):
         return cls(func=func, args=args).client
-
-
-class DefaultType:
-    Type.BOOL(Type.UINT8)
-    Type.TIME_STAMP(Type.UINT64)
-    Type.URL(Type.UNICODE)
-    Type.GOLD(Type.UINT32)
-    Type.GOLD64(Type.UINT64)
-    Type.GOLD_X(Type.UINT64) if settings.Avatar.gold64 else Type.GOLD_X(Type.UINT32)
