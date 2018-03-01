@@ -7,10 +7,9 @@ class Robot:
         robDisconnect=BaseMethodExposed()
     )
 
-    def __init__(self):
-        super().__init__()
+    def onLogin(self):
         if self.isRobot():
-            settings.Robot.init(self)
+            settings.Robot.onLogin(self)
 
     def robDisconnect(self):
         self.disconnect()

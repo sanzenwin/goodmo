@@ -5,7 +5,7 @@ class Robot(SettingsNode):
     totalTime = 1
     tickCount = 10
 
-    def init(self, avatar):
+    def onLogin(self, avatar):
         pass
 
     def mongodb(self):
