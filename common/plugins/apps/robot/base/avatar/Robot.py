@@ -1,3 +1,4 @@
+import settings
 from kbe.protocol import Type, Property, Client, ClientMethod, Base, BaseMethodExposed
 
 
@@ -5,6 +6,11 @@ class Robot:
     base = Base(
         robDisconnect=BaseMethodExposed()
     )
+
+    def __init__(self):
+        super().__init__()
+        if self.isRobot():
+            settings.Robot.init(self)
 
     def robDisconnect(self):
         self.disconnect()
