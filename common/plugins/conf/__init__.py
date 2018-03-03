@@ -70,8 +70,13 @@ class EqualizationMixin:
         raise NotImplementedError("subclass[%s] should implement this method!" % self.__class__.__name__)
 
     def init_equalization_format(self):
-        item = self.equalization_list()[0]
-        self.equalization_format = self.__class__.__name__ + "_" + "_".join(["%s"] * len(item))
+        equalization_list = self.equalization_list()
+        if equalization_list:
+            item = self.equalization_list()[0]
+            amount = len(item)
+        else:
+            amount = 0
+        self.equalization_format = self.__class__.__name__ + "_" + "_".join(["%s"] * amount)
 
 
 class Str(str):
