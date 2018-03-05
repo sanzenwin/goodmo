@@ -2,6 +2,7 @@ import os
 import sys
 import re
 import codecs
+import pymysql
 import KBEngine
 from copy import deepcopy
 from importlib import import_module
@@ -577,6 +578,24 @@ class %(cls_name)s(%(cls_name)sBase):
         s = xml.dict2xml(data)
         self.write(s, self.RES_SERVER_DIR, "kbengine.xml")
 
+    def init__database(self):
+        for _, database in self.xml_config["dbmgr"]["databaseInterfaces"].items():
+            try:
+                conn = pymysql.connect(host=database["host"],
+                                       port=database["port"],
+                                       user=database["auth"]["username"],
+                                       passwd=database["auth"]["password"],
+                                       db=database["databaseName"],
+                                       charset='utf8')
+            except pymysql.err.InternalError:
+                pass
+            else:
+                cursor = conn.cursor()
+                cursor.execute("delete from kbe_entitylog")
+                conn.commit()
+                cursor.close()
+                conn.close()
+
     def init__shell(self):
         settings = import_module("settings")
         bc = settings.BaseApp.equalizationBaseappAmount + len(settings.BaseApp.multi["baseappIndependence"].dict)
@@ -666,6 +685,7 @@ class %(cls_name)s(%(cls_name)sBase):
         self.init__apps_completed()
         self.init__rsa()
         self.init__xml_config()
+        self.init__database()
         self.init__shell()
         self.completed()
 
