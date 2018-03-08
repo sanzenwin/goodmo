@@ -106,7 +106,8 @@ class Robot:
         self.index = 0
         self.data = None
         self.entity = None
-        self.forever = {}
+        self.__forever__ = {}
+        self.__timer__ = {}
 
     def __getattr__(self, item):
         entity = self.entity()
@@ -131,40 +132,53 @@ class Robot:
                 itertools.chain(*[client.entities.values() for client in KBEngine.bots.values()])}
 
     def addTimerProxy(self, time, callback):
-        return KBEngine.callback(time, callback)
+        def proxy():
+            callback()
+            del self.__timer__[timerID]
+
+        timerID = KBEngine.callback(time, proxy)
+        self.__timer__[timerID] = callback
+        return timerID
 
     def delTimerProxy(self, timerID):
+        self.__timer__.pop(timerID, None)
         KBEngine.cancelCallback(timerID)
 
-    def runForever(self, offset, callback):
+    def getTimerProxy(self, callback):
+        return next((tid for tid, call in self.__timer__.items() if call == callback), None)
+
+    def foreverRun(self, offset, callback):
         def run():
-            if self.forever.get(callback.__name__) is self.stop:
-                del self.forever[callback.__name__]
-            assert callback.__name__ not in self.forever, "duplicate callback %s" % callback.__name__
-            self.forever[callback.__name__] = self.addTimerProxy(offset, proxy)
+            if self.__forever__.get(callback.__name__) is self.stop:
+                del self.__forever__[callback.__name__]
+            assert callback.__name__ not in self.__forever__, "duplicate callback %s" % callback.__name__
+            self.__forever__[callback.__name__] = KBEngine.callback(offset, proxy)
 
         def proxy():
-            del self.forever[callback.__name__]
+            del self.__forever__[callback.__name__]
             callback()
-            if self.forever.get(callback.__name__) is not self.stop:
+            if self.__forever__.get(callback.__name__) is not self.stop:
                 run()
 
         run()
 
-    def killRun(self, callback):
+    def killForeverRun(self, callback):
         callback = callback if isinstance(callback, str) else callback.__name__
-        timerID = self.forever.pop(callback, None)
-        self.forever[callback] = self.stop
+        timerID = self.__forever__.pop(callback, None)
+        self.__forever__[callback] = self.stop
         if timerID is None:
             return False
         KBEngine.cancelCallback(timerID)
         return True
 
+    def getForeverRun(self, callback):
+        return self.__forever__.get(callback.__name__)
+
 
 @factory("default")
 class RobotDefault(Robot):
     def onStart(self):
-        self.runForever(1, self.base.robDisconnect)
+        self.foreverRun(1, self.base.robDisconnect)
 
 
 class RobotFactory(Robot):
@@ -178,7 +192,7 @@ class RobotFactory(Robot):
         asyncio.async(pushAddBots_generation(key, c, count, data or dict()))
 
     def onStart(self):
-        self.runForever(settings.Global.gameTimeInterval * 2, self.onCheckCommond)
+        self.foreverRun(settings.Global.gameTimeInterval * 2, self.onCheckCommond)
 
     def onCheckCommond(self):
         def callback(data):

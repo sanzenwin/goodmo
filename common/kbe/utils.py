@@ -12,7 +12,7 @@ class TimerProxy:
         self.__timer__ = {}
 
     def getTimerProxy(self, callback):
-        return next((tid for tid, (_, call) in self.__timer__.items() if call is callback), None)
+        return next((tid for tid, (_, call) in self.__timer__.items() if call == callback), None)
 
     def addTimerProxy(self, initialOffset, callback, repeatOffset=0):
         timerID = self.addTimer(initialOffset, repeatOffset, self.DEFAULT_TIMER_ID)

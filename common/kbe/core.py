@@ -70,6 +70,15 @@ class Equalization(metaclass=MetaOfEqualization):
         def __getattr__(self, item):
             return self.AllProxy(self.entity).real(item)
 
+        def list(self):
+            result = []
+            for keys in self.entity.equalization_list():
+                path = self.entity.equalization(*keys)
+                key = self.entity.equalization_format % tuple(path)
+                obj = KBEngine.globalData["Equalization"].get(key, None)
+                result.append(obj)
+            return result
+
         def path(self, *keys):
             return self.entity.equalization(*keys)
 
