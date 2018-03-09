@@ -67,21 +67,6 @@ class Account(KBEngine.Proxy):
             DEBUG_MSG("Account[%i].reqCreateAvatar: character=%s.\n" % (self.id, self.avatars))
             self.client.onRetCode(ret_code.ACCOUNT_CREATE_AVATAR_TOP_LIMIT)
             return
-        # 根据前端类别给出出生点
-        # Reference: http://www.kbengine.org/docs/programming/clientsdkprogramming.html, client types
-        # UNKNOWN_CLIENT_COMPONENT_TYPE	= 0,
-        # CLIENT_TYPE_MOBILE				= 1,	// 手机类
-        # CLIENT_TYPE_WIN					= 2,	// pc， 一般都是exe客户端
-        # CLIENT_TYPE_LINUX				= 3		// Linux Application program
-        # CLIENT_TYPE_MAC					= 4		// Mac Application program
-        # CLIENT_TYPE_BROWSER				= 5,	// web应用， html5，flash
-        # CLIENT_TYPE_BOTS				= 6,	// bots
-        # CLIENT_TYPE_MINI				= 7,	// 微型客户端
-
-        # 机器人登陆
-        # if self.getClientType() == 6:
-        #     pass
-        # prefix = settings_kbengine.bots.account_infos.account_name_prefix.value if self.getClientType() == 6 else settings.Avatar.namePrefix
         prefix = settings.Avatar.namePrefix
         newbieData = deepcopy(settings.Avatar.newbieData.dict)
         newbieData["name"] = prefix + str(len(self.avatars) + 1) + str(

@@ -24,6 +24,9 @@ class Player:
     def onLogin(self):
         pass
 
+    def onLogoff(self):
+        pass
+
     def onLogout(self):
         self.needRemove = True
         if self.lifeCount == 1:

@@ -39,6 +39,9 @@ class Config:
                 break
         return data
 
+    def get_default_data(self):
+        return dict(bots=dict(loginAuth=self.new_password(50)))
+
     def get_default_with_telnet(self, cfg, one_password=True):
         password = self.new_password()
         port_start = random.randint(40000, 60000)

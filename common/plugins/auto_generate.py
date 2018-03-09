@@ -560,6 +560,7 @@ class %(cls_name)s(%(cls_name)sBase):
             data_default = config.update_recursive(data_default, d_default)
         default = config.get_default_with_telnet(deepcopy(data_default), settings.Global.telnetOnePassword)
         data = config.update_recursive(data, default)
+        data = config.update_recursive(data, config.get_default_data())
         db_name = "goodmo__%s" % self.uid
         if "uri" in settings.Global.kbengine_xml_mongodb:
             c = dict(host=settings.Global.kbengine_xml_mongodb["uri"])

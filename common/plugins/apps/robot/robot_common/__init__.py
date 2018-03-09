@@ -1,3 +1,4 @@
+import re
 import asyncio
 import types
 import weakref
@@ -91,7 +92,7 @@ robotManager = RobotManager()
 class Robot:
     stop = object()
 
-    class Proxy:
+    class Empty:
         def __getitem__(self, item):
             return self.proxy
 
@@ -101,6 +102,32 @@ class Robot:
         @staticmethod
         def proxy(*args, **kwargs):
             pass
+
+    class Entity:
+        app = ""
+
+        def __init__(self, entity):
+            super().__init__()
+            self.entity = entity
+            self.method = ""
+
+        def __getattr__(self, item):
+            self.method = item
+            return self.proxy
+
+        def proxy(self, *args):
+            if self.entity:
+                entity_call = getattr(self.entity, self.app)
+                if re.match("rob[A-Z]", self.method):
+                    entity_call.reqRobProtocol([self.method] + list(args))
+                else:
+                    getattr(entity_call, self.method)(*args)
+
+    class Base(Entity):
+        app = "base"
+
+    class Cell(Entity):
+        app = "cell"
 
     def __init__(self):
         self.index = 0
@@ -112,8 +139,16 @@ class Robot:
     def __getattr__(self, item):
         entity = self.entity()
         if entity is None:
-            return self.Proxy()
+            return self.Empty()
         return getattr(entity, item)
+
+    @property
+    def base(self):
+        return self.Base(self.entity())
+
+    @property
+    def cell(self):
+        return self.Cell(self.entity())
 
     def isValid(self):
         return bool(self.entity())
@@ -122,9 +157,8 @@ class Robot:
         self.index = robotManager.newId()
         self.data = data
         self.entity = weakref.ref(entity)
-        self.onStart()
 
-    def onStart(self):
+    def onLogin(self):
         pass
 
     def getEntities(self):
@@ -177,7 +211,7 @@ class Robot:
 
 @factory("default")
 class RobotDefault(Robot):
-    def onStart(self):
+    def onLogin(self):
         self.foreverRun(1, self.base.robDisconnect)
 
 
@@ -191,7 +225,7 @@ class RobotFactory(Robot):
             return
         asyncio.async(pushAddBots_generation(key, c, count, data or dict()))
 
-    def onStart(self):
+    def onLogin(self):
         self.foreverRun(settings.Global.gameTimeInterval * 2, self.onCheckCommond)
 
     def onCheckCommond(self):

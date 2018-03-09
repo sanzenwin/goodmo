@@ -69,6 +69,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
                 avatar_logout.send(self)
                 self.onLogout()
 
+        self.onLogoff()
         self.destroyTimerID = self.addTimerProxy(settings.Avatar.delayDestroySeconds, callback)
 
     def onModifyAttr(self, key, value, old):
