@@ -32,7 +32,7 @@ class Plugins:
         sys.path = [self.PLUGINS_OUTER_DIR, self.PLUGINS_DIR] + sys.path
         sys.path = [self.PLUGINS_PROXY_COMMON_DIR] + sys.path
         settings = import_module("settings")
-        for name in reversed(settings.install_apps):
+        for name in reversed(settings.installed_apps):
             for path in sys.path:
                 dir_name = os.path.join(path, name)
                 if os.path.isdir(dir_name):
