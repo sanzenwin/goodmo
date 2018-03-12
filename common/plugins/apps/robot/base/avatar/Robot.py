@@ -22,7 +22,7 @@ class Robot:
         if self.getClientType() != 6:
             return
         args = python_server(data, list)
-        if len(args) > 1:
+        if len(args) >= 1:
             req_name = args[0]
             if isinstance(req_name, str) and re.match("rob[A-Z]", req_name):
                 if self.isRobot() or req_name == "robAuth":
