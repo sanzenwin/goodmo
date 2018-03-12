@@ -65,9 +65,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
             self.destroyTimerID = None
             if self.client:
                 return
-            if self.isReqReady():
-                avatar_logout.send(self)
-                self.onLogout()
+            self.logout()
 
         self.onLogoff()
         self.destroyTimerID = self.addTimerProxy(settings.Avatar.delayDestroySeconds, callback)
@@ -80,6 +78,11 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         avatar_modify_multi.send(self, data=data, old=old)
         for key, value in data.items():
             avatar_modify_common.send(self, key=key, value=value, old=old[key])
+
+    def logout(self):
+        if self.isReqReady():
+            avatar_logout.send(self)
+            self.onLogout()
 
     def destroy(self, deleteFromDB=False, writeToDB=True):
         if self.accountEntity:

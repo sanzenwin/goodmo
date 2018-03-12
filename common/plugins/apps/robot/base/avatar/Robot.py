@@ -35,6 +35,8 @@ class Robot:
             self.__robotMark = True
             settings.Robot.onLogin(self)
             self.client.onRobAuth()
+        else:
+            self.logout()
 
     def robDisconnect(self):
         self.disconnect()
