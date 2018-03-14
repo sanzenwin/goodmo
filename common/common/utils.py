@@ -128,10 +128,14 @@ class Event:
             setattr(new_target, func_name, proxy)
 
         event_name_set = set()
+        local_name_set = set()
         for c in target.mro():
             for n, f in c.__dict__.items():
-                if isinstance(f, types.FunctionType) and getattr(f, "__event__", None) is cls:
-                    event_name_set.add(n)
+                if isinstance(f, types.FunctionType):
+                    if getattr(f, "__event__", None) is cls:
+                        event_name_set.add(n)
+                    if getattr(f, "__local__", None) is cls:
+                        local_name_set.add((c.__name__, n))
 
         if not event_name_set:
             return target
@@ -145,6 +149,8 @@ class Event:
         new_target = type(target.__name__, (target,), dict(__event__=event))
         for name in event_name_set:
             bind(name)
+        for cls_name, name in local_name_set:
+            setattr(new_target, "%s__%s" % (cls_name, name), getattr(target, name))
         return new_target
 
     @classmethod
@@ -162,6 +168,10 @@ class Event:
             if isinstance(f, types.FunctionType):
                 setattr(target, n, cls.method(f))
         return target
+
+    @classmethod
+    def local(cls, target):
+        target.__local__ = cls
 
 
 class Container(object, metaclass=Event.Meta):
@@ -351,7 +361,7 @@ class PerformanceWatcher:
         if not self.debug:
             return
         print("\nlog_result: %sms\n" % (
-                (time.monotonic() - self.last_time) / ((self.count - self.last_count) or 1) * 1e3))
+            (time.monotonic() - self.last_time) / ((self.count - self.last_count) or 1) * 1e3))
         self.last_count = self.count
         self.last_time = time.monotonic()
 
