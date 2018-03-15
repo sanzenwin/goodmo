@@ -163,19 +163,48 @@ class Event:
         return target
 
     @classmethod
+    def local(cls, target):
+        target.__local__ = cls
+        return target
+
+    @classmethod
     def interface(cls, target):
         for n, f in target.__dict__.items():
             if isinstance(f, types.FunctionType):
                 setattr(target, n, cls.method(f))
         return target
 
-    @classmethod
-    def local(cls, target):
-        target.__local__ = cls
-
 
 class Container(object, metaclass=Event.Meta):
-    pass
+    class Local:
+        class Class:
+            def __init__(self, entity, item):
+                self.entity = entity
+                self.class_name = item
+                self.method_name = ""
+
+            def __getattr__(self, item):
+                self.method_name = item
+                return self.proxy
+
+            def proxy(self, *args, **kwargs):
+                return getattr(self.entity, "%s__%s" % (self.class_name, self.method_name))
+
+        def __init__(self, entity):
+            self.entity = entity
+
+        def __getitem__(self, item):
+            return self.__get(item)
+
+        def __getattr__(self, item):
+            return self.__get(item)
+
+        def __get(self, item):
+            return self.Class(self.entity, item)
+
+    @property
+    def local(self):
+        return self.Local(self)
 
 
 Event.Container = Container
