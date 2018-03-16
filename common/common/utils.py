@@ -178,6 +178,13 @@ class Event:
 class Container(object, metaclass=Event.Meta):
     class Local:
         class Class:
+            class Empty:
+                def __bool__(self):
+                    return False
+
+                def __call__(self, *args, **kwargs):
+                    pass
+
             def __init__(self, entity, item):
                 self.entity = entity
                 self.class_name = item
@@ -185,10 +192,7 @@ class Container(object, metaclass=Event.Meta):
 
             def __getattr__(self, item):
                 self.method_name = item
-                return self.proxy
-
-            def proxy(self, *args, **kwargs):
-                return getattr(self.entity, "%s__%s" % (self.class_name, self.method_name))
+                return getattr(self.entity, "%s__%s" % (self.class_name, self.method_name), self.Empty())
 
         def __init__(self, entity):
             self.entity = entity
