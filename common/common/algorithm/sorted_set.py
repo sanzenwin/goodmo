@@ -4,7 +4,7 @@ from sortedcontainers import SortedSet
 class SortedSetKey:
     def __init__(self, d):
         self.dict = d
-        self.sorted_set = SortedSet(key=self.__key)
+        self.sorted_set = SortedSet(key=self.get_key)
 
     def __getitem__(self, item):
         return self.sorted_set[item]
@@ -15,7 +15,7 @@ class SortedSetKey:
     def __str__(self):
         return str(self.sorted_set)
 
-    def __key(self, value):
+    def get_key(self, value):
         return self.dict[value]
 
     def values(self):
