@@ -2,8 +2,8 @@ from sortedcontainers import SortedSet
 
 
 class SortedSetKey:
-    def __init__(self, d):
-        self.dict = d
+    def __init__(self):
+        self.dict = dict()
         self.sorted_set = SortedSet(key=self.get_key)
 
     def __getitem__(self, item):
