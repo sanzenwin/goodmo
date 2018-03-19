@@ -14,10 +14,6 @@ class DefaultType:
     Type.GOLD_X(Type.UINT64) if settings.Avatar.gold64 else Type.GOLD_X(Type.UINT32)
 
 
-class TAvatar(DictType):
-    properties_type = dict(dbid=Type.DBID, entity=Type.ENTITYCALL)
-
-
 class TAvatarInfo(DictType):
     properties_type = dict(dbid=Type.DBID, name=Type.UNICODE)
 
@@ -39,3 +35,10 @@ class TEvent(DictType):
     @classmethod
     def pkg(cls, func, *args):
         return cls(func=func, args=args).client
+
+
+class TAvatar(DictType):
+    properties_type = dict(entity=Type.ENTITYCALL)
+
+    def __init__(self, entity):
+        super().__init__(entity=entity)

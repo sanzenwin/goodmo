@@ -259,7 +259,7 @@ class Plugins:
 
     def load_all_module(self, module_name):
         d = {}
-        for name in self.apps:
+        for name in reversed(self.apps):
             md = get_module_all("%s.%s" % (name, module_name))
             if "__ignore__" not in md:
                 d.update(md)

@@ -641,14 +641,14 @@ class %(cls_name)s(%(cls_name)sBase):
                            "%s%s.%s" % (app, "" if i == 0 else i, "sh"))
 
     def run_plugins(self, method):
-        for name in self.apps:
+        for name in reversed(self.apps):
             entry = get_module_attr("%s.plugins.%s" % (name, method))
             if entry:
                 entry(self, name)
 
     def load_all_module(self, module_name):
         d = {}
-        for name in self.apps:
+        for name in reversed(self.apps):
             md = get_module_all("%s.%s" % (name, module_name))
             if "__ignore__" not in md:
                 d.update(md)
