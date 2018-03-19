@@ -2,15 +2,19 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import sys
-from traceback import format_exception as traceback_format_exception
+from traceback import format_exception
 from .formatter import THEME, MAX_LENGTH, PIPE_CHAR, CAP_CHAR, ExceptionFormatter
+from kbe.log import ERROR_MSG
 from better_exceptions.signals import better_exceptions_catch
 
 THEME = THEME.copy()
 
 
 def excepthook(exc, value, tb):
-    better_exceptions_catch.send(exception_format, args=(exc, value, tb))
+    if better_exceptions_catch.has_listeners():
+        better_exceptions_catch.send(exception_format, args=(exc, value, tb))
+    else:
+        ERROR_MSG(exception_format.format_better_exception(exc, value, tb))
 
 
 def hook():
@@ -32,7 +36,7 @@ class Format:
 
     @staticmethod
     def format_normal_exception(exc, value, tb):
-        return traceback_format_exception(exc, value, tb)
+        return "".join(format_exception(exc, value, tb))
 
 
 exception_format = Format()
