@@ -38,7 +38,21 @@ class TEvent(DictType):
 
 
 class TAvatar(DictType):
+    class Client:
+        def __init__(self, avatar):
+            self.avatar = avatar
+
+        def __getattr__(self, item):
+            return getattr(self.avatar.client, item) if self.avatar.client else self.proxy
+
+        def proxy(self, *args):
+            pass
+
     properties_type = dict(entity=Type.ENTITYCALL)
 
     def __init__(self, entity):
         super().__init__(entity=entity)
+
+    @property
+    def client(self):
+        return self.Client(self)

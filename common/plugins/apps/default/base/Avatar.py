@@ -6,8 +6,8 @@ from kbe.utils import TimerProxy
 from interfaces.Ref import Ref
 from default.interfaces.RunObject import RunObject
 from kbe.protocol import Base, BaseMethodExposed, Property, Client, ClientMethod, Type
-from default.signals import avatar_created, avatar_common_login, avatar_quick_login, avatar_login, avatar_logout, \
-    avatar_modify, avatar_modify_multi, avatar_modify_common
+from default.signals import avatar_created, avatar_common_login, avatar_common_login_post, avatar_quick_login, \
+    avatar_login, avatar_logout, avatar_modify, avatar_modify_multi, avatar_modify_common
 
 
 class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
@@ -52,6 +52,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         else:
             avatar_quick_login.send(self)
             self.onQuickLogin()
+        avatar_common_login_post.send(self)
 
     def onClientEnabled(self):
         self.client.onServerTime(server_time.stamp())
