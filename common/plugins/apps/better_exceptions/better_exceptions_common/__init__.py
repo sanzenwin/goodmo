@@ -38,6 +38,10 @@ class Format:
     def format_normal_exception(exc, value, tb):
         return "".join(format_exception(exc, value, tb))
 
+    @staticmethod
+    def get_normal_exception(exc, value, tb):
+        return format_exception(exc, value, tb)
+
 
 exception_format = Format()
 del Format
