@@ -3,7 +3,9 @@ import sys
 import re
 import codecs
 import pymysql
+import shutil
 import KBEngine
+import simplejson as json
 from copy import deepcopy
 from importlib import import_module
 from collections import OrderedDict
@@ -540,6 +542,28 @@ class %(cls_name)s(%(cls_name)sBase):
     def init__apps_completed(self):
         self.run_plugins("completed")
 
+    def init__all_completed(self):
+        client_data = os.path.join(self.DATA_DIR, "client_excel_data")
+        self.clear(client_data)
+        list_name = set()
+        for dirpath, dirnames, filenames in os.walk(self.HOME_DIR):
+            for name in filenames:
+                path = os.path.normpath(os.path.join(dirpath, name))
+                if os.path.isfile(path) and path.endswith(".json"):
+                    if self.EXCEL_DATA_DIR in path:
+                        app_name = path.split(os.sep)[-2]
+                        name = "%s.%s" % (app_name, name)
+                    shutil.move(path, os.path.join(client_data, name))
+                    list_name.add(name)
+        data = {}
+        for name in list_name:
+            d = data
+            path_list = name.split(".")[:-1]
+            for i, path in enumerate(path_list):
+                d = d.setdefault(path, {} if i != len(path_list) - 1 else name)
+        self.write("var resData = %s;" % json.dumps(data, indent=1, sort_keys=True),
+                   os.path.join(client_data, "data.js"))
+
     def init__rsa(self):
         crypto = get_module("oscrypto.asymmetric")
         public_key, private_key = crypto.generate_pair("rsa", 1024)
@@ -684,6 +708,7 @@ class %(cls_name)s(%(cls_name)sBase):
         self.init__user_type()
         self.init__entity()
         self.init__apps_completed()
+        self.init__all_completed()
         self.init__rsa()
         self.init__xml_config()
         self.init__database()
