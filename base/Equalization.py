@@ -57,23 +57,6 @@ class Equalization(KBEngine.Entity, TimerProxy):
             setattr(mm, name, c)
             plugins.plugins.entities[name] = c
 
-    # @classmethod
-    # def databaseAll(cls):
-    #     for name, v in settings.__dict__.items():
-    #         if not isinstance(v, SettingsEntity):
-    #             continue
-    #         try:
-    #             module = importlib.import_module(name)
-    #             entityClass = getattr(module, name)
-    #             if not issubclass(entityClass, KBEngine.Entity):
-    #                 continue
-    #             dbInterfaceName = getattr(v, "database", None) or "default"
-    #             setattr(v, "database", dbInterfaceName)
-    #             setattr(module, name, type(entityClass.__name__, (cls.DatabaseBase, entityClass),
-    #                                        dict(dbInterfaceName=dbInterfaceName)))
-    #         except ImportError:
-    #             pass
-
     @classmethod
     def discover(cls):
         cls.markAll()

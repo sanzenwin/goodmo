@@ -28,7 +28,7 @@ class BaseApp(KBEngine.Entity, TimerProxy):
     def onBaseAppReady(cls):
         cls.readyStamp = server_time.stamp()
         cls.instance = KBEngine.createEntityLocally('BaseApp', dict(groupIndex=int(os.getenv("KBE_BOOTIDX_GROUP")),
-                                                                  globalIndex=int(os.getenv("KBE_BOOTIDX_GLOBAL"))))
+                                                                    globalIndex=int(os.getenv("KBE_BOOTIDX_GLOBAL"))))
         cls.instance.init()
         baseapp_ready.send(cls.instance)
 
