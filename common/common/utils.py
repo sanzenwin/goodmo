@@ -287,6 +287,9 @@ class SteadyData:
     def add(self, key, value=1):
         self.set(key, self.get(key, 0) + value)
 
+    def update(self, data):
+        self.data.update(data)
+
 
 class StampData(SteadyData):
     def __init__(self, data):
@@ -319,6 +322,12 @@ class StampData(SteadyData):
     def add(self, key, value=1, stamp=True):
         self.set(key, self.get(key, 0) + value, stamp)
 
+    def update(self, data, stamp=None):
+        super().update(data)
+        stamp = server_time.stamp() if stamp is None else stamp
+        for key in data:
+            self.__stamp__[key] = stamp
+
 
 class ExpiredData(StampData):
     def __init__(self, data):
@@ -343,6 +352,13 @@ class ExpiredData(StampData):
 
     def add(self, key, value=1, expired=None):
         self.set(key, self.get(key, 0) + value, expired)
+
+    def update(self, data, expired=None):
+        super().update(data, None)
+        has_expired = expired is not None
+        if has_expired:
+            for key in data:
+                self.__expired__[key] = expired
 
 
 class DateDate(StampData):

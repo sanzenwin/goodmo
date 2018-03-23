@@ -10,3 +10,7 @@ class RunObject:
     def run(self, callList):
         for call in callList:
             call(self)
+
+    def modifyRun(self, *args):
+        method, arg = args[0], args[1:]
+        getattr(self, method)(*arg)
