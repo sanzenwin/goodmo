@@ -88,11 +88,7 @@ class TimeIndex:
 
     @property
     def month(self):
-        year = self.year
-        if year == 0:
-            return self.to.month - self.genesis.month
-        else:
-            return year * 12 - self.genesis.month + self.to.month
+        return self.year * 12 - self.genesis.month + self.to.month
 
     @property
     def week(self):
@@ -104,6 +100,20 @@ class TimeIndex:
     def day(self):
         new_date = server_time.make_time(self.genesis.year, self.genesis.month, self.genesis.day)
         return int((self.to - new_date).total_seconds()) // (24 * 60 * 60)
+
+    def from_year_index(self, index):
+        return server_time.stamp(server_time.make_time(self.genesis.year + index))
+
+    def from_month_index(self, index):
+        return server_time.stamp(server_time.make_time(self.genesis.year + index // 12, index % 12))
+
+    def from_week_index(self, index):
+        return int(
+            index * (7 * 24 * 60 * 60 * 1000) - datetime.timedelta(days=self.genesis.weekday()).total_seconds() * 1000)
+
+    def from_day_index(self, index):
+        return index * (24 * 60 * 60 * 1000) + server_time.stamp(
+            server_time.make_time(self.genesis.year, self.genesis.month, self.genesis.day))
 
 
 class Event:

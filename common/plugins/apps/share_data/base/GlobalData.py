@@ -22,7 +22,7 @@ class GlobalData(Singleton_):
     def __init__(self):
         super().__init__()
         self.steadyData = SteadyData(self._steadyData)
-        self.update(self.steadyData)
+        self.update(self.steadyData.data)
 
     def updateSteadyDataRemote(self, data):
         self.steadyData.update(data)
