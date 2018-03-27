@@ -1,3 +1,6 @@
+from collections import OrderedDict
+
+
 class X:
     @classmethod
     def add_type(cls, c):
@@ -147,9 +150,12 @@ class Type(object, metaclass=MetaOfType):
     @classmethod
     def dict_types_str(cls):
         s = ""
+        d = OrderedDict()
         for dict_type in cls.dict_types:
             if dict_type.check_t_type(dict_type):
-                s += '\n' + dict_type.protocol_str()
+                d[dict_type.protocol_name()] = dict_type
+        for dict_type in d.values():
+            s += '\n' + dict_type.protocol_str()
         return s
 
     @classmethod
@@ -248,7 +254,7 @@ class Properties(Union):
         return self.template_whole_str % s if self else ""
 
 
-class MailBox(Union):
+class EntityCall(Union):
     template_method_str = """        <%(name)s>%(args)s
         </%(name)s>"""
     template_whole_str = ""
@@ -323,17 +329,17 @@ class Volatile(dict):
         return self.template_whole_str % s if self else ""
 
 
-class Base(MailBox):
+class Base(EntityCall):
     template_whole_str = """    <BaseMethods>%s
     </BaseMethods>\n\n"""
 
 
-class Cell(MailBox):
+class Cell(EntityCall):
     template_whole_str = """    <CellMethods>%s
     </CellMethods>\n\n"""
 
 
-class Client(MailBox):
+class Client(EntityCall):
     CLIENT_UNKNOWN_COMPONENT_TYPE = 0  # 未知类型
     CLIENT_TYPE_MOBILE = 1  # 手机类
     CLIENT_TYPE_WIN = 2  # pc， 一般都是exe客户端

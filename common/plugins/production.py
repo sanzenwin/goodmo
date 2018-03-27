@@ -47,6 +47,8 @@ class Plugins:
 
     entities = {}
 
+    user_types = OrderedDict()
+
     def get_module_list(self, *path):
         return get_module_list(*path)
 
@@ -191,8 +193,8 @@ class Plugins:
             for m in self.get_module_list(path):
                 if m.upper() == m and m not in user_types:
                     user_types.append(m)
-        for m in user_types:
-            importlib.import_module(m)
+        for m in reversed(user_types):
+            self.user_types[m] = importlib.import_module(m)
         Type.finish_dict_type()
 
     def init__charge(self):
