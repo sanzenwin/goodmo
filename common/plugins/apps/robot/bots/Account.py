@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import KBEngine
-from kbe.log import DEBUG_MSG
 
 
 class Account(KBEngine.Entity):

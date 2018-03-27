@@ -37,22 +37,39 @@ class TEvent(DictType):
         return cls(func=func, args=args).client
 
 
+class AvatarClientProxy:
+    def __init__(self, avatar, method):
+        self.avatar = avatar
+        self.method = method
+
+    def __call__(self, *args):
+        self.call(*args)
+
+    def call(self, *args):
+        pass
+
+
+class AvatarClient:
+    proxy_class = AvatarClientProxy
+
+    def __init__(self, avatar):
+        self.avatar = avatar
+
+    def __getattr__(self, item):
+        return getattr(self.avatar.client, item) if self.avatar.client else self.proxy_class(self.avatar, item)
+
+
 class TAvatar(DictType):
-    class Client:
-        def __init__(self, avatar):
-            self.avatar = avatar
+    properties_type = dict(avatar=Type.ENTITYCALL)
 
-        def __getattr__(self, item):
-            return getattr(self.avatar.client, item) if self.avatar.client else self.proxy
+    client_class = AvatarClient
 
-        def proxy(self, *args):
-            pass
-
-    properties_type = dict(entity=Type.ENTITYCALL)
-
-    def __init__(self, entity):
-        super().__init__(entity=entity)
+    def __init__(self, avatar):
+        super().__init__(avatar=avatar)
 
     @property
     def client(self):
-        return self.Client(self)
+        return self.client_class(self)
+
+    def __getattr__(self, item):
+        return getattr(self.avatar, item)
