@@ -9,6 +9,8 @@ from kbe.protocol import Base, BaseMethodExposed, Property, Client, ClientMethod
 from default.signals import avatar_created, avatar_common_login, avatar_common_login_post, avatar_quick_login, \
     avatar_login, avatar_logout, avatar_modify, avatar_modify_multi, avatar_modify_common
 
+TAvatar = KBEngine.find_user_type("TAvatar")
+
 
 class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
     client = Client(
@@ -100,3 +102,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
     @property
     def ip(self):
         return ".".join(reversed(list(map(str, self.clientAddr[0].to_bytes(4, 'big')))))
+
+    @property
+    def avatar(self):
+        return TAvatar(self)

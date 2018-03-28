@@ -108,7 +108,7 @@ class MetaOfDictType(type):
             return obj.asDict()
 
         def isSameType(self, obj):
-            return isinstance(obj, self.user_type_class)
+            return self.user_type_class.contain_none and obj is None or isinstance(obj, self.user_type_class)
 
     @classmethod
     def is_base(mcs, cls):
@@ -213,6 +213,7 @@ class MetaOfDictType(type):
 
 class DictType(object, metaclass=MetaOfDictType):
     empty = object()
+    contain_none = False
     client_flag = True
     properties = dict()
     properties_type = dict()
@@ -228,7 +229,10 @@ class DictType(object, metaclass=MetaOfDictType):
             setattr(self, k, vv)
 
     def __str__(self):
-        return json.dumps(self.asRecursionDict(), indent=1)
+        try:
+            return json.dumps(self.asRecursionDict(), indent=1)
+        except TypeError:
+            return super().__str__()
 
     def __deepcopy__(self, memo):
         return self.clone()

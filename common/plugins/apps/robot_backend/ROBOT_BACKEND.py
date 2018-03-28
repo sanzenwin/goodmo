@@ -14,5 +14,5 @@ class TAvatar(TAvatar_):
     client_class = AvatarClient
     properties_type = dict(isRobot=Type.BOOL, **TAvatar_.properties_type)
 
-    def __init__(self, entity):
-        super().__init__(entity, isRobot=entity.isRobot)
+    def __init__(self, entity=None):
+        super().__init__(entity, isRobot=entity.robotMark if entity else False)

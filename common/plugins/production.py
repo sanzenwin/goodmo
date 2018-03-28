@@ -194,7 +194,8 @@ class Plugins:
                 if m.upper() == m and m not in user_types:
                     user_types.append(m)
         for m in reversed(user_types):
-            self.user_types[m] = importlib.import_module(m)
+            im = importlib.import_module(m)
+            self.user_types[im.__name__] = im
         Type.finish_dict_type()
 
     def init__charge(self):
@@ -270,6 +271,14 @@ class Plugins:
     def runtime(self, entity):
         return self.entities[entity.__name__]
 
+    def find_user_type(self, name):
+        for n in reversed(self.user_types):
+            m = self.user_types[n]
+            t = getattr(m, name, None)
+            if t is not None:
+                return t
+        return None
+
     def discover(self):
         self.init__sys_path()
         self.init__settings()
@@ -285,3 +294,5 @@ class Plugins:
 
 
 plugins = Plugins()
+
+KBEngine.find_user_type = plugins.find_user_type

@@ -87,11 +87,9 @@ class ManagerHandler:
             getattr(client, self.event_client)(self.pkg_event(*event_context))
 
     def send_single_event(self, avatar, *event_context):
-        if avatar.client:
-            getattr(avatar.client, self.event_client)(self.pkg_event(*event_context))
+        getattr(avatar.client, self.event_client)(self.pkg_event(*event_context))
 
     def send_multi_event(self, avatars, *event_context):
         event = self.pkg_event(*event_context)
         for avatar in avatars:
-            if avatar.client:
-                getattr(avatar.client, self.event_client)(event)
+            getattr(avatar.client, self.event_client)(event)

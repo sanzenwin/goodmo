@@ -55,13 +55,18 @@ class TAvatar(DictType):
     properties_type = dict(entity=Type.ENTITYCALL)
 
     client_class = AvatarClient
+    contain_none = True
+    entity = None
 
-    def __init__(self, entity, **kwargs):
+    def __init__(self, entity=None, **kwargs):
         super().__init__(entity=entity, **kwargs)
+
+    def __getattr__(self, item):
+        return getattr(self.entity, item)
+
+    def __bool__(self):
+        return bool(self.entity)
 
     @property
     def client(self):
         return self.client_class(self)
-
-    def __getattr__(self, item):
-        return getattr(self.entity, item)
