@@ -72,6 +72,7 @@ class Account(KBEngine.Proxy):
         newbieData["name"] = prefix + str(len(self.avatars) + 1) + str(
             self.databaseID + settings.Avatar.nameIndexRadix)
         avatar_newbie.send(self, newbieData=newbieData)
+        self.onAvatarPrevCreated(newbieData)
         avatar = KBEngine.createEntityLocally('Avatar', newbieData)
         if avatar:
             avatar.writeToDB(self.__onAvatarSaved)
@@ -95,7 +96,17 @@ class Account(KBEngine.Proxy):
             else:
                 ERROR_MSG("Account[%i]::reqSelectAvatar: not found dbid(%i)" % (self.id, dbid))
         else:
-            self.giveClientTo(self.activeAvatar)
+            if self.client:
+                self.giveClientTo(self.activeAvatar)
+
+    def onAvatarPrevCreated(self, data):
+        pass
+
+    def onAvatarCreated(self, dbid):
+        pass
+
+    def onAvatarLoaded(self):
+        pass
 
     def __onAvatarLoaded(self, baseRef, dbid, wasActive):
         if wasActive:
@@ -114,7 +125,9 @@ class Account(KBEngine.Proxy):
             return
         avatar.accountEntity = self
         self.activeAvatar = avatar
-        self.giveClientTo(avatar)
+        if self.client:
+            self.giveClientTo(avatar)
+        self.onAvatarLoaded()
 
     def __onAvatarSaved(self, success, avatar):
         INFO_MSG('Account::_onAvatarSaved:(%i) create avatar state: %i, %i' % (
@@ -134,5 +147,6 @@ class Account(KBEngine.Proxy):
             avatar.destroy()
             if self.client:
                 self.client.onCreateAvatarResult(avatarinfo)
+            self.onAvatarCreated(avatarinfo.dbid)
         else:
             ERROR_MSG("Account::__onAvatarSaved:(%i): failed!" % self.id)

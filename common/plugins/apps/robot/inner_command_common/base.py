@@ -1,5 +1,5 @@
 from inner_command_utils import command, Command
-from robot_common import RobotFactory
+from robot_common import createRobots
 
 
 @command
@@ -8,7 +8,7 @@ class AddRobot(Command):
 
     def execute(self):
         type_name, robot_name, amount = self.args
-        RobotFactory.addBots(type_name, robot_name, amount)
+        createRobots(dict(type=type_name, name=robot_name, amount=amount))
 
 
 @command
@@ -20,4 +20,4 @@ class AddRobotDefault(Command):
 
     def execute(self):
         amount = self.args[0]
-        RobotFactory.addBots(self.type_name, self.robot_name, amount)
+        createRobots(dict(type=self.type_name, name=self.robot_name, amount=amount))

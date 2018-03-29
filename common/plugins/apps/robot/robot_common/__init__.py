@@ -32,23 +32,21 @@ def robot(c):
 
 def factory(name):
     def wrapper(c):
-        RobotManager.addType(name, c)
+        robotManager.addType(name, c)
         return c
 
     return wrapper
 
 
 class RobotManager:
-    typeMap = {}
-
     def __init__(self):
         self.index = 0
+        self.typeMap = {}
         self.ic = OrderedDict()
         self.ii = {}
 
-    @classmethod
-    def addType(cls, name, c):
-        cls.typeMap[name] = c
+    def addType(self, name, c):
+        self.typeMap[name] = c
 
     def newId(self):
         index = self.index
@@ -87,6 +85,7 @@ class RobotManager:
 
 
 robotManager = RobotManager()
+del RobotManager
 
 
 class Robot:
@@ -157,6 +156,12 @@ class Robot:
         self.index = robotManager.newId()
         self.data = data
         self.entity = weakref.ref(entity)
+
+    def from_user_type_data(self, data, user_type):
+        return user_type().createFromRecursionDict(data)
+
+    def to_user_type_data(self, data):
+        return data.asDict()
 
     def onLogin(self):
         pass
@@ -241,6 +246,10 @@ class RobotFactory(Robot):
         if cache_factory:
             asyncio.async(popAddBots_generation()).add_done_callback(
                 lambda future: callback(future.result()))
+
+
+def createRobots(data):
+    RobotFactory.addBots(data["type"], data["name"], data["amount"])
 
 
 cache_factory = None

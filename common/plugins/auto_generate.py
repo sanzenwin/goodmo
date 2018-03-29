@@ -265,7 +265,7 @@ class Plugins(Plugins_):
         EntityOfCell: {}
     }
 
-    template_proxy_str = """from %(plugin_name)s.%(app)s.%(cls_name)s import *
+    template_proxy_str = """%(import_content)sfrom %(plugin_name)s.%(app)s.%(cls_name)s import *
 from %(plugin_name)s.%(app)s.%(cls_name)s import %(cls_name)s as %(cls_name)sBase\n\n
 class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
 
@@ -491,31 +491,37 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
         self.write(entities.str(), self.HOME_DIR, "entities.xml")
 
         for k in self.m_entity_plugins["base"].keys():
+            import_list = []
             content_list = []
             for name in reversed(self.apps):
                 handler = get_module_attr("%s.plugins.entity.base_content" % name)
                 if handler:
                     content = handler(self, k)
                     if content is not None:
-                        content_list.append(content)
+                        import_list.append(content[0])
+                        content_list.append(content[1])
             if not content_list:
                 content_list.append("    pass\n")
             self.write(
                 self.template_proxy_str % dict(app="base", cls_name=k, plugin_name=self.m_entity_plugins["base"][k],
+                                               import_content=("\n".join(import_list) + "\n") if import_list else "",
                                                content="\n".join(content_list)),
                 self.PLUGINS_PROXY_BASE_DIR, k + ".py")
         for k in self.m_entity_plugins["cell"].keys():
+            import_list = []
             content_list = []
             for name in reversed(self.apps):
                 handler = get_module_attr("%s.plugins.entity.cell_content" % name)
                 if handler:
                     content = handler(self, k)
                     if content is not None:
-                        content_list.append(content)
+                        import_list.append(content[0])
+                        content_list.append(content[1])
             if not content_list:
                 content_list.append("    pass\n")
             self.write(
                 self.template_proxy_str % dict(app="cell", cls_name=k, plugin_name=self.m_entity_plugins["cell"][k],
+                                               import_content=("\n".join(import_list) + "\n") if import_list else "",
                                                content="\n".join(content_list)),
                 self.PLUGINS_PROXY_CELL_DIR, k + ".py")
 
