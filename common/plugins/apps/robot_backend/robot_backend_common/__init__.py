@@ -91,7 +91,8 @@ class Robot:
     def __init__(self):
         self.entity = None
         self.data = None
-        self.queueCall = []
+        self.__queueCall = []
+        self.__queueRunMark = False
 
     def __getattr__(self, item):
         entity = self.entity()
@@ -140,16 +141,18 @@ class Robot:
     def call(self, proxy, args):
         entity = self.entity()
         if entity:
-            self.queueCall.append((proxy, args))
-            if len(self.queueCall) == 1:
+            self.__queueCall.append((proxy, args))
+            if not self.__queueRunMark:
+                self.__queueRunMark = True
                 entity.runInNextFrame(self.__callQueue)
         else:
-            self.queueCall = []
+            self.__queueCall = []
 
     def __callQueue(self):
-        for proxy, args in self.queueCall:
+        self.__queueRunMark = False
+        for proxy, args in self.__queueCall:
             proxy(*args)
-        self.queueCall = []
+        self.__queueCall = []
 
 
 class RobotBackendProxy:
