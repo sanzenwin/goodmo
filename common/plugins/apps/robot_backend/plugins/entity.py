@@ -12,11 +12,9 @@ def base_content(plugins, entity_name):
         return None
     template_str = """\
     def ClientProxy__%(method)s(self, *args):
-        proxy = getattr(self.robotBackendProxy, '%(method)s', None)
-        if proxy:
-            self.runInNextFrame(partial(proxy, *args))"""
+        self.robotBackendProxy.call('%(method)s', *args)"""
     d = plugins.m_entity_client_methods[entity_name]
     str_list = []
     for method in d:
         str_list.append(template_str % dict(method=method))
-    return "from functools import partial", "\n\n".join(str_list)
+    return None, "\n\n".join(str_list)

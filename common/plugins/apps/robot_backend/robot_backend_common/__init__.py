@@ -1,5 +1,6 @@
 import weakref
 import KBEngine
+from functools import partial
 from kbe.xml import settings_kbengine
 
 
@@ -62,9 +63,35 @@ class Robot:
         def proxy(*args, **kwargs):
             pass
 
+    class Entity:
+        def __init__(self, robot):
+            super().__init__()
+            self.robot = robot
+            self.method = ""
+
+        def __getattr__(self, item):
+            self.method = item
+            return self.proxy
+
+        def proxy(self, *args):
+            pass
+
+    class Base(Entity):
+        def proxy(self, *args):
+            entity = self.robot.entity()
+            if entity:
+                self.robot.call(getattr(entity, self.method), args)
+
+    class Cell(Entity):
+        def proxy(self, *args):
+            entity = self.robot.entity()
+            if entity:
+                self.robot.call(getattr(getattr(entity, "cell"), self.method), args)
+
     def __init__(self):
         self.entity = None
         self.data = None
+        self.queueCall = []
 
     def __getattr__(self, item):
         entity = self.entity()
@@ -79,14 +106,11 @@ class Robot:
 
     @property
     def base(self):
-        return self.entity() or self.Empty()
+        return self.Base(self)
 
     @property
     def cell(self):
-        entity = self.entity()
-        if entity:
-            return entity.cell
-        return self.Empty()
+        return self.Cell(self)
 
     def isValid(self):
         return bool(self.entity())
@@ -113,23 +137,54 @@ class Robot:
     def getForeverRun(self, callback):
         return self.getTimerProxy(callback)
 
+    def call(self, proxy, args):
+        entity = self.entity()
+        if entity:
+            self.queueCall.append((proxy, args))
+            if len(self.queueCall) == 1:
+                entity.runInNextFrame(self.__callQueue)
+        else:
+            self.queueCall = []
+
+    def __callQueue(self):
+        for proxy, args in self.queueCall:
+            proxy(*args)
+        self.queueCall = []
+
 
 class RobotBackendProxy:
     def __init__(self, entity):
+        self.__queueCall = []
+        self.__queueRunMark = False
         self.robotBackendName = entity.robotBackendName
         self.robotBackendData = entity.robotBackendData
         self.entity = weakref.ref(entity)
         self.robot = robotManager.typeMap[self.robotBackendName]()
         self.robot.init(self.entity, self.robotBackendData)
 
-    def __getattr__(self, item):
-        return getattr(self.robot, item)
-
     def reset(self, name, data):
         self.robotBackendName = name
         self.robotBackendData = data
         self.robot = robotManager.typeMap[self.robotBackendName]()
         self.robot.init(self.entity, self.robotBackendData)
+
+    def call(self, method, *args):
+        proxy = getattr(self.robot, method, None)
+        if proxy:
+            entity = self.entity()
+            if entity:
+                self.__queueCall.append((proxy, args))
+                if not self.__queueRunMark:
+                    self.__queueRunMark = True
+                    entity.runInNextFrame(self.__callQueue)
+            else:
+                self.__queueCall = []
+
+    def __callQueue(self):
+        self.__queueRunMark = False
+        for proxy, args in self.__queueCall:
+            proxy(*args)
+        self.__queueCall = []
 
 
 class AvatarClientProxy:
