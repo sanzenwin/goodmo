@@ -498,9 +498,9 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
                 if handler:
                     content = handler(self, k)
                     if content is not None:
-                        if import_list is not None:
+                        if content[0] is not None:
                             import_list.append(content[0])
-                        if content_list is not None:
+                        if content[1] is not None:
                             content_list.append(content[1])
             if not content_list:
                 content_list.append("    pass\n")
@@ -517,9 +517,9 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
                 if handler:
                     content = handler(self, k)
                     if content is not None:
-                        if import_list is not None:
+                        if content[0] is not None:
                             import_list.append(content[0])
-                        if content_list is not None:
+                        if content[1] is not None:
                             content_list.append(content[1])
             if not content_list:
                 content_list.append("    pass\n")
