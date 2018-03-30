@@ -108,7 +108,7 @@ class MetaOfDictType(type):
             return obj.asDict()
 
         def isSameType(self, obj):
-            return self.user_type_class.contain_none and obj is None or isinstance(obj, self.user_type_class)
+            return isinstance(obj, self.user_type_class)
 
     @classmethod
     def is_base(mcs, cls):
@@ -213,7 +213,6 @@ class MetaOfDictType(type):
 
 class DictType(object, metaclass=MetaOfDictType):
     empty = object()
-    contain_none = False
     client_flag = True
     properties = dict()
     properties_type = dict()

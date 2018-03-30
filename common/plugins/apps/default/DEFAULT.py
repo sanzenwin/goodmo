@@ -55,7 +55,6 @@ class TAvatar(DictType):
     properties_type = dict(entity=Type.ENTITYCALL)
 
     client_class = AvatarClient
-    contain_none = True
     entity = None
 
     def __init__(self, entity=None, **kwargs):
