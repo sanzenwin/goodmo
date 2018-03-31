@@ -242,6 +242,11 @@ class DictType(object, metaclass=MetaOfDictType):
                 return False
         return True
 
+    def clear(self):
+        for k, v in self.dict_properties.items():
+            v = deepcopy(v)
+            setattr(self, k, v)
+
     def clone(self):
         obj = self.__class__()
         obj.createFromRecursionDict(self.asRecursionDict())

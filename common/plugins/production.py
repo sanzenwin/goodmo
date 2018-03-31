@@ -290,6 +290,7 @@ class Plugins:
             self.init__charge()
         self.load_all_module("plugins.setup")
         Type.init_dict_types()
+        KBEngine.TAvatar = plugins.find_user_type("TAvatar")
         plugins_completed.send(self)
 
 

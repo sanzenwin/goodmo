@@ -22,6 +22,7 @@ for i in range(len(sys.path)):
 
 KBEngine.Entity = type("Entity", (object,), {})
 KBEngine.find_user_type = lambda x: None
+KBEngine.TAvatar = None
 
 
 class Object:
