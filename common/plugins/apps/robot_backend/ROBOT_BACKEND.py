@@ -15,4 +15,4 @@ class TAvatar(TAvatar_):
     properties_type = dict(isRobot=Type.BOOL, **TAvatar_.properties_type)
 
     def __init__(self, entity=None):
-        super().__init__(entity, isRobot=entity.robotBackendMark if entity else False)
+        super().__init__(entity, isRobot=entity.robotMark if entity else False)

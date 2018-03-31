@@ -14,6 +14,12 @@ class Robot:
         onRobAuth=ClientMethod(),
     )
 
+    robotMark = Property(
+        Type=Type.BOOL,
+        Flags=Property.Flags.BASE,
+        Persistent=Property.Persistent.true
+    )
+
     def __init__(self):
         super().__init__()
         self.__robotMark = False
@@ -31,8 +37,9 @@ class Robot:
                         method(*args[1:])
 
     def robAuth(self, auth):
-        if auth == settings_kbengine.bots.loginAuth.value:
-            self.__robotMark = True
+        if auth == settings_kbengine.bots.loginAuth.value or self.robotMark:
+            if not self.robotMark:
+                self.robotMark = True
             settings.Robot.onLogin(self)
             self.client.onRobAuth()
         else:
@@ -41,11 +48,8 @@ class Robot:
     def robDisconnect(self):
         self.disconnect()
 
-    def onLogoff(self):
-        self.__robotMark = False
-
     def isRobot(self):
-        return self.__robotMark
+        return self.robotMark
 
     @property
     def pk(self):

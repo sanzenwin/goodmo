@@ -32,7 +32,7 @@ class RobotManager:
 
     def _completeAccount(self, account):
         def onAvatarPrevCreated(data):
-            data["robotBackendMark"] = True
+            data["robotMark"] = True
 
         def onAvatarCreated(dbid):
             account.reqSelectAvatar(dbid)
