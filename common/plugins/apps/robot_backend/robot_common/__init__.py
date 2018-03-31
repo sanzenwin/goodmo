@@ -1,6 +1,7 @@
 from robot.robot_common import *
-from robot_backend_common import robotManager, factory, Robot
+from robot_backend_common import *
+from kbe.core import Equalization
 
 
 def createRobots(data):
-    robotManager.addBots(data["name"], data["amount"])
+    Equalization.RobotBackendGenerator(0).addBots(data["name"], data["amount"], data.get("data"))

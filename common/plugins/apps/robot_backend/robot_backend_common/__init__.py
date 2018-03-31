@@ -1,6 +1,5 @@
 import weakref
 import KBEngine
-from functools import partial
 from kbe.xml import settings_kbengine
 
 
