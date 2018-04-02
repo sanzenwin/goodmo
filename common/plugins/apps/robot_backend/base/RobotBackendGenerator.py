@@ -12,8 +12,6 @@ class RobotBackendGenerator(KBEngine.Entity, TimerProxy):
         addBotsInner=BaseMethod(Type.UNICODE, Type.UINT32, Type.PYTHON)
     )
 
-    perGenerateAmount = 10
-
     def __init__(self):
         super().__init__()
         self.__queueRun = []
@@ -39,7 +37,7 @@ class RobotBackendGenerator(KBEngine.Entity, TimerProxy):
             self.__queueRunMark = False
 
     def doRunQueue(self, left):
-        if left <= 0:
+        if left <= 0 or not self.__queueRun:
             return
         d = self.__queueRun[0]
         if d[1] >= self.perGenerateAmount:
@@ -58,4 +56,11 @@ class RobotBackendGenerator(KBEngine.Entity, TimerProxy):
         length = len(s)
         e = total // length
         r = total % length
-        return {x: (e + 1 if i < r else e) for i, x in enumerate(s)}
+        return {x: (e + 1 if i < r else e) for i, x in enumerate(s) if (e + 1 if i < r else e) > 0}
+
+    @property
+    def perGenerateAmount(self):
+        if not hasattr(self, "_perGenerateAmount"):
+            generator_list = Equalization[self.__class__.__name__].list()
+            setattr(self, "_perGenerateAmount", len(generator_list) * 2)
+        return self._perGenerateAmount
