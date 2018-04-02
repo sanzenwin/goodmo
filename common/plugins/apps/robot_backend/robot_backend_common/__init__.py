@@ -32,6 +32,7 @@ class RobotManager:
     def __onLoadAccount(self, name, data, baseRef, dbid, wasActive):
         def onAvatarLoaded():
             account.activeAvatar.initRobotBackend(name, data)
+            account.activeAvatar.onReqReady()
 
         if wasActive:
             ERROR_MSG("%s::__onLoadAccount:(%i): this account is in world now!" % (self.__class__.__name__, self.id))
