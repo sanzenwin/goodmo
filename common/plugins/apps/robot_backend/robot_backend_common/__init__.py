@@ -1,6 +1,8 @@
 import weakref
 import KBEngine
+from functools import partial
 from kbe.xml import settings_kbengine
+from kbe.log import ERROR_MSG
 
 
 def factory(name):
@@ -22,14 +24,40 @@ class RobotManager:
     def checkType(self, c):
         return c in self.typeMap
 
-    def addBots(self, name, count, data=None):
+    def addBots(self, dbidList, name, data):
+        for dbid in dbidList:
+            KBEngine.createEntityFromDBID(settings_kbengine.dbmgr.account_system.accountEntityScriptType.value, dbid,
+                                          partial(self.__onLoadAccount, name, data))
+
+    def __onLoadAccount(self, name, data, baseRef, dbid, wasActive):
+        def onAvatarLoaded():
+            account.activeAvatar.initRobotBackend(name, data)
+
+        if wasActive:
+            ERROR_MSG("%s::__onLoadAccount:(%i): this account is in world now!" % (self.__class__.__name__, self.id))
+            return
+        if baseRef is None:
+            ERROR_MSG("%s::__onLoadAccount:(%i): the account you wanted to created is not exist!" % (
+                self.__class__.__name__, self.id))
+            return
+        account = KBEngine.entities.get(baseRef.id)
+        if account is None:
+            ERROR_MSG("%s::__onLoadAccount:(%i): when account was created, it died as well!" % (
+                self.__class__.__name__, self.id))
+            return
+        if not account.lastSelectAvatar:
+            ERROR_MSG("%s::__onLoadAccount:(%i): this account has no character!" % (self.__class__.__name__, self.id))
+            return
+        account.onAvatarLoaded = onAvatarLoaded
+        account.reqSelectAvatar(account.lastSelectAvatar)
+
+    def createBots(self, count, name, data=None):
         for _ in range(count):
             account = KBEngine.createEntityLocally(settings_kbengine.dbmgr.account_system.accountEntityScriptType.value,
-                                                   dict(robotBackendName=name,
-                                                        robotBackendData=data))
-            self._completeAccount(account)
+                                                   dict(robotBackendName=name, robotBackendData=data))
+            self.__onCompleteAccount(account)
 
-    def _completeAccount(self, account):
+    def __onCompleteAccount(self, account):
         def onAvatarPrevCreated(data):
             data["robotMark"] = True
 

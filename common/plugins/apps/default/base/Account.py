@@ -3,7 +3,7 @@ import KBEngine
 import settings
 import ret_code
 from copy import deepcopy
-from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
+from kbe.log import INFO_MSG, ERROR_MSG
 from kbe.protocol import Property, Volatile, Type, Base, BaseMethod, BaseMethodExposed, Client, ClientMethod
 from default.signals import avatar_newbie
 from DEFAULT import TAvatarInfo
@@ -43,7 +43,6 @@ class Account(KBEngine.Proxy):
     )
 
     def onLogOnAttempt(self, ip, port, password):
-        DEBUG_MSG("Account[%i]::onLogOnAttempt: ip=%s, port=%i, client=%s" % (self.id, ip, port, self.client))
         if self.isDestroyed:
             return KBEngine.LOG_ON_WAIT_FOR_DESTROY
         # 如果一个在线的账号被一个客户端登陆并且onLogOnAttempt返回允许
@@ -59,12 +58,10 @@ class Account(KBEngine.Proxy):
             self.destroy()
 
     def reqAvatarList(self):
-        DEBUG_MSG("Account[%i].reqAvatarList: size=%i." % (self.id, len(self.avatars)))
         self.client.onReqAvatarList(self.avatars)
 
     def reqCreateAvatar(self):
         if len(self.avatars) >= settings.Account.avatarTotalLimit:
-            DEBUG_MSG("Account[%i].reqCreateAvatar: character=%s.\n" % (self.id, self.avatars))
             self.client.onRetCode(ret_code.ACCOUNT_CREATE_AVATAR_TOP_LIMIT)
             return
         prefix = settings.Avatar.namePrefix

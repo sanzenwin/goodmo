@@ -98,6 +98,10 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         return self.accountEntity.__ACCOUNT_NAME__
 
     @property
+    def accountID(self):
+        return self.accountEntity.databaseID
+
+    @property
     def ip(self):
         return ".".join(reversed(list(map(str, self.clientAddr[0].to_bytes(4, 'big')))))
 

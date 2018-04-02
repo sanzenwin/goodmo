@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import random
 import KBEngine
 from kbe.core import Equalization
 from kbe.utils import TimerProxy
@@ -9,16 +10,19 @@ from robot_backend_common import robotManager
 class RobotBackendGenerator(KBEngine.Entity, TimerProxy):
     base = Base(
         addBots=BaseMethod(Type.UNICODE, Type.UINT32, Type.PYTHON),
-        addBotsInner=BaseMethod(Type.UNICODE, Type.UINT32, Type.PYTHON)
+        addBotsInner=BaseMethod(Type.UNICODE, Type.UINT32, Type.PYTHON),
+        addExactBots=BaseMethod(Type.DBID.array, Type.UINT32, Type.UNICODE)
     )
 
     def __init__(self):
         super().__init__()
+        self.__orders = {}
         self.__queueRun = []
         self.__queueRunMark = False
 
     def addBots(self, name, amount, data):
         generator_list = Equalization[self.__class__.__name__].list()
+        random.shuffle(generator_list)
         d = self.div(range(len(generator_list)), amount)
         for i, a in d.items():
             generator_list[i].addBotsInner(name, a, data)
@@ -48,8 +52,15 @@ class RobotBackendGenerator(KBEngine.Entity, TimerProxy):
             d[1] -= self.perGenerateAmount
         if d[1] <= 0:
             self.__queueRun.pop(0)
-        robotManager.addBots(d[0], run_amount, d[2])
+        order = str(KBEngine.genUUID64())
+        self.__orders[order] = (d[0], d[2])
+        Equalization.RobotBackendManager.queryBots(self, run_amount, order)
         self.doRunQueue(self.perGenerateAmount - run_amount)
+
+    def addExactBots(self, dbidList, amount, order):
+        info = self.__orders.pop(order)
+        robotManager.addBots(dbidList, *info)
+        robotManager.createBots(amount, *info)
 
     @staticmethod
     def div(s, total):
