@@ -12,6 +12,13 @@ class RobotBackendGenerator(KBEngine.Entity, TimerProxy):
         addBotsInner=BaseMethod(Type.UNICODE, Type.UINT32, Type.PYTHON)
     )
 
+    perGenerateAmount = 10
+
+    def __init__(self):
+        super().__init__()
+        self.__queueRun = []
+        self.__queueRunMark = False
+
     def addBots(self, name, amount, data):
         generator_list = Equalization[self.__class__.__name__].list()
         d = self.div(range(len(generator_list)), amount)
@@ -19,7 +26,32 @@ class RobotBackendGenerator(KBEngine.Entity, TimerProxy):
             generator_list[i].addBotsInner(name, a, data)
 
     def addBotsInner(self, name, amount, data):
-        robotManager.addBots(name, amount, data)
+        self.__queueRun.append([name, amount, data])
+        if not self.__queueRunMark:
+            self.__queueRunMark = True
+            self.runInNextFrame(self.__runQueue)
+
+    def __runQueue(self):
+        self.doRunQueue(self.perGenerateAmount)
+        if self.__queueRun:
+            self.runInNextFrame(self.__runQueue)
+        else:
+            self.__queueRunMark = False
+
+    def doRunQueue(self, left):
+        if left <= 0:
+            return
+        d = self.__queueRun[0]
+        if d[1] >= self.perGenerateAmount:
+            run_amount = self.perGenerateAmount
+            d[1] -= run_amount
+        else:
+            run_amount = d[1]
+            d[1] -= self.perGenerateAmount
+        if d[1] <= 0:
+            self.__queueRun.pop(0)
+        robotManager.addBots(d[0], run_amount, d[2])
+        self.doRunQueue(self.perGenerateAmount - run_amount)
 
     @staticmethod
     def div(s, total):
