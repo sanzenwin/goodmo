@@ -1,9 +1,11 @@
+from robot.signals import robot_login
 from robot_backend_common import RobotBackendProxy, AvatarClientProxy
 
 
 class RobotBackend:
     def onReqReady(self):
         if self.robotMark:
+            robot_login.send(self)
             self.robotBackendProxy.robot.onLogin()
 
     def initRobotBackend(self, robotBackendName, robotBackendData):

@@ -4,6 +4,7 @@ from kbe.core import Equalization
 from kbe.protocol import Type, Property, Client, ClientMethod, Base, BaseMethod, BaseMethodExposed
 from kbe.xml import settings_kbengine
 from robot_common import robotManager
+from robot.signals import robot_login
 from CORE import python_server
 from DEFAULT import TEvent
 
@@ -55,6 +56,7 @@ class Robot:
             if not self.robotMark:
                 self.robotMark = True
             self.initRobotInfo(name, data)
+            robot_login.send(self)
             self.client.onRobEvent(self.pkgEvent("auth"))
         else:
             self.logout()
