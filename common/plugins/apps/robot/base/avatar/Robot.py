@@ -1,17 +1,22 @@
 import re
-import settings
-from kbe.protocol import Type, Property, Client, ClientMethod, Base, BaseMethodExposed
+from common.utils import Event
+from kbe.core import Equalization
+from kbe.protocol import Type, Property, Client, ClientMethod, Base, BaseMethod, BaseMethodExposed
 from kbe.xml import settings_kbengine
+from robot_common import robotManager
 from CORE import python_server
+from DEFAULT import TEvent
 
 
 class Robot:
     base = Base(
-        reqRobProtocol=BaseMethodExposed(Type.PYTHON)
+        reqRobProtocol=BaseMethodExposed(Type.PYTHON),
+        robExecute=BaseMethod(Type.PYTHON),
+        robControl=BaseMethod(Type.PYTHON)
     )
 
     client = Client(
-        onRobAuth=ClientMethod(),
+        onRobEvent=ClientMethod(Type.PYTHON.client)
     )
 
     robotMark = Property(
@@ -20,13 +25,22 @@ class Robot:
         Persistent=Property.Persistent.true
     )
 
-    def __init__(self):
-        super().__init__()
-        self.__robotMark = False
+    robotName = Property(
+        Type=Type.UNICODE,
+        Flags=Property.Flags.BASE
+    )
+
+    robotData = Property(
+        Type=Type.PYTHON,
+        Flags=Property.Flags.BASE
+    )
 
     def reqRobProtocol(self, data):
         if self.getClientType() != 6:
             return
+        self.robExecute(data)
+
+    def robExecute(self, data):
         args = python_server(data, list)
         if len(args) >= 1:
             req_name = args[0]
@@ -36,20 +50,39 @@ class Robot:
                     if method:
                         method(*args[1:])
 
-    def robAuth(self, auth):
+    def robAuth(self, auth, name, data):
         if auth == settings_kbengine.bots.loginAuth.value or self.robotMark:
             if not self.robotMark:
                 self.robotMark = True
-            settings.Robot.onLogin(self)
-            self.client.onRobAuth()
+            self.initRobotInfo(name, data)
+            self.client.onRobEvent(self.pkgEvent("auth"))
         else:
             self.logout()
+
+    def robControl(self, data):
+        args = python_server(data, list)
+        self.client.onRobEvent(self.pkgEvent("control", *args))
 
     def robDisconnect(self):
         self.disconnect()
 
+    def initRobotInfo(self, name, data):
+        self.robotName = name
+        self.robotData = data
+        self.onRobotInit()
+
+    @Event.method
+    def onRobotInit(self):
+        controller = robotManager.getType(self.robotName).controller
+        if controller:
+            Equalization[controller].addEntity(self.robotName, self)
+
     def isRobot(self):
         return self.robotMark
+
+    @staticmethod
+    def pkgEvent(func, *args):
+        return TEvent(func=func, args=args).client
 
     @property
     def pk(self):

@@ -38,7 +38,4 @@ class Avatar(AvatarBase):
         rc, data = robotManager.getRobot()
         self.robot = rc()
         self.robot.init(self, data)
-        self.robot.base.robAuth(settings_kbengine.bots.loginAuth.value)
-
-    def onRobAuth(self):
-        self.robot.onLogin()
+        self.robot.base.robAuth(settings_kbengine.bots.loginAuth.value, self.robot.name, self.robot.controller, data)

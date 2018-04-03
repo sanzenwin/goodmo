@@ -3,10 +3,13 @@ import KBEngine
 from functools import partial
 from kbe.xml import settings_kbengine
 from kbe.log import ERROR_MSG
+from DEFAULT import TEvent
 
 
-def factory(name):
+def factory(name, controller=""):
     def wrapper(c):
+        c.name = name
+        c.controller = controller
         robotManager.addType(name, c)
         return c
 
@@ -20,6 +23,9 @@ class RobotManager:
 
     def addType(self, name, c):
         self.typeMap[name] = c
+
+    def getType(self, name):
+        return self.typeMap[name]
 
     def checkType(self, c):
         return c in self.typeMap
@@ -150,6 +156,19 @@ class Robot:
     def to_user_type_data(self, data):
         return data
 
+    def onRobEvent(self, event):
+        event = self.from_user_type_data(event, TEvent)
+        action, args = event.func, event.args
+        action_method = getattr(self, 'rob_event__' + action, None)
+        if action_method is not None:
+            action_method(*args)
+
+    def rob_event__control(self, *args):
+        method, args = args[0], args[1:]
+        action_method = getattr(self, 'rob_control__' + method, None)
+        if action_method is not None:
+            action_method(*args)
+
     def onLogin(self):
         pass
 
@@ -187,13 +206,16 @@ class RobotBackendProxy:
     def __init__(self, entity):
         self.__queueCall = []
         self.__queueRunMark = False
-        self.robotBackendName = entity.robotBackendName
-        self.robotBackendData = entity.robotBackendData
+        self.robotBackendName = entity.robotName
+        self.robotBackendData = entity.robotData
         self.entity = weakref.ref(entity)
         self.robot = robotManager.typeMap[self.robotBackendName]()
         self.robot.init(self.entity, self.robotBackendData)
 
     def reset(self, name, data):
+        self.entity().clearTimerProxy()
+        self.__queueCall = []
+        self.__queueRunMark = False
         self.robotBackendName = name
         self.robotBackendData = data
         self.robot = robotManager.typeMap[self.robotBackendName]()

@@ -13,6 +13,7 @@ from kbe.signals import mongodb_completed
 from kbe.log import ERROR_MSG
 from kbe.xml import settings_kbengine
 from plugins.conf.signals import plugins_completed
+from DEFAULT import TEvent
 
 
 def robot(c):
@@ -30,8 +31,10 @@ def robot(c):
     return c
 
 
-def factory(name):
+def factory(name, controller=""):
     def wrapper(c):
+        c.name = name
+        c.controller = controller
         robotManager.addType(name, c)
         return c
 
@@ -47,6 +50,9 @@ class RobotManager:
 
     def addType(self, name, c):
         self.typeMap[name] = c
+
+    def getType(self, name):
+        return self.typeMap[name]
 
     def newId(self):
         index = self.index
@@ -128,6 +134,9 @@ class Robot:
     class Cell(Entity):
         app = "cell"
 
+    name = ""
+    controller = ""
+
     def __init__(self):
         self.index = 0
         self.data = None
@@ -162,6 +171,19 @@ class Robot:
 
     def to_user_type_data(self, data):
         return data.asDict()
+
+    def onRobEvent(self, event):
+        event = self.from_user_type_data(event, TEvent)
+        action, args = event.func, event.args
+        action_method = getattr(self, 'rob_event__' + action, None)
+        if action_method is not None:
+            action_method(*args)
+
+    def rob_event__auth(self):
+        self.onLogin()
+
+    def rob_event__control(self, *args):
+        pass
 
     def onLogin(self):
         pass
