@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import KBEngine
+import settings
 from kbe.core import Equalization, Redis
 from kbe.protocol import Base, BaseMethod, Property, Client, ClientMethod, Type
+from kbe.utils import TimerProxy
 from common.dispatcher import receiver
 from default.signals import avatar_created
 
 
-class RobotBackendManager(KBEngine.Entity):
+class RobotBackendManager(KBEngine.Entity, TimerProxy):
     base = Base(
         botCreated=BaseMethod(Type.DBID),
         queryBots=BaseMethod(Type.ENTITYCALL, Type.UINT32, Type.UNICODE),
@@ -18,13 +20,15 @@ class RobotBackendManager(KBEngine.Entity):
     def __init__(self):
         super().__init__()
         self.availableRobots = set()
-        self.onInit()
+        self.addTimerProxy(settings.Global.gameTimeInterval, self.botLoaded, settings.Global.gameTimeInterval)
 
-    def onInit(self):
+    def botLoaded(self):
         def callback(r_list):
             self.availableRobots = set(int(dbid) for dbid in r_list)
 
-        asyncio.async(robot_list_generation()).add_done_callback(lambda future: callback(future.result()))
+        if Redis.isCompleted():
+            asyncio.async(robot_list_generation()).add_done_callback(lambda future: callback(future.result()))
+            self.delTimerProxy(self.getTimerProxy(self.botLoaded))
 
     def botCreated(self, dbid):
         asyncio.async(robot_add_generation(dbid))
