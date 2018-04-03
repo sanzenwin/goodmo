@@ -86,6 +86,11 @@ class Asset(LockAsset("gold")):
         self.name = changed
         self.onModifyAttr("name", changed, name)
 
+    def modifyAvatarUrl(self, newUrl):
+        url = self.avatarUrl
+        self.avatarUrl = newUrl
+        self.onModifyAttr("avatarUrl", newUrl, url)
+
 
 @receiver(avatar_common_login_post)
 def login(signal, avatar):
