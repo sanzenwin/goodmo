@@ -329,7 +329,7 @@ class StampData(SteadyData):
         self.__stamp__.pop(key, None)
         return super().pop(key, default)
 
-    def add(self, key, value=1, stamp=True):
+    def add(self, key, value=1, stamp=None):
         self.set(key, self.get(key, 0) + value, stamp)
 
     def update(self, data, stamp=None):
