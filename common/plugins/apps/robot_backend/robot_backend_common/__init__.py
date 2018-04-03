@@ -137,7 +137,6 @@ class Robot:
     def init(self, entity, data):
         self.entity = entity
         self.data = data
-        self.onLogin()
 
     @property
     def base(self):
