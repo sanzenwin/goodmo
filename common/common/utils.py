@@ -9,6 +9,8 @@ from importlib import import_module
 
 
 class ServerTime:
+    origin = (1986, 2, 28)
+
     def __init__(self):
         self.cursor = 0.0
 
@@ -30,12 +32,22 @@ class ServerTime:
 
     @property
     def genesis(self):
-        return self.make_time(1986, 2, 28) + datetime.timedelta(microseconds=self.cursor)
+        return self.genesis_origin + datetime.timedelta(microseconds=self.cursor)
+
+    @property
+    def genesis_origin(self):
+        return self.make_time(*self.origin)
 
     def stamp(self, to=None):
         if to is None:
             to = self.now()
         delta = to - self.genesis
+        return int(delta.total_seconds() * 1000)
+
+    def stamp_origin(self, to=None):
+        if to is None:
+            to = self.now()
+        delta = to - self.genesis_origin
         return int(delta.total_seconds() * 1000)
 
     def last_month(self, to=None):

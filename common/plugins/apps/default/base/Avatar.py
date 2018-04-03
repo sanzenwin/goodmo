@@ -55,7 +55,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         avatar_common_login_post.send(self)
 
     def onClientEnabled(self):
-        self.client.onServerTime(server_time.stamp())
+        self.client.onServerTime(server_time.stamp_origin())
         if self.isReqReady():
             self.onReqReady()
         if self.destroyTimerID is not None:
