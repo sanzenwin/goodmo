@@ -16,7 +16,7 @@ class Robot:
     )
 
     client = Client(
-        onRobEvent=ClientMethod(Type.PYTHON.client)
+        onRobEvent=ClientMethod(Type.EVENT)
     )
 
     robotMark = Property(

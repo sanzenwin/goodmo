@@ -166,7 +166,7 @@ class Robot:
         self.data = data
         self.entity = weakref.ref(entity)
 
-    def from_user_type_data(self, data, user_type):
+    def from_user_type_data(self, data, user_type=None):
         return user_type().createFromRecursionDict(data)
 
     def to_user_type_data(self, data):
@@ -242,6 +242,7 @@ class RobotDefault(Robot):
         self.foreverRun(1, self.base.robDisconnect)
 
 
+@factory("factory")
 class RobotFactory(Robot):
     addBotsKey = settings_kbengine.bots.account_infos.account_name_prefix.value
 

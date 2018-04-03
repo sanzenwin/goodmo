@@ -149,7 +149,7 @@ class Robot:
     def isValid(self):
         return bool(self.entity())
 
-    def from_user_type_data(self, data, user_type):
+    def from_user_type_data(self, data, user_type=None):
         return data
 
     def to_user_type_data(self, data):
