@@ -43,7 +43,8 @@ class xlsx2py:
     将excel数据导出为py文件 使用过程需要进行编码转换
     """
 
-    def __init__(self, infile, outfile):
+    def __init__(self, infile, outfile, needJson=True):
+        self.needJson = needJson
         self.g_dctDatas = {}
         self.g_fdatas = {}
 
@@ -471,13 +472,14 @@ class xlsx2py:
             # stream += xlsxtool.dict_to_text(datas) + "\n"
             stream += "%s\n" % (datas)
             self.xlsxWrite(stream)
-            mainName = self.fileHandler.stream.name
-            if mainName.endswith(".py"):
-                mainName = mainName[:-3]
-            jsonhandle = codecs.open(mainName + "." + dataName + ".json", "w+", 'utf-8')
-            s = json.dumps(datas, sort_keys=True)
-            jsonhandle.write("{%s}" % (s[1:-1]))
-            jsonhandle.close()
+            if self.needJson:
+                mainName = self.fileHandler.stream.name
+                if mainName.endswith(".py"):
+                    mainName = mainName[:-3]
+                jsonhandle = codecs.open(mainName + "." + dataName + ".json", "w+", 'utf-8')
+                s = json.dumps(datas, sort_keys=True)
+                jsonhandle.write("{%s}" % (s[1:-1]))
+                jsonhandle.close()
 
     def writeFoot(self):
         """

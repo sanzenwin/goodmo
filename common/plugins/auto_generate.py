@@ -724,14 +724,14 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
                 return real_path
         return None
 
-    def export_excel(self, app_name_or_list, *module_list):
+    def export_excel(self, app_name_or_list, *module_list, need_json=True):
         if not isinstance(app_name_or_list, (list, tuple)):
             app_name_or_list = [app_name_or_list]
         for app_name in app_name_or_list:
             for module_name in module_list:
                 path = self.get_res(app_name, "excel", "%s.xlsx" % module_name)
                 if path is not None:
-                    xlsx2py(path, os.path.join(self.EXCEL_DATA_DIR, app_name, "%s.py" % module_name)).run()
+                    xlsx2py(path, os.path.join(self.EXCEL_DATA_DIR, app_name, "%s.py" % module_name), need_json).run()
 
     def discover(self):
         self.clear_dir()
