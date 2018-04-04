@@ -94,6 +94,7 @@ class Account(KBEngine.Proxy):
                 ERROR_MSG("Account[%i]::reqSelectAvatar: not found dbid(%i)" % (self.id, dbid))
         else:
             if self.client:
+                self.activeAvatar.isReLogin = False
                 self.giveClientTo(self.activeAvatar)
 
     def onAvatarPrevCreated(self, data):

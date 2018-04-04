@@ -25,6 +25,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         self.accountEntity = None
         self.destroyTimerID = None
         self.isFirstLogin = True
+        self.isReLogin = False
         self.publicAttrMap = PublicAttrMap()
 
     def onCreatedAndCompleted(self):
@@ -68,6 +69,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
                 return
             self.logout()
 
+        self.isReLogin = True
         self.onLogoff()
         self.destroyTimerID = self.addTimerProxy(settings.Avatar.delayDestroySeconds, callback)
 
