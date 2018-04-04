@@ -143,7 +143,7 @@ def equalization_change(signal, sender, key, value):
 
         for i in range(index - 1, len(need_created), settings.BaseApp.equalizationBaseappAmount):
             name = need_created[i]
-            KBEngine.createEntityLocally(name, dict())
+            KBEngine.createEntityLocally(name, dict(entityNeedSave=True))
             KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
 
         if not Equalization_.autoLoadedIDMap and sender.groupIndex == 1:

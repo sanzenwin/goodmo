@@ -8,7 +8,7 @@ class Singleton(KBEngine.Entity):
     def __init__(self):
         super().__init__()
         if settings.get(self.__class__.__name__).isAutoLoaded():
-            if self.databaseID:
+            if not hasattr(self, "entityNeedSave"):
                 self.onInit()
             else:
                 self.writeToDB(self.onSaved)
