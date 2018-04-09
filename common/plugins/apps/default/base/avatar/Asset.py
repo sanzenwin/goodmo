@@ -62,12 +62,15 @@ class Asset(LockAsset("gold")):
         KBEngine.charge(uid, self.databaseID,
                         Bytes(interface="syncData", pk=self.pk).dumps(), callback)
 
-    def interfaceOperate(self, operate, t, d):
-        def callback(orderID, dbID, success, datas):
+    def interfaceOperate(self, operate, t, d, c=None):
+        def callback(orderID, dbid, success, datas):
             if uid != orderID:
                 return
+            data = Bytes(datas)
+            if c:
+                c(self, data)
             if self.client:
-                self.client.onOperate(operate, t, python_client(Bytes(datas)))
+                self.client.onOperate(operate, t, python_client(data))
             self.release()
 
         self.addRef()

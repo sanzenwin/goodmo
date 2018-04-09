@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from kbe.protocol import Property, Type
-from common.utils import SteadyData, TodayData, WeekData, MonthData, YearData
+from common.utils import SteadyData, TodayData, WeekData, MonthData, YearData, ExpiredData
 
 
 class Data:
@@ -46,6 +46,7 @@ class Data:
         self.weekData = WeekData(self._weekData)
         self.monthData = MonthData(self._monthData)
         self.yearData = YearData(self._yearData)
+        self.onlineData = ExpiredData({})
 
     def modifySteadyData(self, method, key, value=None):
         getattr(self.steadyData, method)(key, value)
