@@ -40,13 +40,13 @@ class GlobalData(Singleton_):
     @classmethod
     def set(cls, key, value):
         KBEngine.globalData[key] = value
-        global_data_change.send(cls, key=key, value=value)
+        global_data_change.send(KBEngine.BaseApp.instance, key=key, value=value)
 
     @classmethod
     def pop(cls, key, default=None):
         if key in KBEngine.globalData:
             ret = KBEngine.globalData.pop(key)
-            global_data_del.send(cls, key=key)
+            global_data_del.send(KBEngine.BaseApp.instance, key=key)
             return ret
         return default
 
