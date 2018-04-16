@@ -10,6 +10,9 @@ class Player:
     def onClientDeath(self):
         pass
 
+    def onServerDeath(self):
+        pass
+
     def onReqReady(self):
         pass
 

@@ -13,7 +13,8 @@ class Robot:
     base = Base(
         reqRobProtocol=BaseMethodExposed(Type.PYTHON),
         robExecute=BaseMethod(Type.PYTHON),
-        robControl=BaseMethod(Type.PYTHON)
+        robControl=BaseMethod(Type.PYTHON),
+        robControllerEvent=BaseMethod(Type.PYTHON)
     )
 
     client = Client(
@@ -68,6 +69,12 @@ class Robot:
     def robDisconnect(self):
         self.disconnect()
 
+    def robAddAsset(self, assetName, assetAmount):
+        getattr(self, "modify%s" % assetName)(assetAmount)
+
+    def robController(self):
+        self.addRef()
+
     def initRobotInfo(self, name, data):
         self.robotName = name
         self.robotData = data
@@ -78,6 +85,17 @@ class Robot:
         controller = robotManager.getType(self.robotName).controller
         if controller:
             Equalization[controller].addEntity(self.robotName, self)
+
+    def onServerDeath(self):
+        if self.isRobot():
+            controller = robotManager.getType(self.robotName).controller
+            if controller:
+                Equalization[controller].removeEntity(self.id)
+
+    def robControllerEvent(self, data):
+        controller = robotManager.getType(self.robotName).controller
+        if controller:
+            Equalization[controller].controllerEvent(self.id, data)
 
     def isRobot(self):
         return self.robotMark

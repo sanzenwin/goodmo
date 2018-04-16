@@ -6,7 +6,7 @@ from common.asyncHttp import AsyncHttp
 from common.asyncio import asyncio_loop
 from common.utils import server_time
 from kbe.utils import TimerProxy
-from kbe.signals import baseapp_ready, global_data_change, global_data_del
+from kbe.signals import baseapp_ready, baseapp_completed, global_data_change, global_data_del
 from kbe.log import ERROR_MSG
 
 
@@ -45,6 +45,8 @@ class BaseApp(KBEngine.Entity, TimerProxy):
         ready = cls.instance and not waiting
         if ready:
             cls.notReadyTimeStamp = 0
+            if cls.instance.groupIndex == 1:
+                cls.instance.runInNextFrame(cls.instance.allCompleted)
         else:
             if server_time.passed(cls.readyStamp) > settings.BaseApp.readyForLoginWarringSeconds:
                 if server_time.stamp() - cls.notReadyTimeStamp > settings.BaseApp.readyForLoginIntervalSeconds * 1000:
@@ -107,11 +109,14 @@ class BaseApp(KBEngine.Entity, TimerProxy):
         self.completedSet.update(args)
 
     def tickLoop(self):
-        gameTimeInterval = settings.Global.gameTimeInterval
+        interval = settings.Global.gameTimeInterval
         if settings.Global.enableAsyncHttp:
-            self.addTimerProxy(gameTimeInterval, AsyncHttp.run_frame, gameTimeInterval)
+            self.addTimerProxy(interval, AsyncHttp.run_frame, interval)
         if settings.Global.enableAsyncio:
-            self.addTimerProxy(gameTimeInterval, asyncio_loop.run_frame, gameTimeInterval)
+            self.addTimerProxy(interval, asyncio_loop.run_frame, interval)
+
+    def allCompleted(self):
+        baseapp_completed.send(self)
 
     @classmethod
     def isCompleted(cls):

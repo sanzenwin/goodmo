@@ -419,8 +419,4 @@ def discover(signal, sender):
 def baseappReady(signal, sender):
     if sender.groupIndex == 1:
         Database.discover()
-    lst = [Redis, Mongodb, Database]
-    settings = importlib.import_module("settings")
-    if sender.groupIndex <= settings.BaseApp.equalizationBaseappAmount:
-        lst.append(Equalization)
-    sender.addCompletedObject(*lst)
+    sender.addCompletedObject(Redis, Mongodb, Database, Equalization)

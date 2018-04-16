@@ -79,6 +79,14 @@ class EqualizationMixin:
         self.equalization_format = self.__class__.__name__ + "_" + "_".join(["%s"] * amount)
 
 
+class SingletonMixin(EqualizationMixin):
+    def equalization_list(self):
+        return [[0]]
+
+    def equalization(self, *args):
+        return [0]
+
+
 class Str(str):
     pass
 

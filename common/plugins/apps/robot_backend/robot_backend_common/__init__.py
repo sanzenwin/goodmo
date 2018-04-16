@@ -41,19 +41,19 @@ class RobotManager:
             account.activeAvatar.onReqReady()
 
         if wasActive:
-            ERROR_MSG("%s::__onLoadAccount:(%i): this account is in world now!" % (self.__class__.__name__, self.id))
+            ERROR_MSG("%s::__onLoadAccount:(%s): this account is in world now!" % (self.__class__.__name__, name))
             return
         if baseRef is None:
-            ERROR_MSG("%s::__onLoadAccount:(%i): the account you wanted to created is not exist!" % (
-                self.__class__.__name__, self.id))
+            ERROR_MSG("%s::__onLoadAccount:(%s): the account you wanted to created is not exist!" % (
+                self.__class__.__name__, name))
             return
         account = KBEngine.entities.get(baseRef.id)
         if account is None:
-            ERROR_MSG("%s::__onLoadAccount:(%i): when account was created, it died as well!" % (
-                self.__class__.__name__, self.id))
+            ERROR_MSG("%s::__onLoadAccount:(%s): when account was created, it died as well!" % (
+                self.__class__.__name__, name))
             return
         if not account.lastSelectAvatar:
-            ERROR_MSG("%s::__onLoadAccount:(%i): this account has no character!" % (self.__class__.__name__, self.id))
+            ERROR_MSG("%s::__onLoadAccount:(%s): this account has no character!" % (self.__class__.__name__, name))
             return
         account.onAvatarLoaded = onAvatarLoaded
         account.reqSelectAvatar(account.lastSelectAvatar)
@@ -251,3 +251,9 @@ class AvatarClientProxy:
 class RobotDefault(Robot):
     def onLogin(self):
         self.foreverRun(1, self.base.robDisconnect)
+
+
+@factory("controller")
+class RobotController(RobotDefault):
+    def onLogin(self):
+        self.base.robController()

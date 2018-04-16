@@ -242,6 +242,12 @@ class RobotDefault(Robot):
         self.foreverRun(1, self.base.robDisconnect)
 
 
+@factory("controller")
+class RobotController(RobotDefault):
+    def onLogin(self):
+        self.base.robController()
+
+
 @factory("factory")
 class RobotFactory(Robot):
     addBotsKey = settings_kbengine.bots.account_infos.account_name_prefix.value
