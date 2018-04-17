@@ -6,7 +6,7 @@ from robot_common import createRobots
 
 class RobotController:
     base = Base(
-        addEntity=BaseMethod(Type.ENTITYCALL),
+        addEntity=BaseMethod(Type.UNICODE, Type.ENTITYCALL),
         removeEntity=BaseMethod(Type.ENTITY_ID),
         controllerEvent=BaseMethod(Type.ENTITY_ID, Type.PYTHON)
     )
