@@ -46,7 +46,7 @@ class BaseApp(KBEngine.Entity, TimerProxy):
         if ready:
             cls.notReadyTimeStamp = 0
             if cls.instance.groupIndex == 1:
-                cls.instance.runInNextFrame(cls.instance.allCompleted)
+                cls.instance.addTimerProxy(2, cls.instance.allCompleted)
         else:
             if server_time.passed(cls.readyStamp) > settings.BaseApp.readyForLoginWarringSeconds:
                 if server_time.stamp() - cls.notReadyTimeStamp > settings.BaseApp.readyForLoginIntervalSeconds * 1000:

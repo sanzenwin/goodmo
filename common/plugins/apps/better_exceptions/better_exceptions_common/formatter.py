@@ -29,7 +29,7 @@ THEME = {
     'inspect': lambda s: u'\x1b[36m{}\x1b[m'.format(s),
 }
 
-MAX_LENGTH = 128
+MAX_LENGTH = 1280
 
 
 def isast(v):

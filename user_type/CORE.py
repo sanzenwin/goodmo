@@ -53,6 +53,10 @@ def python_server(obj, real_type=None):
     return v
 
 
+def python_server_list(obj, real_type=None):
+    return [python_server(x, real_type) for x in obj]
+
+
 class MetaOfDictType(type):
     protocol_template_str = """
     <%(protocol_name)s>FIXED_DICT

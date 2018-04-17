@@ -11,7 +11,8 @@ class PlayerManager(KBEngine.Entity):
         run=BaseMethod(Type.DBID, Type.CALL.array),
         runOnline=BaseMethod(Type.DBID, Type.CALL.array),
         runOnlineAll=BaseMethod(Type.CALL.array),
-        sendEvent=BaseMethod(Type.DBID, Type.EVENT)
+        sendEvent=BaseMethod(Type.DBID, Type.EVENT),
+        sendEventAll=BaseMethod(Type.EVENT)
     )
 
     errorDeepMax = 3
@@ -64,6 +65,11 @@ class PlayerManager(KBEngine.Entity):
         player = self.players.get(guaranteeID)
         if player and player.client:
             player.client.onEvent(event.client)
+
+    def sendEventAll(self, event):
+        for player in self.players.values():
+            if player.client:
+                player.client.onEvent(event.client)
 
     def loadGuarantee(self, guaranteeID, errorDeep=0):
         def callback(baseRef, dbid, wasActive):

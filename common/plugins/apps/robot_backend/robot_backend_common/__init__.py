@@ -164,7 +164,7 @@ class Robot:
 
     def rob_event__control(self, *args):
         method, args = args[0], args[1:]
-        action_method = getattr(self, 'rob_control__' + method, None)
+        action_method = getattr(self, 'control__' + method, None)
         if action_method is not None:
             action_method(*args)
 

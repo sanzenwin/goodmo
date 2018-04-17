@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import KBEngine
 from kbe.protocol import Type, Base, BaseMethod
 from robot_common import createRobots
 
@@ -23,7 +24,7 @@ class RobotController:
         self.names[entity.id] = name
         if name == self.controllerBotName:
             self.controllerBot = entity
-            self.onGetController()
+            KBEngine.BaseApp.instance.runInNextFrame(self.onGetController)
         self.onAddEntity(entity.id)
 
     def removeEntity(self, entityID):

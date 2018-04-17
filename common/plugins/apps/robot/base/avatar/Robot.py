@@ -70,7 +70,7 @@ class Robot:
         self.disconnect()
 
     def robAddAsset(self, assetName, assetAmount):
-        getattr(self, "modify%s" % assetName)(assetAmount)
+        getattr(self, "modify%s" % assetName.capitalize())(assetAmount)
 
     def robController(self):
         self.addRef()
@@ -79,6 +79,7 @@ class Robot:
         self.robotName = name
         self.robotData = data
         self.onRobotInit()
+        self.robAddAsset("gold", 5000 - self.gold)
 
     @Event.method
     def onRobotInit(self):

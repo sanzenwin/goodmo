@@ -26,6 +26,7 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         self.destroyTimerID = None
         self.isFirstLogin = True
         self.isReLogin = False
+        self.isKicked = False
         self.publicAttrMap = PublicAttrMap()
 
     def onCreatedAndCompleted(self):
@@ -56,6 +57,9 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         avatar_common_login_post.send(self)
 
     def onClientEnabled(self):
+        if self.isKicked:
+            self.disconnect()
+            return
         self.client.onServerTime(server_time.stamp_origin())
         if self.isReqReady():
             self.onReqReady()
@@ -81,6 +85,10 @@ class Avatar(KBEngine.Proxy, Ref, RunObject, TimerProxy, Event.Container):
         avatar_modify_multi.send(self, data=data, old=old)
         for key, value in data.items():
             avatar_modify_common.send(self, key=key, value=value, old=old[key])
+
+    def modifyKickOnline(self):
+        self.isKicked = True
+        self.disconnect()
 
     def logout(self):
         if self.isReqReady():

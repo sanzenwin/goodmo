@@ -183,7 +183,10 @@ class Robot:
         self.onLogin()
 
     def rob_event__control(self, *args):
-        pass
+        method, args = args[0], args[1:]
+        action_method = getattr(self, 'control__' + method, None)
+        if action_method is not None:
+            action_method(*args)
 
     def onLogin(self):
         pass
