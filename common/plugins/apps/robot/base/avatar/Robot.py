@@ -79,7 +79,6 @@ class Robot:
         self.robotName = name
         self.robotData = data
         self.onRobotInit()
-        self.robAddAsset("gold", 5000 - self.gold)
 
     @Event.method
     def onRobotInit(self):

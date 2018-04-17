@@ -17,6 +17,14 @@ class SendEventOnline(Command):
 
 
 @command
+class SendShutdownServerOnline(Command):
+    args_conditions = (str,)
+
+    def execute(self):
+        Equalization.PlayerManager.sendEventAll(TEvent.pkg("shutdown_server", self.args[0]))
+
+
+@command
 class KickPlayersOnline(Command):
     def execute(self):
         Equalization.PlayerManager.runOnlineAll([TCall(method='modifyKickOnline')])
