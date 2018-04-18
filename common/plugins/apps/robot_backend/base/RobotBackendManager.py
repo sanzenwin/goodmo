@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import KBEngine
-import settings
 from kbe.core import Equalization, Redis
 from kbe.protocol import Base, BaseMethod, Property, Client, ClientMethod, Type
 from kbe.utils import TimerProxy
 from kbe.signals import baseapp_completed
 from common.dispatcher import receiver
+from robot_backend.signals import robot_loaded
 from default.signals import avatar_created
 
 
@@ -26,6 +26,7 @@ class RobotBackendManager(KBEngine.Entity, TimerProxy):
     def botLoaded(self):
         def callback(r_list):
             self.availableRobots = set(int(dbid) for dbid in r_list)
+            robot_loaded.send(self)
 
         asyncio.async(robot_list_generation()).add_done_callback(lambda future: callback(future.result()))
 
