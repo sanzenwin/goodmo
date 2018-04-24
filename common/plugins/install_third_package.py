@@ -18,6 +18,8 @@ class Plugins:
     PLUGINS_OUTER_DIR = os.path.join(os.path.dirname(HOME_DIR), "apps")
     PLUGINS_PROXY_COMMON_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "common")
 
+    app = "base"
+
     apps = OrderedDict()
 
     app_component = dict(
