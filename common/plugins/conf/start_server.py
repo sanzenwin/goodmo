@@ -95,6 +95,9 @@ interact
         self.origin_cid = 10000
         self.origin_gus = 0
 
+    def set_origin_cid(self, cid):
+        self.origin_cid = cid
+
     def new_cid(self):
         self.origin_cid += 1
         return self.origin_cid

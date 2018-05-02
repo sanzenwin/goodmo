@@ -669,6 +669,7 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
             baseapp=bc
         )
         bots = dict(bots=1)
+        shell_maker.set_origin_cid(self.xml_config["originCid"])
         self.write(shell_maker.apps_shell(base, True, True), self.SHELL_DIR, "start_server.cmd")
         self.write(shell_maker.apps_shell(base, True, False), self.SHELL_DIR, "start_server.sh")
         self.write(shell_maker.apps_shell(bots, False, True), self.SHELL_DIR, "start_bots.cmd")
