@@ -107,7 +107,7 @@ def onRequestCharge(ordersID, entityDBID, datas):
     @param datas: 客户端请求时所附带的数据，可将数据转发第三方平台
     @type  datas: bytes
     """
-    INFO_MSG('onRequestCharge: entityDBID=%s, entityDBID=%s' % (ordersID, entityDBID))
+    INFO_MSG('onRequestCharge: ordersID=%s, entityDBID=%s' % (ordersID, entityDBID))
 
     # 此处可通过http等手段将请求提交至第三方平台，平台返回的数据也可放入datas
     # datas将会回调至baseapp的订单回调中，具体参考API手册charge
