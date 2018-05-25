@@ -141,6 +141,7 @@ def equalization_change(signal, sender, key, value):
                 elif sender.groupIndex == 1:
                     KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
 
+        need_created.sort()
         for i in range(index - 1, len(need_created), settings.BaseApp.equalizationBaseappAmount):
             name = need_created[i]
             KBEngine.createEntityLocally(name, dict(entityNeedSave=True))
