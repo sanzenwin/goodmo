@@ -1,2 +1,2 @@
 # goodmo
-A useful game framework for [kbengine](http://kbengine.org).
+A useful framework of game sever for [kbengine](http://kbengine.org).
