@@ -61,6 +61,9 @@ class Plugins:
         if need_keep:
             self.write("", dir_name, ".gitkeep")
 
+    def pause(self, wait):
+        time.sleep(wait)
+
     def to_pep8(self, s):
         from yapf.yapflib.yapf_api import FormatCode
         return FormatCode(s)[0]
@@ -81,7 +84,7 @@ class Plugins:
     def completed(self, wait=2):
         print("""==================\n""")
         print("""plugins completed!!""")
-        time.sleep(wait)
+        self.pause(wait)
         sys.exit()
 
     def discover(self):

@@ -15,13 +15,15 @@ class C:
         com = com_cls()
         return com if com.args_conditions else None
 
-    @property
-    def doc(self):
+    def get_doc(self):
         return {k: v.doc() for k, v in self.commands.items()}
+
+    def get_app_info(self):
+        return {k: v.__module__.split(".", 1)[0] for k, v in self.commands.items()}
 
     @property
     def a(self):
-        print(pformat(self.doc))
+        print(pformat(self.get_doc()))
         return None
 
 

@@ -10,6 +10,7 @@ from copy import deepcopy
 from importlib import import_module
 from collections import OrderedDict
 from common.utils import get_module, get_module_list, get_module_attr, get_module_all
+from common.shutil import mv_tree_ext
 from kbe.protocol import Type, Property, Parent, Interfaces, Volatile, Properties, Client, Base, Cell, Entity, Entities
 from plugins.conf import SettingsNode, EqualizationMixin
 from plugins.conf.start_server import shell_maker
@@ -246,6 +247,9 @@ class Plugins(Plugins_):
     PLUGINS_PROXY_BASE_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "base")
     PLUGINS_PROXY_CELL_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "cell")
     PLUGINS_PROXY_BOTS_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "bots")
+    PLUGINS_PROXY_COMMON_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "common")
+
+    APPS_DIR = os.path.join(os.path.dirname(HOME_DIR), "apps")
 
     uid = os.getenv("uid")
     public_key = None
@@ -258,6 +262,8 @@ class Plugins(Plugins_):
     m_entity_client_methods = dict()
 
     m_user_types_modules = list()
+
+    m_app_id_map = {}
 
     entities = {
         ObjectOfBase: {},
@@ -420,6 +426,23 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
             if isinstance(c, EqualizationMixin):
                 c.init_equalization_format()
             setattr(settings, k, c)
+
+    def init__appid(self):
+        filepath = os.path.join(self.APPS_DIR, "appid.py")
+        if not os.path.exists(filepath):
+            self.write("", filepath)
+        with codecs.open(filepath, encoding='utf-8') as f:
+            s = f.read()
+            dirty = False
+            self.m_app_id_map = json.loads(s) if s else {}
+            max_id = max(self.m_app_id_map.values()) if self.m_app_id_map else 0
+            for name in reversed(self.apps):
+                if name not in self.m_app_id_map:
+                    max_id += 1
+                    self.m_app_id_map[name] = max_id
+                    dirty = True
+            if dirty:
+                self.write(json.dumps(self.m_app_id_map, indent=1), filepath)
 
     def init__user_type(self):
         user_types = []
@@ -598,6 +621,26 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
         self.write("var resData = %s;" % json.dumps(data, indent=1, sort_keys=True),
                    os.path.join(client_data, "data.js"))
 
+    def init__client_data(self):
+        client_data_path = os.path.join(self.DATA_DIR, "client_data")
+        self.clear(client_data_path)
+        mv_tree_ext("json", self.PLUGINS_PROXY_COMMON_DIR, client_data_path)
+        mv_tree_ext("json", self.EXCEL_DATA_DIR, client_data_path)
+        data = {}
+        for appname in os.listdir(client_data_path):
+            path = os.path.normpath(os.path.join(client_data_path, appname))
+            if not os.path.isfile(path):
+                data[appname] = {}
+                for name in os.listdir(path):
+                    slist = name.split(".")
+                    if len(slist) > 2:
+                        d = data[appname].setdefault(slist[0], {})
+                        d[slist[-2]] = name
+                    else:
+                        data[appname][slist[0]] = name
+        for appname, d in data.items():
+            self.write(json.dumps(d, indent=1, sort_keys=True), client_data_path, appname, "menu.json")
+
     def init__rsa(self):
         crypto = get_module("oscrypto.asymmetric")
         public_key, private_key = crypto.generate_pair("rsa", 1024)
@@ -737,13 +780,14 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
     def discover(self):
         self.clear_dir()
         self.init__sys_path()
+        self.init__appid()
         self.init__apps_setup()
         self.init__settings()
         self.init__apps_run()
         self.init__user_type()
         self.init__entity()
         self.init__apps_completed()
-        self.init__all_completed()
+        self.init__client_data()
         self.init__rsa()
         self.init__xml_config()
         self.init__database()
