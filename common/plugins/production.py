@@ -54,7 +54,6 @@ class Plugins:
 
     def init__sys_path(self):
         sys.path = [self.PLUGINS_OUTER_DIR, self.PLUGINS_DIR] + sys.path
-        sys.path = [self.PLUGINS_PROXY_COMMON_DIR, self.PLUGINS_PROXY_DIR] + sys.path
         settings = importlib.import_module("settings")
         for name in reversed(settings.installed_apps):
             for path in sys.path:
@@ -64,6 +63,7 @@ class Plugins:
                     break
             else:
                 assert False, "can not find the app [%s] by name" % name
+        sys.path = [self.PLUGINS_PROXY_COMMON_DIR, self.PLUGINS_PROXY_DIR] + sys.path
         for name, path in self.apps.items():
             sys.path.append(path)
             if self.app in ("base", "cell", "bots"):

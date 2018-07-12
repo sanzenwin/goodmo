@@ -244,7 +244,7 @@ def get_module(mod_name):
         m = re.search("No module named '(\S*)'", e.args[0])
         if m and m.group(1) in mod_name:
             return None
-        raise ImportError("%s from '%s'" % (e.args[0], mod_name))
+        raise ImportError("%s which called in '%s'" % (e.args[0], mod_name))
     return mod
 
 
