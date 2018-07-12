@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import site
 import codecs
 import shutil
 import kbe.log
@@ -14,9 +15,11 @@ class Plugins:
     THIRD_PACKAGE_DIR = os.path.join(os.path.dirname(os.path.dirname(HOME_DIR)), "kbe", "res", "scripts", "common",
                                      "Lib", "site-packages")
     COMMON_DIR = os.path.join(HOME_DIR, "common")
-    PLUGINS_DIR = os.path.join(COMMON_DIR, "plugins", "apps")
-    PLUGINS_OUTER_DIR = os.path.join(os.path.dirname(HOME_DIR), "apps")
+    PLUGINS_APPS_DIR = os.path.join(COMMON_DIR, "plugins", "apps")
+    PLUGINS_OUTER_APPS_DIR = os.path.join(os.path.dirname(HOME_DIR), "apps")
     PLUGINS_PROXY_COMMON_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "common")
+
+    apps_path = site.getsitepackages() + [PLUGINS_OUTER_APPS_DIR, PLUGINS_APPS_DIR]
 
     app = "base"
 
@@ -30,8 +33,16 @@ class Plugins:
         loginapp="login"
     )
 
+    def get_cur_app_name(self, file):
+        for p in self.apps_path:
+            if p in file:
+                f = file.replace(p, "")
+                name = f.split(os.sep)[1]
+                if name in self.apps:
+                    return name
+
     def init__sys_path(self):
-        sys.path = [self.PLUGINS_OUTER_DIR, self.PLUGINS_DIR] + sys.path
+        sys.path = [self.PLUGINS_OUTER_APPS_DIR, self.PLUGINS_APPS_DIR] + sys.path
         settings = import_module("settings")
         for name in reversed(settings.installed_apps):
             for path in sys.path:

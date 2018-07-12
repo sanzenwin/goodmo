@@ -53,7 +53,8 @@ class RobotManager:
                 self.__class__.__name__, name))
             return
         if not account.lastSelectAvatar:
-            ERROR_MSG("%s::__onLoadAccount:(%s): this account has no character!" % (self.__class__.__name__, name))
+            ERROR_MSG("%s::__onLoadAccount:(%s): this account(%d) has no character!" % (
+                self.__class__.__name__, name, account.databaseID))
             return
         account.onAvatarLoaded = onAvatarLoaded
         account.reqSelectAvatar(account.lastSelectAvatar)

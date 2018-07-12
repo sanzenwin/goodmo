@@ -3,6 +3,7 @@ import sys
 import re
 import types
 import importlib
+import site
 import KBEngine
 from collections import OrderedDict
 from common.utils import get_module_list, get_module_attr, get_module, get_module_all
@@ -22,8 +23,10 @@ class Plugins:
     CELL_DIR = os.path.join(HOME_DIR, "base")
     DEF_DIR = os.path.join(HOME_DIR, "entity_defs")
     COMMON_DIR = os.path.join(HOME_DIR, "common")
-    PLUGINS_DIR = os.path.join(COMMON_DIR, "plugins", "apps")
-    PLUGINS_OUTER_DIR = os.path.join(os.path.dirname(HOME_DIR), "apps")
+    PLUGINS_APPS_DIR = os.path.join(COMMON_DIR, "plugins", "apps")
+    PLUGINS_OUTER_APPS_DIR = os.path.join(os.path.dirname(HOME_DIR), "apps")
+
+    apps_path = site.getsitepackages() + [PLUGINS_OUTER_APPS_DIR, PLUGINS_APPS_DIR]
 
     uid = os.getenv("uid")
     r = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
@@ -52,8 +55,16 @@ class Plugins:
     def get_module_list(self, *path):
         return get_module_list(*path)
 
+    def get_cur_app_name(self, file):
+        for p in self.apps_path:
+            if p in file:
+                f = file.replace(p, "")
+                name = f.split(os.sep)[1]
+                if name in self.apps:
+                    return name
+
     def init__sys_path(self):
-        sys.path = [self.PLUGINS_OUTER_DIR, self.PLUGINS_DIR] + sys.path
+        sys.path = [self.PLUGINS_OUTER_APPS_DIR, self.PLUGINS_APPS_DIR] + sys.path
         settings = importlib.import_module("settings")
         for name in reversed(settings.installed_apps):
             for path in sys.path:

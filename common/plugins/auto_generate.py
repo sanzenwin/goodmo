@@ -401,10 +401,10 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
             return f.read()
 
     def get_app_path(self, name):
-        path = os.path.join(self.PLUGINS_OUTER_DIR, name)
+        path = os.path.join(self.PLUGINS_OUTER_APPS_DIR, name)
         if os.path.exists(path):
             return path
-        return os.path.join(self.PLUGINS_DIR, name)
+        return os.path.join(self.PLUGINS_APPS_DIR, name)
 
     def init__settings(self):
         settings_dict = {}
