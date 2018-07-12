@@ -18,7 +18,7 @@ class Account(KBEngine.Proxy):
     )
 
     client = Client(
-        onRetCode=ClientMethod(Type.RET_CODE(Type.UINT16)),
+        onRetCode=ClientMethod(Type.RET_CODE(Type.UINT32)),
         onReqAvatarList=ClientMethod(Type.AVATAR_INFO.array),
         onCreateAvatarResult=ClientMethod(Type.AVATAR_INFO),
         onRemoveAvatar=ClientMethod(Type.DBID)
