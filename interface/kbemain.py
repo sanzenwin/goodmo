@@ -67,9 +67,6 @@ def onRequestAccountLogin(loginName, password, datas):
     @type  datas: bytes
     """
     data = Bytes(datas)
-    clientType = data.pop("ct")
-    if clientType == Client.CLIENT_TYPE_BOTS:
-        return KBEngine.accountLoginResponse(loginName, loginName, datas, KBEngine.SERVER_SUCCESS)
     if not settings.Account.needWebAuth:
         return KBEngine.accountLoginResponse(loginName, data.get("username", loginName),
                                              Bytes(username=loginName, password=loginName, typeList=[]).dumps(),
@@ -92,6 +89,26 @@ def onRequestAccountLogin(loginName, password, datas):
         KBEngine.accountLoginResponse(loginName, realAccountName, Bytes(**serverData).dumps(), code)
 
     AsyncHttp().post(settings.Account.url.authUser, callback, data)
+
+
+def onRequestCreateAccount(registerName, password, datas):
+    """
+    KBEngine method.
+    请求创建账号回调
+    @param registerName: 客户端请求时所提交的名称
+    @type  registerName: string
+
+    @param password: 密码
+    @type  password: string
+
+    @param datas: 客户端请求时所附带的数据，可将数据转发第三方平台
+    @type  datas: bytes
+    """
+
+    def callback(data):
+        KBEngine.createAccountResponse(registerName, registerName, data.dumps(), KBEngine.SERVER_SUCCESS)
+
+    plugins.plugins.onRequestGuestEvent(Bytes(datas), callback)
 
 
 def onRequestCharge(ordersID, entityDBID, datas):

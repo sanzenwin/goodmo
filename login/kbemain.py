@@ -35,16 +35,8 @@ def onLoginAppShutDown():
 
 
 def onRequestLogin(loginName, password, clientType, datas):
-    """
-    KBEngine method.
-    账号请求登陆时回调
-    此处还可以对登陆进行排队，将排队信息存放于datas
-    """
     errorno = KBEngine.SERVER_SUCCESS
     data = Bytes(datas)
-    data["ct"] = clientType
-    if clientType == Client.CLIENT_TYPE_BOTS:
-        return errorno, loginName, password, clientType, data.dumps()
     if not check_auth_data(data):
         errorno = KBEngine.SERVER_ERR_OP_FAILED
     elif loginName != "x":
@@ -68,15 +60,13 @@ def onLoginCallbackFromDB(loginName, accountName, errorno, datas):
 
 
 def onRequestCreateAccount(accountName, password, datas):
-    """
-    KBEngine method.
-    请求账号创建时回调
-    """
-    INFO_MSG('onRequestCreateAccount() %s' % (datas))
-
-    errorno = KBEngine.SERVER_ERR_OP_FAILED
-
-    return (errorno, accountName, password, datas)
+    errorno = KBEngine.SERVER_SUCCESS
+    data = Bytes(datas)
+    if accountName != "x":
+        errorno = KBEngine.SERVER_ERR_OP_FAILED
+    if password != "":
+        errorno = KBEngine.SERVER_ERR_OP_FAILED
+    return errorno, accountName, password, data.dumps()
 
 
 def onCreateAccountCallbackFromDB(accountName, errorno, datas):

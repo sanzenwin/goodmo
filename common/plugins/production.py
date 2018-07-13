@@ -4,6 +4,7 @@ import re
 import types
 import importlib
 import site
+import inspect
 import KBEngine
 from collections import OrderedDict
 from common.utils import get_module_list, get_module_attr, get_module, get_module_all
@@ -46,7 +47,8 @@ class Plugins:
     PLUGINS_PROXY_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", app)
     PLUGINS_PROXY_COMMON_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "common")
 
-    interface_handle_map = {}
+    interface_charge_map = {}
+    interface_guest_event_map = {}
 
     entities = {}
 
@@ -215,13 +217,29 @@ class Plugins:
             if m:
                 for k in dir(m):
                     f = getattr(m, k)
-                    if isinstance(f, types.FunctionType) and k not in self.interface_handle_map:
-                        self.interface_handle_map[k] = f
+                    if isinstance(f, types.FunctionType) and inspect.getargspec(f)[0] == ["ordersID", "entityDBID",
+                                                                                          "data"] and k not in self.interface_charge_map:
+                        self.interface_charge_map[k] = f
 
     def onRequestCharge(self, ordersID, entityDBID, data):
-        handle = self.interface_handle_map.get(data.pop("interface", None))
+        handle = self.interface_charge_map.get(data.pop("interface", None))
         if handle:
             handle(ordersID, entityDBID, data)
+
+    def init__guest_event(self):
+        for name in self.apps:
+            m = get_module("%s.interface" % name)
+            if m:
+                for k in dir(m):
+                    f = getattr(m, k)
+                    if isinstance(f, types.FunctionType) and inspect.getargspec(f)[0] == ["data",
+                                                                                          "callback"] and k not in self.interface_guest_event_map:
+                        self.interface_guest_event_map[k] = f
+
+    def onRequestGuestEvent(self, data, callback):
+        handle = self.interface_guest_event_map.get(data.get("event", None))
+        if handle:
+            handle(data, callback)
 
     def init_bots(self):
         assert self.app == "bots"
@@ -299,6 +317,7 @@ class Plugins:
             self.init__entity()
         if self.app == "interface":
             self.init__charge()
+            self.init__guest_event()
         self.load_all_module("plugins.setup")
         Type.init_dict_types()
         KBEngine.TAvatar = plugins.find_user_type("TAvatar")

@@ -27,12 +27,15 @@ __kbengine_xml_default__ = dict(
     ),
     baseapp=dict(
         externalAddress="",
-        backupPeriod=500
+        backupPeriod=500,
+        externalPorts_min=20015,
+        externalPorts_max=20035
     ),
     bots=dict(
         account_infos=dict(
             account_name_prefix="bot_",
-            account_name_suffix_inc=1
+            account_name_suffix_inc=1,
+            account_password="O5LCJ3uotGCqOwDf"
         )
     )
 )
