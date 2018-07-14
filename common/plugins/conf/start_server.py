@@ -17,7 +17,7 @@ set KBE_ROOT=%cd%
 set KBE_RES_PATH=%KBE_ROOT%/kbe/res/;%curpath%/;%curpath%/res/;%curpath%/scripts/
 set KBE_BIN_PATH=%KBE_ROOT%/kbe/bin/server/
 
-if defined uid (echo UID = {uid}) else (echo must set UID && pause)
+if defined uid (echo UID = %uid%) else (echo must set UID && pause)
 
 cd %curpath%
 {kill}
@@ -60,13 +60,12 @@ set temp_vbs=telent_goodmo_%random%.vbs
 #!/bin/bash
 
 cd ../../
-export uid={uid}
 export KBE_ROOT=$(cd ../; pwd)
 export KBE_ASSERT_PATH=$(cd .; pwd)
 export KBE_RES_PATH="$KBE_ROOT/kbe/res/:$KBE_ASSERT_PATH/:$KBE_ASSERT_PATH/res/:$KBE_ASSERT_PATH/scripts/"
 export KBE_BIN_PATH="$KBE_ROOT/kbe/bin/server/"
 
-echo UID = {uid}
+echo UID = ${UID}
 echo KBE_ROOT = \"${KBE_ROOT}\"
 echo KBE_RES_PATH = \"${KBE_RES_PATH}\"
 echo KBE_BIN_PATH = \"${KBE_BIN_PATH}\"
@@ -118,7 +117,7 @@ interact
             for i in range(name_dict[name]):
                 apps.append(self.app_shell(name, cmd))
         return template.format_map(
-            self.Default(apps=("\r\n" if cmd else "\n").join(apps), kill=kill_str, uid=os.getenv("uid")))
+            self.Default(apps=("\r\n" if cmd else "\n").join(apps), kill=kill_str))
 
     def app_telnet_shell(self, data, cmd=True):
         app_template = self.cmd_template_telnet if cmd else self.sh_template_telnet
