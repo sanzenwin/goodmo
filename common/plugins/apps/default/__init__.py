@@ -5,6 +5,7 @@ __third_package__ = (
 
 __kbengine_xml_default__ = dict(
     gameUpdateHertz=60,
+    originCid=10000,
     publish=dict(
         state=0
     ),
@@ -42,7 +43,6 @@ __kbengine_xml_default__ = dict(
 
 __kbengine_xml__ = dict(
     gameUpdateHertz=60,
-    originCid=10000,
     publish=dict(
         state=0,
         script_version="0.1.0"
