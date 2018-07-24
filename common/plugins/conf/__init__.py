@@ -47,6 +47,14 @@ class SettingsEntity(SettingsNode):
     def isAutoLoaded(self):
         return getattr(self, "autoLoaded", False) or getattr(self, "autoLoadedOrCreate", False)
 
+    def get_mro_set(self, key):
+        r = {}
+        for c in self.__class__.mro():
+            d = c.__dict__.get(key)
+            if d:
+                r.update(d)
+        return r
+
 
 class EqualizationMixin:
     min_int = -sys.maxsize
