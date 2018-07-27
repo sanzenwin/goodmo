@@ -648,10 +648,19 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
         self.write(crypto.dump_private_key(private_key, None).decode("utf-8"), self.RES_KEY_DIR, "kbengine_private.key")
         self.write(crypto.dump_public_key(public_key).decode("utf-8"), self.RES_KEY_DIR, "kbengine_public.key")
 
+    def get_mongodb(self):
+        settings = import_module("settings")
+        client = get_module_attr("pymongo.MongoClient")
+        db_name = "goodmo__%s" % self.uid
+        if "uri" in settings.Global.kbengine_xml_mongodb:
+            c = dict(host=settings.Global.kbengine_xml_mongodb["uri"])
+        else:
+            c = dict(authSource=db_name, **settings.Global.kbengine_xml_mongodb)
+        return client(**c)[db_name]
+
     def init__xml_config(self):
         settings = import_module("settings")
         xml = get_module_attr("kbe.xml.Xml")
-        client = get_module_attr("pymongo.MongoClient")
         data = dict()
         data_default = dict()
         for name in reversed(self.apps):
@@ -662,12 +671,7 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
         default = config.get_default_with_telnet(deepcopy(data_default), settings.Global.telnetOnePassword)
         data = config.update_recursive(data, default)
         data = config.update_recursive(data, config.get_default_data())
-        db_name = "goodmo__%s" % self.uid
-        if "uri" in settings.Global.kbengine_xml_mongodb:
-            c = dict(host=settings.Global.kbengine_xml_mongodb["uri"])
-        else:
-            c = dict(authSource=db_name, **settings.Global.kbengine_xml_mongodb)
-        db = client(**c)[db_name]
+        db = self.get_mongodb()
         collection = db.kbengine_xml
         try:
             d = collection.find({}, dict(_id=False)).next()
