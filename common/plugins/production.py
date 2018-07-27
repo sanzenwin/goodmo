@@ -68,6 +68,8 @@ class Plugins:
     def init__sys_path(self):
         sys.path = [self.PLUGINS_OUTER_APPS_DIR, self.PLUGINS_APPS_DIR] + sys.path
         settings = importlib.import_module("settings")
+        sys.path = [p if os.path.isabs(p) else os.path.join(os.path.dirname(self.HOME_DIR), os.path.normpath(p)) for p
+                    in getattr(settings, "third_app_path", [])] + sys.path
         for name in reversed(settings.installed_apps):
             for path in sys.path:
                 dir_name = os.path.join(path, name)
