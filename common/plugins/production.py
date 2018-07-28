@@ -320,7 +320,7 @@ class Plugins:
         if self.app == "interface":
             self.init__charge()
             self.init__guest_event()
-        self.load_all_module("plugins.setup")
+        self.load_all_module("plugins.production")
         Type.init_dict_types()
         KBEngine.TAvatar = plugins.find_user_type("TAvatar")
         plugins_completed.send(self)

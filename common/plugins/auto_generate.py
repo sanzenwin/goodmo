@@ -476,7 +476,7 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
                 cell = entity_cell.cell()
                 client += entity_cell.client()
             for n in reversed(self.apps):
-                h = get_module_attr("%s.plugins.entity.def_entity" % n)
+                h = get_module_attr("%s.plugins.auto_generate.entity_define" % n)
                 if h:
                     h(self, entity_base, entity_cell, parent, volatile, implements, properties, base, cell, client)
             s = Entity(
@@ -518,7 +518,7 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
             import_list = []
             content_list = []
             for name in reversed(self.apps):
-                handler = get_module_attr("%s.plugins.entity.base_content" % name)
+                handler = get_module_attr("%s.plugins.auto_generate.entity_base_content" % name)
                 if handler:
                     content = handler(self, k)
                     if content is not None:
@@ -565,33 +565,7 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
                     dct[k] = client[k]
 
     def init__apps_setup(self):
-        # class Proxy(types.ModuleType):
-        #     def __getattr__(self, item):
-        #         return None
-        #
-        # all_proxy_modules = []
-        #
-        # for name in self.apps:
-        #     proxy_modules = get_module_attr("%s.plugins.__proxy_modules__" % name, [])
-        #     for modules in proxy_modules:
-        #         modules = modules.split(".")
-        #         for i in range(len(modules)):
-        #             m = ".".join(modules[:i + 1])
-        #             if m not in sys.modules:
-        #                 sys.modules[m] = Proxy(m)
-        #                 all_proxy_modules.append(m)
-
         self.run_plugins("setup")
-
-        # for m in all_proxy_modules:
-        #     sys.modules.pop(m)
-        #     try:
-        #         mm = import_module(m)
-        #     except ImportError as e:
-        #         print(e.args[0])
-        #         continue
-        #     else:
-        #         reload(mm)
 
     def init__apps_run(self):
         self.run_plugins("run")
@@ -748,7 +722,7 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
 
     def run_plugins(self, method):
         for name in reversed(self.apps):
-            entry = get_module_attr("%s.plugins.%s" % (name, method))
+            entry = get_module_attr("%s.plugins.auto_generate.%s" % (name, method))
             if entry:
                 entry(self, name)
 

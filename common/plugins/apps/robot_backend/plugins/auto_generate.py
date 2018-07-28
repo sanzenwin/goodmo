@@ -1,13 +1,13 @@
 from kbe.protocol import BaseMethod
 
 
-def def_entity(plugins, entity_base, entity_cell, parent, volatile, implements, properties, base, cell, client):
+def entity_define(plugins, entity_base, entity_cell, parent, volatile, implements, properties, base, cell, client):
     if entity_base.entity_name == "Avatar":
         for k, v in client.items():
             base["ClientProxy__%s" % k] = BaseMethod(*v)
 
 
-def base_content(plugins, entity_name):
+def entity_base_content(plugins, entity_name):
     if entity_name != "Avatar":
         return None
     template_str = """\
