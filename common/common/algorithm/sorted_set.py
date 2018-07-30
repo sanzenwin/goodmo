@@ -18,6 +18,9 @@ class SortedSetKey:
     def get_key(self, value):
         return self.dict[value]
 
+    def get_reversed_list(self, index, count):
+        return self[-1 - index: -1 - index - count:-1]
+
     def values(self):
         for value in self.sorted_set:
             yield value
