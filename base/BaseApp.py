@@ -24,7 +24,7 @@ class BaseApp(KBEngine.Entity, TimerProxy):
 
     @classmethod
     def checkType(cls, obj):
-        return isinstance(obj, KBEngine.Entity) or obj.__class__.__name__ == "EntityMailbox"
+        return isinstance(obj, KBEngine.Entity) or obj.__class__.__name__ == "EntityCall"
 
     @classmethod
     def onBaseAppReady(cls):
