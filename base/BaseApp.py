@@ -20,6 +20,8 @@ class BaseApp(KBEngine.Entity, TimerProxy):
     pendingGlobalDataList = []
     pendingGlobalDataDelList = []
 
+    allBaseAppCompletedKey = "__allBaseAppCompleted"
+
     @classmethod
     def checkType(cls, obj):
         return isinstance(obj, KBEngine.Entity) or obj.__class__.__name__ == "EntityMailbox"
@@ -117,10 +119,15 @@ class BaseApp(KBEngine.Entity, TimerProxy):
 
     def allCompleted(self):
         baseapp_completed.send(self)
+        KBEngine.baseAppData[self.allBaseAppCompletedKey] = True
 
     @classmethod
     def isCompleted(cls):
         return bool(cls.instance)
+
+    @classmethod
+    def isAllCompleted(cls):
+        return bool(KBEngine.baseAppData.get(cls.allBaseAppCompletedKey))
 
 
 KBEngine.BaseApp = BaseApp

@@ -44,6 +44,7 @@ class xlsx2py:
     """
 
     def __init__(self, infile, outfile, needJson=True):
+        self.curSheetName = ""
         self.needJson = needJson
         self.g_dctDatas = {}
         self.g_fdatas = {}
@@ -265,6 +266,7 @@ class xlsx2py:
             self.curProIndex = []
             for index in indexList:
                 sheet = self.xbook.getSheetByIndex(index)
+                self.curSheetName = self.xbook.getSheetNameByIndex(index)
                 self.curProIndex.append(index)
 
                 cols = self.xbook.getRowCount(index)
@@ -441,7 +443,7 @@ class xlsx2py:
             dataName = self.mapDict[sheetName]
             self.hasExportedSheet.append(self.curProIndex[-1])
         else:
-            self.xlsxClear(2, (sheetName.encode(FILE_CODE),))
+            self.xlsxClear(EXPORT_ERROR_NOMAP, (sheetName.encode(FILE_CODE),))
 
         stream = ""
         dataFileInfo = (self.infile + '.' + SheetName).encode("UTF-8")
@@ -537,6 +539,7 @@ class xlsx2py:
         """
         self.xlsxClose()
         if errno > 0:
+            print("position: %s, %s" % (self.infile, self.curSheetName))
             raise xlsxError.xe(errno, msg)
         else:
             sys.exit(1)

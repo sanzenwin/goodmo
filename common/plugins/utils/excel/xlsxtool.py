@@ -177,7 +177,7 @@ depth = 1
 
 def dict_to_text(d):
     text = '{'
-    for k, v in d.iteritems():
+    for k, v in d.items():
         global depth
         depth += 1
         k = value_to_text(k)
