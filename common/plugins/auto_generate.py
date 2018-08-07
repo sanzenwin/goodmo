@@ -627,10 +627,15 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
         client = get_module_attr("pymongo.MongoClient")
         db_name = "goodmo__%s" % self.uid
         if "uri" in settings.Global.kbengine_xml_mongodb:
-            c = dict(host=settings.Global.kbengine_xml_mongodb["uri"])
+            config = dict(host=settings.Global.kbengine_xml_mongodb["uri"])
         else:
-            c = dict(authSource=db_name, **settings.Global.kbengine_xml_mongodb)
-        return client(**c)[db_name]
+            config = dict(authSource=db_name, **settings.Global.kbengine_xml_mongodb)
+        c = client(**config)
+        try:
+            c.server_info()
+        except get_module_attr("pymongo.errors.OperationFailure"):
+            c = client(**{k: v for k, v in config.items() if k not in {"username", "password"}})
+        return c[db_name]
 
     def init__xml_config(self):
         settings = import_module("settings")
