@@ -5,3 +5,7 @@ class BaseApp(SettingsEntity):
     baseappIndependence = SettingsNode(http_utils=[
         dict(externalIP=True, port=9006),
     ])
+
+
+class Backend(SettingsNode):
+    whiteList = ["*"]

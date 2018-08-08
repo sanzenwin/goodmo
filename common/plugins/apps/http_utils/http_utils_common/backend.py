@@ -1,6 +1,8 @@
+import settings
 from common.dispatcher import receiver
 from http_utils.signals import http_setup
 from http_utils_common.server import Response
+from . import status
 
 handler_map = {}
 
@@ -19,6 +21,11 @@ def url(signal, server, conf):
 
 
 def command(promise):
+    white = set(settings.Backend.whiteList)
+    if "*" not in white and promise.req.ip not in white:
+        promise.done(
+            Response(data="permissions denied!", status=status.HTTP_403_FORBIDDEN, content_type='application/text'))
+        return
     data = promise.req.data_copy()
     operation = data.pop("operation", "")
     func = handler_map.get(operation, None)
