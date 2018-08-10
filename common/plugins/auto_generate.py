@@ -252,6 +252,7 @@ class Plugins(Plugins_):
     APPS_DIR = os.path.join(os.path.dirname(HOME_DIR), "apps")
 
     uid = os.getenv("uid")
+    args = os.getenv("KBE_PLUGINS__ARGS")
     public_key = None
     r = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
 

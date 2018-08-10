@@ -1,4 +1,8 @@
+setlocal enabledelayedexpansion
 @echo off
+
+:argsLoop
+if "%1"=="" (if "!args!" neq "" ( set args=!args:~1!) ) else ( set "args=!args! %1"&shift /1&goto :argsLoop)
 
 cd ../..
 set curpath=%cd%
@@ -19,5 +23,5 @@ echo KBE_RES_PATH = %KBE_RES_PATH%
 echo KBE_BIN_PATH = %KBE_BIN_PATH%
 
 set KBE_PLUGINS__AUTO_GENERATE=1
-
+set KBE_PLUGINS__ARGS=%args%
 start %KBE_BIN_PATH%/baseapp.exe --cid=10001 --gus=1

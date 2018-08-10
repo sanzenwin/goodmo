@@ -13,5 +13,6 @@ echo KBE_BIN_PATH = \"${KBE_BIN_PATH}\"
 sh ./scripts/shell/kill_server.sh
 
 export KBE_PLUGINS__AUTO_GENERATE="1"
+export KBE_PLUGINS__ARGS=$*
 
 $KBE_BIN_PATH/baseapp --cid=10001 --gus=1&
