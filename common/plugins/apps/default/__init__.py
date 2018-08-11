@@ -5,7 +5,6 @@ __third_package__ = (
 
 __kbengine_xml_default__ = dict(
     gameUpdateHertz=60,
-    originCid=10000,
     publish=dict(
         state=0
     ),
@@ -38,6 +37,8 @@ __kbengine_xml_default__ = dict(
             account_name_suffix_inc=1,
             account_password="O5LCJ3uotGCqOwDf"
         )
+    ),
+    extra=dict(
     )
 )
 

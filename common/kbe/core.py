@@ -12,6 +12,7 @@ from kbe.log import DEBUG_MSG, INFO_MSG, ERROR_MSG
 from kbe.xml import Xml
 from common.dispatcher import receiver
 from kbe.signals import database_completed, redis_completed, mongodb_completed, baseapp_ready
+from kbe.xml import settings_kbengine
 from plugins.conf.signals import plugins_completed
 
 
@@ -109,13 +110,12 @@ class Equalization(metaclass=MetaOfEqualization):
 
     @classmethod
     def createBaseLocally(cls):
-        settings = importlib.import_module("settings")
         index = KBEngine.BaseApp.instance.groupIndex
         paths = cls.getAllPath()
-        if index > settings.BaseApp.equalizationBaseappAmount:
+        if index > settings_kbengine.extra.equalizationBaseappAmount.value:
             ERROR_MSG("BaseApp[%d] has not parted in equalization!" % index)
             return
-        for i in range(index - 1, len(paths), settings.BaseApp.equalizationBaseappAmount):
+        for i in range(index - 1, len(paths), settings_kbengine.extra.equalizationBaseappAmount.value):
             path = paths[i]
             # print(path)
             KBEngine.createEntityLocally(path[0], dict(equalizationPath=path[1:]))
@@ -139,7 +139,7 @@ class Equalization(metaclass=MetaOfEqualization):
     @classmethod
     def getBaseIndexInfo(cls, n):
         settings = importlib.import_module("settings")
-        cursor = settings.BaseApp.equalizationBaseappAmount + 1
+        cursor = settings_kbengine.extra.equalizationBaseappAmount.value + 1
         independence = settings.BaseApp.multi["baseappIndependence"].dict
         for name in sorted(independence):
             v = independence[name]

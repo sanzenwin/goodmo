@@ -9,7 +9,7 @@ import simplejson as json
 from copy import deepcopy
 from importlib import import_module
 from collections import OrderedDict
-from common.utils import get_module, get_module_list, get_module_attr, get_module_all
+from common.utils import get_module, get_module_list, get_module_attr, get_module_all, AttrDict, overwritten_dict
 from common.shutil import mv_tree_ext
 from kbe.protocol import Type, Property, Parent, Interfaces, Volatile, Properties, Client, Base, Cell, Entity, Entities
 from plugins.conf import SettingsNode, EqualizationMixin
@@ -251,8 +251,9 @@ class Plugins(Plugins_):
 
     APPS_DIR = os.path.join(os.path.dirname(HOME_DIR), "apps")
 
-    uid = os.getenv("uid")
+    uid = int(os.getenv("uid"))
     args = os.getenv("KBE_PLUGINS__ARGS")
+
     public_key = None
     r = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
 
@@ -273,13 +274,11 @@ class Plugins(Plugins_):
         EntityOfCell: {}
     }
 
+    m_xml_config = None
+
     template_proxy_str = """%(import_content)sfrom %(plugin_name)s.%(app)s.%(cls_name)s import *
 from %(plugin_name)s.%(app)s.%(cls_name)s import %(cls_name)s as %(cls_name)sBase\n\n
 class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
-
-    def __init__(self):
-        super().__init__()
-        self.xml_config = None
 
     def add_entity(self, entity):
         maps = self.entities[entity.__class__]
@@ -646,11 +645,11 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
         for name in reversed(self.apps):
             d = get_module_attr("%s.__kbengine_xml__" % name, dict())
             d_default = get_module_attr("%s.__kbengine_xml_default__" % name, dict())
-            data = config.update_recursive(data, d)
-            data_default = config.update_recursive(data_default, d_default)
+            data = overwritten_dict(data, d)
+            data_default = overwritten_dict(data_default, d_default)
         default = config.get_default_with_telnet(deepcopy(data_default), settings.Global.telnetOnePassword)
-        data = config.update_recursive(data, default)
-        data = config.update_recursive(data, config.get_default_data())
+        data = overwritten_dict(data, default)
+        data = overwritten_dict(data, config.get_default_data())
         db = self.get_mongodb()
         collection = db.kbengine_xml
         try:
@@ -658,14 +657,24 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
         except StopIteration:
             collection.save(deepcopy(data_default))
             d = dict()
-        data = config.update_recursive(data, d)
+        data = overwritten_dict(data, d)
         data = config.final(data, lambda x: x)
-        self.xml_config = data
-        s = xml.dict2xml(data)
+        self.m_xml_config = AttrDict(self.hand_xml_config(data))
+        s = xml.dict2xml(self.m_xml_config.as_dict())
         self.write(s, self.RES_SERVER_DIR, "kbengine.xml")
 
+    def hand_xml_config(self, data):
+        baseapp_amount_list = self.get_baseapp_amount_list()
+        data["extra"].update(dict(
+            equalizationBaseappAmount=sum(baseapp_amount_list) if baseapp_amount_list else 1
+        ))
+        return data
+
+    def get_baseapp_amount_list(self):
+        return [int(x) for x in self.args.split(" ")] if self.args else []
+
     def init__database(self):
-        for _, database in self.xml_config["dbmgr"]["databaseInterfaces"].items():
+        for _, database in self.m_xml_config.dbmgr.databaseInterfaces.as_dict().items():
             try:
                 conn = pymysql.connect(host=database["host"],
                                        port=database["port"],
@@ -677,14 +686,15 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
                 pass
             else:
                 cursor = conn.cursor()
-                cursor.execute("delete from kbe_entitylog")
+                cursor.execute("delete from kbe_entitylog;")
                 conn.commit()
                 cursor.close()
                 conn.close()
 
     def init__shell(self):
         settings = import_module("settings")
-        bc = settings.BaseApp.equalizationBaseappAmount + len(settings.BaseApp.multi["baseappIndependence"].dict)
+        internal_ip_address = get_module_attr("kbe.utils.internal_ip_address")
+        bc = self.m_xml_config.extra.equalizationBaseappAmount + len(settings.BaseApp.multi["baseappIndependence"].dict)
         base = dict(
             machine=1,
             logger=1,
@@ -696,11 +706,11 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
             baseapp=bc
         )
         bots = dict(bots=1)
-        shell_maker.set_origin_cid(self.xml_config["originCid"])
-        self.write(shell_maker.apps_shell(base, True, True), self.SHELL_DIR, "start_server.cmd")
-        self.write(shell_maker.apps_shell(base, True, False), self.SHELL_DIR, "start_server.sh")
-        self.write(shell_maker.apps_shell(bots, False, True), self.SHELL_DIR, "start_bots.cmd")
-        self.write(shell_maker.apps_shell(bots, False, False), self.SHELL_DIR, "start_bots.sh")
+        shell_maker.set_info(self.uid, internal_ip_address())
+        shell_maker.reset()
+        for ext in (".sh", ".cmd"):
+            self.write(shell_maker.apps_shell(base, True, ext == ".cmd"), self.SHELL_DIR, "start_server" + ext)
+            self.write(shell_maker.apps_shell(bots, False, ext == ".cmd"), self.SHELL_DIR, "start_bots" + ext)
 
         telnet = dict(
             bots=1,
@@ -711,12 +721,11 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
             baseapp=bc,
             cellapp=1
         )
-        internal_ip_address = get_module_attr("kbe.utils.internal_ip_address")
         for app, count in telnet.items():
             data = dict(
                 ip=internal_ip_address(),
-                port=self.xml_config[app]["telnet_service"]["port"],
-                password=self.xml_config[app]["telnet_service"]["password"]
+                port=self.m_xml_config[app].telnet_service.port,
+                password=self.m_xml_config[app].telnet_service.password
             )
             port = data["port"]
             for i in range(count):

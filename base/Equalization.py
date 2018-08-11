@@ -10,6 +10,7 @@ from kbe.core import Equalization as Equalization_
 from kbe.protocol import Type, Base, BaseMethod
 from kbe.signals import baseapp_ready, global_data_change, global_data_del, entity_auto_load_completed
 from kbe.log import ERROR_MSG
+from kbe.xml import settings_kbengine
 
 
 class Equalization(KBEngine.Entity, TimerProxy):
@@ -133,7 +134,7 @@ def equalization_change(signal, sender, key, value):
 
         need_created = []
         for name, idList in Equalization_.autoLoadedIDMap.items():
-            for i in range(index - 1, len(idList), settings.BaseApp.equalizationBaseappAmount):
+            for i in range(index - 1, len(idList), settings_kbengine.extra.equalizationBaseappAmount.value):
                 KBEngine.createEntityFromDBID(name, idList[i], partial(callback, name))
             if not idList:
                 if settings.get(name).autoLoadedOrCreate:
@@ -142,7 +143,7 @@ def equalization_change(signal, sender, key, value):
                     KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
 
         need_created.sort()
-        for i in range(index - 1, len(need_created), settings.BaseApp.equalizationBaseappAmount):
+        for i in range(index - 1, len(need_created), settings_kbengine.extra.equalizationBaseappAmount.value):
             name = need_created[i]
             KBEngine.createEntityLocally(name, dict(entityNeedSave=True))
             KBEngine.globalData["EqualizationEntity"].addAutoLoaded(name, 0)
@@ -151,7 +152,7 @@ def equalization_change(signal, sender, key, value):
             KBEngine.globalData["EqualizationEntity"].addAutoLoaded("", 0)
 
     index = sender.groupIndex
-    if index <= settings.BaseApp.equalizationBaseappAmount:
+    if index <= settings_kbengine.extra.equalizationBaseappAmount.value:
         if key == "EqualizationEntity":
             Equalization_.createBaseLocally()
         elif key == "Equalization":
@@ -163,7 +164,7 @@ def equalization_change(signal, sender, key, value):
 @receiver(global_data_del)
 def equalization_del(signal, sender, key):
     index = sender.groupIndex
-    if index <= settings.BaseApp.equalizationBaseappAmount:
+    if index <= settings_kbengine.extra.equalizationBaseappAmount.value:
         if key == "EqualizationEntity":
             global_data_change.disconnect(equalization_change)
             signal.disconnect(equalization_del)

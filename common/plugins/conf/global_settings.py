@@ -14,5 +14,4 @@ class Global(SettingsEntity):
 class BaseApp(SettingsEntity):
     readyForLoginWarringSeconds = 20
     readyForLoginIntervalSeconds = 2
-    equalizationBaseappAmount = 1
     baseappIndependence = SettingsNode()

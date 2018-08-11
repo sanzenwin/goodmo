@@ -5,6 +5,7 @@ import types
 import time
 import datetime
 import json
+import collections
 from importlib import import_module
 
 
@@ -554,3 +555,34 @@ def rc4(data, key):
         out.append(chr(ord(char) ^ box[(box[x] + box[y]) % 256]))
 
     return ''.join(out)
+
+
+class AttrDict:
+    def __init__(self, d):
+        self.__root = d
+
+    def __getitem__(self, item):
+        d = self.__root[item]
+        return self.__class__(d) if isinstance(d, dict) else d
+
+    def __getattr__(self, item):
+        lst = item.split(".")
+        d = self.__root
+        for k in lst:
+            d = d[k]
+        return self.__class__(d) if isinstance(d, dict) else d
+
+    def as_dict(self):
+        return self.__root
+
+
+def overwritten_dict(d, u):
+    def check_dict(x):
+        return isinstance(x, collections.Mapping)
+
+    for k, v in u.items():
+        if check_dict(v) and check_dict(d.get(k)):
+            overwritten_dict(d[k], v)
+        else:
+            d[k] = v
+    return d

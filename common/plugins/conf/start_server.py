@@ -91,19 +91,26 @@ interact
     )
 
     def __init__(self):
-        self.origin_cid = 10000
+        self.uid = 0
+        self.ip = ""
+        self.origin_cid = 0
         self.origin_gus = 0
 
-    def set_origin_cid(self, cid):
-        self.origin_cid = cid
+    def set_info(self, uid, ip):
+        self.uid = uid
+        self.ip = ip
+
+    def reset(self):
+        self.origin_cid = 0
+        self.origin_gus = 0
 
     def new_cid(self):
         self.origin_cid += 1
-        return self.origin_cid
+        return self.origin_cid + int(self.ip.rsplit(".", 1)[-1]) * 2 ** 8 + self.uid * 2 ** 16
 
     def new_gus(self):
         self.origin_gus += 1
-        return self.origin_gus
+        return self.origin_gus + int(self.ip.rsplit(".", 1)[-1]) * 2 ** 8
 
     def app_shell(self, name, cmd=True):
         app_template = self.app_cmd_template if cmd else self.app_sh_template

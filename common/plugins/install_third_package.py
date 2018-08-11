@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 import time
 import site
 import codecs
@@ -81,8 +82,19 @@ class Plugins:
         from yapf.yapflib.yapf_api import FormatCode
         return FormatCode(s)[0]
 
+    def path_join(self, *path_list):
+        pl = []
+        for p in path_list:
+            pl.extend(re.split("[\\/]", p))
+        return os.path.normpath(os.sep.join(pl))
+
+    def remove_folder(self, *folder_list):
+        for folder in folder_list:
+            if os.path.isdir(folder):
+                shutil.rmtree(folder)
+
     def write(self, s, *path):
-        filename = os.path.join(*path)
+        filename = self.path_join(*path)
         dir_name = os.path.dirname(filename)
         if not os.path.isdir(dir_name):
             os.makedirs(dir_name)

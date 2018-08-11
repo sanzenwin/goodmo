@@ -3,6 +3,7 @@ import random
 import string
 import collections
 from copy import deepcopy
+from common.utils import overwritten_dict
 
 
 class Config:
@@ -13,18 +14,6 @@ class Config:
     )
 
     telnet_apps = ("loginapp", "dbmgr", "interfaces", "logger", "baseapp", "cellapp", "bots")
-
-    @staticmethod
-    def check_dict(d):
-        return isinstance(d, collections.Mapping)
-
-    def update_recursive(self, d, u):
-        for k, v in u.items():
-            if self.check_dict(v) and self.check_dict(d.get(k)):
-                self.update_recursive(d[k], v)
-            else:
-                d[k] = v
-        return d
 
     @staticmethod
     def new_password(length=30):
@@ -52,7 +41,7 @@ class Config:
                 password = self.new_password()
             telnet = deepcopy(self.telnet_service)
             telnet.update(dict(port=port, password=password))
-            cfg = self.update_recursive(cfg, {app: dict(telnet_service=telnet)})
+            cfg = overwritten_dict(cfg, {app: dict(telnet_service=telnet)})
         return cfg
 
     def final(self, data, encrypt_func):
