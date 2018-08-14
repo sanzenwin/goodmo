@@ -242,7 +242,7 @@ class Plugins(Plugins_):
     RES_KEY_DIR = os.path.join(RES_DIR, "key")
     RES_SERVER_DIR = os.path.join(RES_DIR, "server")
     RES_EXCEL_DIR = os.path.join(RES_DIR, "excel")
-    EXCEL_DATA_DIR = os.path.join(DATA_DIR, "excel_data")
+    EXCEL_DATA_DIR = os.path.join(DATA_DIR, "app_data")
 
     PLUGINS_PROXY_BASE_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "base")
     PLUGINS_PROXY_CELL_DIR = os.path.join(COMMON_DIR, "plugins", "proxy", "cell")
@@ -572,28 +572,6 @@ class %(cls_name)s(%(cls_name)sBase):\n%(content)s\n"""
 
     def init__apps_completed(self):
         self.run_plugins("completed")
-
-    def init__all_completed(self):
-        client_data = os.path.join(self.DATA_DIR, "client_excel_data")
-        self.clear(client_data)
-        list_name = set()
-        for dirpath, dirnames, filenames in os.walk(self.HOME_DIR):
-            for name in filenames:
-                path = os.path.normpath(os.path.join(dirpath, name))
-                if os.path.isfile(path) and path.endswith(".json"):
-                    if self.EXCEL_DATA_DIR in path:
-                        app_name = path.split(os.sep)[-2]
-                        name = "%s.%s" % (app_name, name)
-                    shutil.move(path, os.path.join(client_data, name))
-                    list_name.add(name)
-        data = {}
-        for name in list_name:
-            d = data
-            path_list = name.split(".")[:-1]
-            for i, path in enumerate(path_list):
-                d = d.setdefault(path, {} if i != len(path_list) - 1 else name)
-        self.write("var resData = %s;" % json.dumps(data, indent=1, sort_keys=True),
-                   os.path.join(client_data, "data.js"))
 
     def init__client_data(self):
         client_data_path = os.path.join(self.DATA_DIR, "client_data")
