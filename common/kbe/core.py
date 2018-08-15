@@ -89,10 +89,19 @@ class Equalization(metaclass=MetaOfEqualization):
 
     @classmethod
     def discover(cls):
+        def check_equalization(c):
+            if not getattr(c, "equalization", False):
+                return False
+            enable = True
+            for pc in reversed(c.mro()):
+                if pc.__name__ == c.__name__ and "equalization_enabled" in pc.__dict__:
+                    enable = pc.equalization_enabled
+            return enable
+
         settings = importlib.import_module("settings")
         equalization = importlib.import_module("Equalization")
         for k, v in settings.__dict__.items():
-            if getattr(v, "equalization", False):
+            if check_equalization(v.__class__):
                 setattr(cls, k, cls.Proxy(v))
                 cls.memEntities[k] = v
             if getattr(v, "autoLoaded", False) or getattr(v, "autoLoadedOrCreate", False):

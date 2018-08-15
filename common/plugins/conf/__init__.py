@@ -48,12 +48,16 @@ class SettingsEntity(SettingsNode):
         return getattr(self, "autoLoaded", False) or getattr(self, "autoLoadedOrCreate", False)
 
     def get_mro_set(self, key):
-        r = {}
-        for c in self.__class__.mro():
-            d = c.__dict__.get(key)
-            if d:
-                r.update(d)
-        return r
+        r = None
+        c = self.__class__
+        for bc in c.mro():
+            if bc.__name__ == c.__name__:
+                d = bc.__dict__.get(key)
+                if d:
+                    if r is None:
+                        r = d.__class__()
+                    r.update(d)
+        return {} if r is None else r
 
 
 class EqualizationMixin:
