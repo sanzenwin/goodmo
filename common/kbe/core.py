@@ -49,7 +49,7 @@ class Equalization(metaclass=MetaOfEqualization):
                 return self.proxy
 
             def proxy(self, *args, **kwargs):
-                for keys in self.entity.equalization_list():
+                for keys in self.entity._equalization_list:
                     path = self.entity.equalization(*keys)
                     key = self.entity.equalization_format % tuple(path)
                     obj = KBEngine.globalData["Equalization"].get(key, None)
@@ -72,13 +72,15 @@ class Equalization(metaclass=MetaOfEqualization):
             return self.AllProxy(self.entity).real(item)
 
         def list(self):
-            result = []
-            for keys in self.entity.equalization_list():
-                path = self.entity.equalization(*keys)
-                key = self.entity.equalization_format % tuple(path)
-                obj = KBEngine.globalData["Equalization"].get(key, None)
-                result.append(obj)
-            return result
+            if not hasattr(self, "_list"):
+                result = []
+                for keys in self.entity._equalization_list:
+                    path = self.entity.equalization(*keys)
+                    key = self.entity.equalization_format % tuple(path)
+                    obj = KBEngine.globalData["Equalization"].get(key, None)
+                    result.append(obj)
+                self._list = tuple(result)
+            return self._list
 
         def path(self, *keys):
             return self.entity.equalization(*keys)
@@ -102,6 +104,7 @@ class Equalization(metaclass=MetaOfEqualization):
         equalization = importlib.import_module("Equalization")
         for k, v in settings.__dict__.items():
             if check_equalization(v.__class__):
+                v._equalization_list = v.equalization_list()
                 setattr(cls, k, cls.Proxy(v))
                 cls.memEntities[k] = v
             if getattr(v, "autoLoaded", False) or getattr(v, "autoLoadedOrCreate", False):

@@ -75,22 +75,22 @@ class PlayerManager(KBEngine.Entity):
         def callback(baseRef, dbid, wasActive):
             try:
                 if wasActive:
-                    raise RunException(
+                    raise LoadGuaranteeException(
                         "PlayerManager::callback:(%i): this guarantee is in world now! %s, %s, %s, %s" % (
                             guaranteeID, self.id, baseRef, dbid, wasActive))
                 if baseRef is None:
-                    raise RunException(
+                    raise LoadGuaranteeException(
                         "PlayerManager::callback:(%i): the guarantee you wanted to created is not exist! %s, %s, %s, %s" % (
                             guaranteeID, self.id, baseRef, dbid, wasActive))
                 guarantee = KBEngine.entities.get(baseRef.id)
                 if guarantee is None:
-                    raise RunException(
+                    raise LoadGuaranteeException(
                         "PlayerManager::callback:(%i): when guarantee was created, it died as well! %s, %s, %s, %s" % (
                             guaranteeID, self.id, baseRef, dbid, wasActive))
                 if self.isDestroyed:
-                    raise RunException("PlayerManager::callback:(%i): i dead! %s, %s, %s, %s" % (
+                    raise LoadGuaranteeException("PlayerManager::callback:(%i): i dead! %s, %s, %s, %s" % (
                         guaranteeID, self.id, baseRef, dbid, wasActive))
-            except RunException as e:
+            except LoadGuaranteeException as e:
                 ERROR_MSG(e.args[0])
                 if errorDeep < self.errorDeepMax:
                     self.loadGuarantee(guaranteeID, errorDeep + 1)
@@ -104,5 +104,5 @@ class PlayerManager(KBEngine.Entity):
         KBEngine.createEntityFromDBID('Guarantee', guaranteeID, callback)
 
 
-class RunException(Exception):
+class LoadGuaranteeException(Exception):
     pass

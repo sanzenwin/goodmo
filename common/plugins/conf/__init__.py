@@ -84,7 +84,7 @@ class EqualizationMixin:
     def init_equalization_format(self):
         equalization_list = self.equalization_list()
         if equalization_list:
-            item = self.equalization_list()[0]
+            item = equalization_list[0]
             amount = len(item)
         else:
             amount = 0
